@@ -2,12 +2,6 @@
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#063b91">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Innoval Field Visit">
-<meta name="mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-180.png">
 <title>Innoval | Field Visit</title>
 <style>
 :root{--navy:#063b91;--blue:#075dcc;--cyan:#11aeea;--ink:#102a5b;--muted:#71809a;--bg:#f4f7fc;--line:#e2e8f1;--green:#16b886;--red:#dc3b32;--shadow:0 10px 28px rgba(16,42,91,.08)}
@@ -342,7 +336,7 @@ html,body{min-height:100%;background:var(--bg)}
 .product-multi option{padding:7px 4px;font-size:12px}
 .product-hint{display:block;margin-top:5px;font-size:10px;color:var(--muted)}
 
-.install-guide-step{padding:13px 12px;margin:9px 0;border:1px solid var(--line);border-radius:13px;background:#f8fbff}.install-guide-step b{display:block;font-size:12px;color:var(--ink)}.install-guide-step small{display:block;color:var(--muted);font-size:10px;line-height:1.45;margin-top:4px}</style>
+</style>
 <style id="v140-professional-overrides">
 /* ===== v1.4.0 Enterprise Home ===== */
 :root{--navy:#073b8f;--blue:#0b66d1;--cyan:#18a9df;--ink:#15345e;--muted:#71809a;--bg:#f3f7fc;--line:#dfe7f2}
@@ -800,6 +794,21 @@ html.modal-locked,body.modal-locked{overscroll-behavior:none;touch-action:none;o
 .modal.open,.success-overlay.open{touch-action:none;overscroll-behavior:contain}
 .modal-box,.success-card{touch-action:auto;overscroll-behavior:contain}
 </style>
+
+<style id="v9-profile-password-photo-editor">
+.photo-editor-modal{position:fixed;inset:0;background:rgba(5,20,43,.68);display:none;align-items:center;justify-content:center;padding:14px;z-index:12000;overscroll-behavior:none;touch-action:none}
+.photo-editor-modal.open{display:flex}
+.photo-editor-box{width:min(430px,100%);max-height:calc(100vh - 28px);overflow:auto;background:#fff;border-radius:22px;box-shadow:0 24px 70px rgba(4,24,55,.35);padding:16px}
+.photo-editor-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.photo-editor-head h3{margin:0;color:var(--ink);font-size:16px}.photo-editor-head small{display:block;color:var(--muted);font-size:9px;margin-top:3px}
+.photo-editor-stage{position:relative;width:min(330px,82vw);height:min(330px,82vw);margin:0 auto;border-radius:18px;overflow:hidden;background:#101820;touch-action:none;user-select:none}
+.photo-editor-stage canvas{width:100%;height:100%;display:block;touch-action:none}.photo-crop-ring{position:absolute;left:50%;top:50%;width:72%;height:72%;transform:translate(-50%,-50%);border:2px solid rgba(255,255,255,.95);border-radius:50%;box-shadow:0 0 0 9999px rgba(0,0,0,.30),0 0 0 1px rgba(0,0,0,.25);pointer-events:none}
+.photo-editor-controls{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 8px}.photo-editor-tool{border:1px solid #e2e8f1;background:#f8fafc;border-radius:13px;padding:8px 5px;cursor:pointer;color:#164b85}.photo-editor-tool span{display:block;font-size:20px;font-weight:900;line-height:20px}.photo-editor-tool small{display:block;font-size:9px;font-weight:800;color:#71809a;margin-top:3px}
+.photo-editor-hint{text-align:center;color:#7b8a9f;font-size:9px;line-height:1.4;margin:6px 10px 12px}.photo-editor-actions{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}.photo-editor-cancel{border:1px solid #dfe6ef;background:#f7f9fc;border-radius:12px;padding:11px;font-weight:900;color:#607087;cursor:pointer}.photo-editor-actions .save{margin:0!important}
+@media(max-width:520px){.photo-editor-box{padding:13px;border-radius:20px}.photo-editor-stage{width:min(315px,84vw);height:min(315px,84vw)}}
+.profile-hero-card{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #e1eaf4;background:#f7faff;border-radius:16px;margin-bottom:14px}.profile-hero-avatar{width:58px;height:58px;border-radius:18px;overflow:hidden;background:#eaf3ff;display:grid;place-items:center;color:#0b66d1;font-size:24px;font-weight:900;flex:0 0 58px}.profile-hero-avatar img{width:100%;height:100%;object-fit:cover}.profile-hero-card b{display:block;font-size:14px;color:var(--ink)}.profile-hero-card small{display:block;margin-top:3px;font-size:9px;color:var(--muted)}
+.security-card{padding:13px;border:1px solid #e1eaf4;background:#f7faff;border-radius:15px;margin-bottom:13px}.security-card .security-icon{width:38px;height:38px;border-radius:12px;background:#edf5ff;color:#0b66d1;display:grid;place-items:center;font-size:18px;margin-bottom:8px}.security-card b{font-size:13px;color:var(--ink)}.security-card p{font-size:10px;color:var(--muted);line-height:1.5;margin:5px 0 0}
+</style>
+
 </head>
 <body>
 <div class="startup-splash" id="startupSplash">
@@ -985,7 +994,7 @@ html.modal-locked,body.modal-locked{overscroll-behavior:none;touch-action:none;o
       <button class="drawer-avatar" id="drawerAvatarButton" type="button" onclick="togglePhotoActions()" aria-label="Profile photo options">👤</button>
       <div class="photo-actions-popover" id="photoActionsPopover" aria-label="Profile photo actions">
         <button class="photo-action-mini" type="button" onclick="pickProfilePhoto();closePhotoActions()" title="Choose New Photo" aria-label="Choose New Photo"><span>📷</span><b>Add New Photo</b></button>
-        <button class="photo-action-mini" type="button" onclick="pickProfilePhoto();closePhotoActions()" title="Change / Update Photo" aria-label="Change / Update Photo"><span>✏️</span><b>Update Photo</b></button>
+        <button class="photo-action-mini" type="button" onclick="editProfilePhoto();closePhotoActions()" title="Edit Profile Photo" aria-label="Edit Profile Photo"><span>✏️</span><b>Edit Photo</b></button>
         <button class="photo-action-mini danger" type="button" onclick="removeProfilePhotoInline()" title="Remove Profile Photo" aria-label="Remove Profile Photo"><span>🗑️</span><b>Remove Photo</b></button>
         <button class="photo-action-mini cancel" type="button" onclick="closePhotoActions()" title="Cancel" aria-label="Cancel"><span>✕</span><b>Cancel</b></button>
       </div>
@@ -1039,6 +1048,19 @@ html.modal-locked,body.modal-locked{overscroll-behavior:none;touch-action:none;o
       <button type="button" class="success-secondary" onclick="closeVisitSuccess();openVisits()">View Visit History</button>
       <button type="button" class="success-primary" onclick="closeVisitSuccess();showVisitPage()">Add Another Visit</button>
     </div>
+  </div>
+</div>
+<div class="photo-editor-modal" id="photoEditorModal" aria-hidden="true">
+  <div class="photo-editor-box">
+    <div class="photo-editor-head"><div><h3>Edit Photo</h3><small>Crop and adjust your profile photo</small></div><button class="close" type="button" onclick="closePhotoEditor()">✕</button></div>
+    <div class="photo-editor-stage" id="photoEditorStage"><canvas id="photoEditorCanvas"></canvas><div class="photo-crop-ring" aria-hidden="true"></div></div>
+    <div class="photo-editor-controls">
+      <button type="button" class="photo-editor-tool" onclick="photoZoom(-0.08)" aria-label="Zoom out"><span>−</span><small>Zoom Out</small></button>
+      <button type="button" class="photo-editor-tool" onclick="photoZoom(0.08)" aria-label="Zoom in"><span>＋</span><small>Zoom In</small></button>
+      <button type="button" class="photo-editor-tool" onclick="photoReset()" aria-label="Reset crop"><span>↺</span><small>Reset</small></button>
+    </div>
+    <div class="photo-editor-hint">Drag the photo to position it. Pinch/drag on iPhone to adjust.</div>
+    <div class="photo-editor-actions"><button type="button" class="photo-editor-cancel" onclick="closePhotoEditor()">Cancel</button><button type="button" class="save" onclick="saveEditedProfilePhoto()">Save Photo</button></div>
   </div>
 </div>
 <div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="modal-box"><div class="modal-head"><h3 id="modalTitle">My Visits</h3><button class="close" onclick="closeModal()">✕</button></div><div id="modalBody"></div></div></div><div class="modal" id="exportModal" onclick="if(event.target===this)closeExport()"><div class="modal-box"><div class="modal-head"><h3>Export Visit History</h3><button class="close" onclick="closeExport()">✕</button></div><p class="settings-note">Export visits in the selected date range using the HR-style monthly report structure.</p><div class="export-grid"><div class="field"><label>From</label><input id="exportFrom" class="date-input" type="date" onchange="updateExportCount()"></div><div class="field"><label>To</label><input id="exportTo" class="date-input" type="date" onchange="updateExportCount()"></div></div><div class="quick-title">Quick Range</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:7px"><button class="close" onclick="setExportRange('week')">This Week</button><button class="close" onclick="setExportRange('lastweek')">Last Week</button><button class="close" onclick="setExportRange('month')">This Month</button></div><div class="export-count" id="exportCount">Select a date range</div><div class="export-actions"><button class="save" type="button" onclick="exportHRExcel()">📊 &nbsp; Export &amp; Download Excel</button></div><p class="settings-note" style="margin-top:10px">The Excel file will download automatically to your device after export.</p></div></div>
@@ -1723,27 +1745,13 @@ async function loadNotifications(){
   updateNotificationBadge();
 }
 
-
-function openIOSInstallGuide(){
-  $("modalTitle").textContent="Install on iPhone";
-  $("modalBody").innerHTML=
-    '<div class="profile-section-title">Use Innoval like an iPhone app</div>'+
-    '<p class="profile-note">Open Innoval in Safari on your iPhone, then use the Share menu to add it to the Home Screen.</p>'+
-    '<div class="install-guide-step"><b>1. Open the Innoval link in Safari</b><small>Use Safari, not an in-app browser.</small></div>'+
-    '<div class="install-guide-step"><b>2. Tap Share</b><small>Use the Share button in Safari.</small></div>'+
-    '<div class="install-guide-step"><b>3. Tap Add to Home Screen</b><small>If you do not see it, scroll down and choose Edit Actions.</small></div>'+
-    '<div class="install-guide-step"><b>4. Turn on Open as Web App</b><small>This makes Innoval open like an app.</small></div>'+
-    '<div class="install-guide-step"><b>5. Tap Add</b><small>The Innoval icon will appear on your iPhone Home Screen.</small></div>';
-  openModalLayer("modal");
-}
-
 function openAppSettings(){
   closeMenu();
   $("modalTitle").textContent="Settings";
   $("modalBody").innerHTML=
     '<div class="profile-section-title">General Settings</div>'+
     '<p class="profile-note">Manage your profile, password, application updates, and account access.</p>'+
-    '<div class="update-status"><strong>Application Version</strong><div style="margin-top:6px"><span class="version-badge">v'+APP_VERSION+'</span> <span style="margin-left:6px;color:var(--muted)">Installed version</span></div></div>'+'<div class="setting-action" onclick="openIOSInstallGuide()"><span class="drawer-icon"></span><div><b>Install on iPhone</b><small>Share → Add to Home Screen → Open as Web App</small></div></div>'+
+    '<div class="update-status"><strong>Application Version</strong><div style="margin-top:6px"><span class="version-badge">v'+APP_VERSION+'</span> <span style="margin-left:6px;color:var(--muted)">Installed version</span></div></div>'+
     '<div class="setting-action" onclick="closeModal();openSettings()"><span class="drawer-icon">●</span><div><b>Profile</b><small>Personal information and work details</small></div></div>'+
     '<div class="setting-action" onclick="closeModal();openPasswordSettings()"><span class="drawer-icon">🔒</span><div><b>Password</b><small>Change your account password</small></div></div>'+
     '<div class="setting-action" onclick="closeModal();window.checkForUpdate()"><span class="drawer-icon">↻</span><div><b>Check for Update</b><small>Check the latest Innoval Field Visit version</small></div></div>'+
@@ -1781,33 +1789,70 @@ function openPhotoActions(){
 function removeProfilePhoto(){
   removeProfilePhotoInline();
 }
+let photoEditor={img:null,scale:1,minScale:1,x:0,y:0,startX:0,startY:0,pointers:new Map(),pinchStart:0,pinchScale:1,sourceData:""};
 function pickProfilePhoto(){
   const input=$("profilePhotoInput");
-  if(input){ input.value=""; input.click(); }
+  if(input){ input.value=""; input.dataset.photoMode="new"; input.click(); }
+}
+function editProfilePhoto(){
+  const data=profilePhotoData();
+  if(!data){ toast("Add a profile photo first"); pickProfilePhoto(); return; }
+  openPhotoEditor(data);
 }
 function handleProfilePhoto(event){
   const file=event.target.files && event.target.files[0];
   if(!file) return;
   if(!file.type.startsWith("image/")){toast("Please select an image file");return}
   const reader=new FileReader();
-  reader.onload=function(){
-    const img=new Image();
-    img.onload=function(){
-      const max=320, scale=Math.min(1,max/Math.max(img.width,img.height));
-      const canvas=document.createElement("canvas");
-      canvas.width=Math.max(1,Math.round(img.width*scale));
-      canvas.height=Math.max(1,Math.round(img.height*scale));
-      const ctx=canvas.getContext("2d");
-      ctx.drawImage(img,0,0,canvas.width,canvas.height);
-      const data=canvas.toDataURL("image/jpeg",0.82);
-      const p=profile();
-      localStorage.setItem("innovalProfilePhoto_"+p.rep,data);
-      applyProfilePhoto(data);
-      toast("Profile photo updated ✓");
-    };
-    img.src=reader.result;
-  };
+  reader.onload=function(){openPhotoEditor(reader.result)};
   reader.readAsDataURL(file);
+}
+function openPhotoEditor(data){
+  const modal=$("photoEditorModal"); if(!modal)return;
+  const img=new Image();
+  img.onload=function(){
+    const canvas=$("photoEditorCanvas"),stage=$("photoEditorStage");
+    if(!canvas||!stage)return;
+    photoEditor.img=img; photoEditor.sourceData=data; photoEditor.pointers=new Map();
+    const rect=stage.getBoundingClientRect(); canvas.width=Math.round(rect.width*devicePixelRatio); canvas.height=Math.round(rect.height*devicePixelRatio);
+    canvas.style.width=rect.width+"px";canvas.style.height=rect.height+"px";
+    const crop=Math.min(rect.width,rect.height)*.72;
+    photoEditor.minScale=Math.max(crop/img.width,crop/img.height);photoEditor.scale=photoEditor.minScale;photoEditor.x=rect.width/2;photoEditor.y=rect.height/2;
+    drawPhotoEditor();
+    modal.classList.add("open");modal.setAttribute("aria-hidden","false");document.documentElement.classList.add("modal-locked");document.body.classList.add("modal-locked");
+    bindPhotoEditorPointer();
+  };
+  img.src=data;
+}
+function drawPhotoEditor(){
+  const canvas=$("photoEditorCanvas"),stage=$("photoEditorStage"),img=photoEditor.img;if(!canvas||!stage||!img)return;
+  const ctx=canvas.getContext("2d"),d=devicePixelRatio||1, w=stage.clientWidth,h=stage.clientHeight;
+  ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,w,h);ctx.fillStyle="#101820";ctx.fillRect(0,0,w,h);
+  const sc=photoEditor.scale; const dw=img.width*sc,dh=img.height*sc;ctx.drawImage(img,photoEditor.x-dw/2,photoEditor.y-dh/2,dw,dh);
+}
+function photoZoom(delta){
+  if(!photoEditor.img)return;photoEditor.scale=Math.max(photoEditor.minScale,Math.min(photoEditor.minScale*4,photoEditor.scale*(1+delta)));drawPhotoEditor();}
+function photoReset(){
+  const stage=$("photoEditorStage");if(!stage||!photoEditor.img)return;const crop=Math.min(stage.clientWidth,stage.clientHeight)*.72;photoEditor.minScale=Math.max(crop/photoEditor.img.width,crop/photoEditor.img.height);photoEditor.scale=photoEditor.minScale;photoEditor.x=stage.clientWidth/2;photoEditor.y=stage.clientHeight/2;drawPhotoEditor();
+}
+function distanceBetween(a,b){return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)}
+function bindPhotoEditorPointer(){
+  const stage=$("photoEditorStage");if(!stage||stage.dataset.bound)return;stage.dataset.bound="1";
+  stage.addEventListener("pointerdown",e=>{stage.setPointerCapture?.(e.pointerId);photoEditor.pointers.set(e.pointerId,e);if(photoEditor.pointers.size===2){const a=[...photoEditor.pointers.values()];photoEditor.pinchStart=distanceBetween(a[0],a[1]);photoEditor.pinchScale=photoEditor.scale;}else{photoEditor.startX=e.clientX-photoEditor.x;photoEditor.startY=e.clientY-photoEditor.y}});
+  stage.addEventListener("pointermove",e=>{if(!photoEditor.pointers.has(e.pointerId))return;photoEditor.pointers.set(e.pointerId,e);if(photoEditor.pointers.size===2){const a=[...photoEditor.pointers.values()];const dist=distanceBetween(a[0],a[1]);if(photoEditor.pinchStart>0)photoEditor.scale=Math.max(photoEditor.minScale,Math.min(photoEditor.minScale*4,photoEditor.pinchScale*(dist/photoEditor.pinchStart)));}else{photoEditor.x=e.clientX-photoEditor.startX;photoEditor.y=e.clientY-photoEditor.startY}drawPhotoEditor();});
+  const up=e=>{photoEditor.pointers.delete(e.pointerId);if(photoEditor.pointers.size===1){const a=[...photoEditor.pointers.values()][0];photoEditor.startX=a.clientX-photoEditor.x;photoEditor.startY=a.clientY-photoEditor.y}};
+  stage.addEventListener("pointerup",up);stage.addEventListener("pointercancel",up);stage.addEventListener("pointerleave",e=>{if(e.pointerType!=="touch")up(e)});
+}
+function closePhotoEditor(){
+  const modal=$("photoEditorModal");if(modal){modal.classList.remove("open");modal.setAttribute("aria-hidden","true");}
+  photoEditor.pointers=new Map();unlockModalLayer();
+}
+function saveEditedProfilePhoto(){
+  const stage=$("photoEditorStage"),img=photoEditor.img;if(!stage||!img)return;
+  const out=document.createElement("canvas"),size=480;out.width=size;out.height=size;const ctx=out.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,size,size);
+  const cropPx=Math.min(stage.clientWidth,stage.clientHeight)*.72;const scaleOut=size/cropPx;const dw=img.width*photoEditor.scale*scaleOut,dh=img.height*photoEditor.scale*scaleOut;const cx=size/2+(photoEditor.x-stage.clientWidth/2)*scaleOut,cy=size/2+(photoEditor.y-stage.clientHeight/2)*scaleOut;
+  ctx.drawImage(img,cx-dw/2,cy-dh/2,dw,dh);
+  const data=out.toDataURL("image/jpeg",0.86);const p=profile();localStorage.setItem("innovalProfilePhoto_"+p.rep,data);applyProfilePhoto(data);closePhotoEditor();toast("Profile photo updated ✓");
 }
 function applyProfilePhoto(data){
   if(!data) return;
@@ -1823,29 +1868,53 @@ function loadProfilePhoto(){
   if(data) applyProfilePhoto(data);
 }
 function openPasswordSettings(){
-  openSettings();
-  setTimeout(()=>{
-    const el=$("oldPass");
-    if(el) el.scrollIntoView({behavior:"smooth",block:"center"});
-  },80);
+  const p=profile();
+  $("modalTitle").textContent="Change Password";
+  $("modalBody").innerHTML=
+    '<div class="security-card"><div class="security-icon">🔒</div><b>Account Security</b><p>Change your Innoval account password. Enter your current password, then choose a new password.</p></div>'+
+    '<div class="field"><label>Current Password</label><input id="oldPass" type="password" autocomplete="current-password" style="padding-left:12px" placeholder="Enter current password"></div>'+
+    '<div class="field"><label>New Password</label><input id="newPass" type="password" autocomplete="new-password" style="padding-left:12px" placeholder="Enter new password"></div>'+
+    '<div class="field"><label>Confirm New Password</label><input id="confirmPass" type="password" autocomplete="new-password" style="padding-left:12px" placeholder="Confirm new password"></div>'+
+    '<button class="save" onclick="changePassword()">Change Password</button>';
+  openModalLayer("modal");setBottomActive("bnSettings");
 }
+function profilePhotoData(){const p=profile();return p.rep?localStorage.getItem("innovalProfilePhoto_"+p.rep)||"":""}
+function profileHeroAvatar(){const data=profilePhotoData();return data?'<img src="'+data+'" alt="Profile">':'👤'}
 function openSettings(){
   const p=profile(), stored=JSON.parse(localStorage.getItem("innovalProfile_"+p.rep)||"{}");
   $("modalTitle").textContent="My Profile";
   $("modalBody").innerHTML=
+    '<div class="profile-hero-card"><div class="profile-hero-avatar">'+profileHeroAvatar()+'</div><div><b>'+esc(p.rep||"User")+'</b><small>My Profile • '+esc(p.role||"Field Team")+'</small></div></div>'+
     '<div class="profile-section-title">Personal Information</div>'+
-    '<p class="profile-note">Add your personal contact details. HR-controlled account information stays protected.</p>'+
+    '<p class="profile-note">Keep your personal profile information up to date.</p>'+
     '<div class="profile-form-grid">'+
-      '<div class="field"><label>Employee Name</label><input style="padding-left:12px" value="'+esc(p.rep)+'" readonly></div>'+
-      '<div class="field"><label>Employee ID</label><input id="profileEmployeeId" style="padding-left:12px" value="'+esc(stored.employeeId||"")+'" placeholder="Employee ID"></div>'+
-      '<div class="field"><label>Official Email</label><input style="padding-left:12px" value="'+esc(p.email||"")+'" readonly></div>'+
+      '<div class="field"><label>Full Name</label><input id="profileFullName" style="padding-left:12px" value="'+esc(stored.fullName||p.rep||"")+'" placeholder="Full name"></div>'+
       '<div class="field"><label>Mobile Number</label><input id="profileMobile" type="tel" inputmode="tel" style="padding-left:12px" value="'+esc(stored.mobile||"")+'" placeholder="Mobile number"></div>'+
-      '<div class="field"><label>Job Title</label><input id="profileJob" style="padding-left:12px" value="'+esc(stored.jobTitle||"")+'" placeholder="Job title"></div>'+      '<div class="field"><label>Manager / Supervisor</label><input id="profileManager" style="padding-left:12px" value="'+esc(stored.manager||"")+'" placeholder="Manager / Supervisor"></div>'+    '</div>'+    '<div class="profile-section-title">Work Information</div>'+    '<div class="profile-form-grid">'+      '<div class="field"><label>Area</label><input style="padding-left:12px" value="'+esc(p.area||"")+'" readonly></div>'+      '<div class="field"><label>Role</label><input style="padding-left:12px" value="'+esc(p.role||"")+'" readonly></div>'+    '</div>'+    '<button class="save profile-save" onclick="saveProfileData()">Save Profile</button>'+    '<hr style="border:0;border-top:1px solid var(--line);margin:18px 0">'+    '<h4 style="margin:0 0 7px">Account Security</h4>'+    '<p class="settings-note">Enter your current password, then choose a new password.</p>'+    '<div class="field"><label>Current Password</label><input id="oldPass" type="password" autocomplete="current-password" style="padding-left:12px"></div>'+    '<div class="field"><label>New Password</label><input id="newPass" type="password" autocomplete="new-password" style="padding-left:12px"></div>'+    '<div class="field"><label>Confirm New Password</label><input id="confirmPass" type="password" autocomplete="new-password" style="padding-left:12px"></div>'+    '<button class="save" onclick="changePassword()">Change Password</button>'+    '<button class="logout-btn" onclick="logout()">Log Out</button>';
+      '<div class="field"><label>Job Title</label><input id="profileJob" style="padding-left:12px" value="'+esc(stored.jobTitle||"")+'" placeholder="e.g. Medical Rep / Territory Manager"></div>'+
+      '<div class="field"><label>Experience</label><input id="profileExperience" style="padding-left:12px" value="'+esc(stored.experience||"")+'" placeholder="e.g. 5 years"></div>'+
+      '<div class="field"><label>Manager / Supervisor</label><input id="profileManager" style="padding-left:12px" value="'+esc(stored.manager||"")+'" placeholder="Manager / Supervisor"></div>'+
+      '<div class="field"><label>Employee ID</label><input id="profileEmployeeId" style="padding-left:12px" value="'+esc(stored.employeeId||"")+'" placeholder="Employee ID"></div>'+
+    '</div>'+
+    '<div class="profile-section-title">Account & Work</div>'+
+    '<div class="profile-form-grid">'+
+      '<div class="field"><label>Official Email</label><input style="padding-left:12px" value="'+esc(p.email||"")+'" readonly></div>'+
+      '<div class="field"><label>Area</label><input style="padding-left:12px" value="'+esc(p.area||"")+'" readonly></div>'+
+      '<div class="field"><label>Role</label><input style="padding-left:12px" value="'+esc(p.role||"")+'" readonly></div>'+
+    '</div>'+
+    '<button class="save profile-save" onclick="saveProfileData()">Save Profile</button>';
   openModalLayer("modal");setBottomActive("bnProfile");
 }
 function saveProfileData(){
   const p=profile();
-  localStorage.setItem("innovalProfile_"+p.rep,JSON.stringify({employeeId:$('profileEmployeeId').value.trim(),mobile:$('profileMobile').value.trim(),jobTitle:$('profileJob').value.trim(),manager:$('profileManager').value.trim()}));
+  localStorage.setItem("innovalProfile_"+p.rep,JSON.stringify({
+    employeeId:$("profileEmployeeId")?.value.trim()||"",
+    fullName:$("profileFullName")?.value.trim()||p.rep,
+    mobile:$("profileMobile")?.value.trim()||"",
+    jobTitle:$("profileJob")?.value.trim()||"",
+    experience:$("profileExperience")?.value.trim()||"",
+    manager:$("profileManager")?.value.trim()||""
+  }));
+  const full=$("profileFullName")?.value.trim(); if(full){$("drawerName").textContent=full;$("repName").textContent=full;}
   closeModal();toast("Profile saved successfully ✓");
 }
 function changePassword(){const p=profile(),list=employeeList(),emp=list.find(x=>x.name===p.rep),old=$("oldPass").value,newp=$("newPass").value,conf=$("confirmPass").value;if(!emp||old!==emp.password){toast("Current password is incorrect");return}if(newp.length<4){toast("New password must be at least 4 characters");return}if(!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/.test(newp)){toast("New password must contain letters and numbers only");return}if(newp!==conf){toast("New passwords do not match");return}emp.password=newp;localStorage.setItem("innovalEmployeesFinal",JSON.stringify(list));closeModal();toast("Password changed successfully ✓")}
@@ -2005,7 +2074,7 @@ function browserExcelDownload(blob,fileName){
 }
 // ===== Innoval App Update Checker =====
 // Keep the updater on window so inline Android/WebView handlers can always reach it.
-const APP_VERSION = "1.9.17";
+const APP_VERSION = "1.9.18";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 
 function compareVersions(a, b) {
@@ -2121,8 +2190,4 @@ loadNotifications();
   const current = document.getElementById("currentAppVersion");
   if (current) current.textContent = APP_VERSION;
 })();
-
-if('serviceWorker' in navigator && (location.protocol==='https:' || location.hostname==='localhost')){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
-}
 </script></body></html>
