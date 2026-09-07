@@ -113,10 +113,10 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.top{height:70px
 .startup-splash{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#031f54 0%,#063b91 55%,#0b78d0 100%);transition:opacity .45s ease,visibility .45s ease}
 .startup-splash.hide{opacity:0;visibility:hidden;pointer-events:none}
 .splash-inner{text-align:center;transform:translateY(8px);animation:splashRise .8s ease-out forwards}
-.splash-logo{display:block;width:min(235px,62vw);height:auto;margin:0 auto;filter:drop-shadow(0 14px 28px rgba(0,0,0,.25));animation:splashLogo 1.35s cubic-bezier(.2,.75,.25,1) forwards}
+.splash-logo{display:block;width:min(235px,62vw);height:auto;margin:0 auto;filter:drop-shadow(0 14px 28px rgba(0,0,0,.25));animation:splashLogo 1.15s cubic-bezier(.2,.75,.25,1) forwards}
 .splash-line{width:0;height:3px;margin:17px auto 0;border-radius:9px;background:#fff;opacity:.9;animation:splashLine .8s .45s ease-out forwards}
 .splash-text{margin:13px 0 0;color:#fff;font-size:13px;font-weight:800;letter-spacing:.5px;opacity:0;animation:splashText .55s .55s ease-out forwards}
-@keyframes splashLogo{0%{opacity:0;transform:scale(.72) rotate(-8deg)}55%{opacity:1;transform:scale(1.06) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes splashLogo{0%{opacity:0;transform:scale(.62) rotate(-5deg);filter:blur(5px)}35%{opacity:1;transform:scale(1.08) rotate(1deg);filter:blur(0)}65%{transform:scale(.97)}100%{opacity:1;transform:scale(1) rotate(0);filter:blur(0)}}
 @keyframes splashRise{to{transform:translateY(0)}}
 @keyframes splashLine{to{width:92px}}
 @keyframes splashText{to{opacity:1}}
@@ -851,6 +851,40 @@ html.modal-locked,body.modal-locked{overscroll-behavior:none;touch-action:none;o
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Innoval Field Visit">
 <meta name="mobile-web-app-capable" content="yes">
+
+<style id="v1-9-21-visual-home">
+/* ===== v1.9.21 Visual Focus Home ===== */
+.home-screen.home-layout-focus .home-grid-rich{gap:16px}
+.home-screen.home-layout-focus .rich-card{min-height:250px;border-radius:27px;box-shadow:0 15px 34px rgba(18,62,112,.12)}
+.home-screen.home-layout-focus .home-card.rich-card .home-icon{width:66px!important;height:66px!important;border-radius:21px!important;box-shadow:0 12px 24px rgba(7,74,145,.16)!important}
+.home-screen.home-layout-focus .home-card.rich-card .home-icon svg{width:40px;height:40px}
+.home-screen.home-layout-focus .home-card.rich-card .home-copy h3{font-size:23px!important;letter-spacing:-.2px}
+.home-screen.home-layout-focus .home-card.rich-card .home-copy p{font-size:11px!important;line-height:1.45!important;max-width:225px!important}
+.home-screen.home-layout-focus .home-card.rich-card .home-go{width:42px;height:42px;border-radius:15px;display:grid;place-items:center;font-size:25px;font-weight:900;box-shadow:0 7px 16px rgba(8,53,105,.10)}
+.home-screen.home-layout-focus .home-card.rich-card .rich-art{opacity:.72!important;transform:scale(1.04);transform-origin:80% 80%}
+.home-screen.home-layout-focus .home-wide.rich-card{min-height:205px}
+.home-screen.home-layout-focus .home-wide.rich-card .home-copy h3{font-size:22px!important}
+.home-layout-switch{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid #e1e8f2;background:#f8fbff;border-radius:14px;margin:10px 0 12px}
+.home-layout-switch b{display:block;font-size:12px;color:var(--ink)}
+.home-layout-switch small{display:block;font-size:9px;color:var(--muted);margin-top:3px;line-height:1.35}
+.home-layout-toggle{border:0;border-radius:11px;padding:10px 12px;background:linear-gradient(100deg,var(--navy),var(--blue));color:#fff;font-size:10px;font-weight:900;white-space:nowrap}
+@media(max-width:430px){
+ .home-screen.home-layout-focus .home-grid-rich{gap:13px;padding:0 12px 18px!important}
+ .home-screen.home-layout-focus .rich-card{min-height:220px!important;border-radius:24px}
+ .home-screen.home-layout-focus .home-card.rich-card .home-icon{left:14px!important;top:14px!important;width:60px!important;height:60px!important;border-radius:19px!important}
+ .home-screen.home-layout-focus .home-card.rich-card .home-icon svg{width:37px;height:37px}
+ .home-screen.home-layout-focus .home-card.rich-card .home-copy h3{font-size:21px!important}
+ .home-screen.home-layout-focus .home-card.rich-card .home-copy p{font-size:10px!important;max-width:190px!important}
+ .home-screen.home-layout-focus .home-card.rich-card .home-go{right:13px!important;bottom:13px!important;width:40px;height:40px}
+ .home-screen.home-layout-focus .home-card.rich-card .rich-art{opacity:.62!important}
+ .home-screen.home-layout-focus .home-wide.rich-card{min-height:205px!important}
+}
+/* Clean circular profile photos: no dark frame / square corners */
+.drawer-avatar,.profile-hero-avatar,.profile-photo-preview{border:none!important;border-radius:50%!important;background:transparent!important}
+.drawer-avatar img,.profile-hero-avatar img,.profile-photo-preview img{border-radius:50%!important;object-fit:cover!important}
+.profile-photo-plus{box-shadow:0 4px 10px rgba(4,45,92,.18)!important}
+.photo-editor-stage{background:#f3f6fa!important}
+</style>
 </head>
 <body>
 <div class="startup-splash" id="startupSplash">
@@ -1420,7 +1454,7 @@ function init(){
     }finally{
       hideStartupSplash();
     }
-  },900);
+  },1250);
 }
 $("loginForm").addEventListener("submit",e=>{
   e.preventDefault();
@@ -1569,7 +1603,10 @@ function update(){const p=profile(),d=visits().filter(x=>x.rep===p.rep),t=today(
 function addDaysISO(iso,n){const d=new Date(iso+"T00:00:00");d.setDate(d.getDate()+n);return isoDate(d)}
 
 function setBottomActive(id){["bnHome","bnMenu","bnSettings","bnProfile"].forEach(x=>$(x)?.classList.remove("active"));$(id)?.classList.add("active")}
+function applyHomeLayout(){const el=$("homeScreen");if(!el)return;const focus=localStorage.getItem("innovalHomeLayout")!=="compact";el.classList.toggle("home-layout-focus",focus);return focus}
+function toggleHomeLayout(){const compact=localStorage.getItem("innovalHomeLayout")==="compact";localStorage.setItem("innovalHomeLayout",compact?"focus":"compact");applyHomeLayout();openAppSettings();toast((compact?"Visual Focus":"Compact")+" home layout selected ✓")}
 function showHome(){
+  applyHomeLayout();
   $("homeScreen").classList.remove("hidden");
   $("mainShell").classList.add("hidden");
   $("bottomNav").classList.remove("hidden");
@@ -1856,6 +1893,7 @@ function openAppSettings(){
     '<div class="update-status"><strong>Application Version</strong><div style="margin-top:6px"><span class="version-badge">v'+APP_VERSION+'</span> <span style="margin-left:6px;color:var(--muted)">Installed version</span></div></div>'+
     '<div class="setting-action" onclick="closeModal();openSettings()"><span class="drawer-icon">●</span><div><b>Profile</b><small>Personal information and work details</small></div></div>'+
     '<div class="setting-action" onclick="closeModal();openPasswordSettings()"><span class="drawer-icon">🔒</span><div><b>Password</b><small>Change your account password</small></div></div>'+
+    '<div class="home-layout-switch"><div><b>Home Layout</b><small>Use larger visual cards, icons and headlines for faster access.</small></div><button class="home-layout-toggle" type="button" onclick="toggleHomeLayout()">'+(localStorage.getItem('innovalHomeLayout')==='compact'?'Use Visual Layout':'Use Compact Layout')+'</button></div>'+
     '<div class="setting-action" onclick="closeModal();window.checkForUpdate()"><span class="drawer-icon">↻</span><div><b>Check for Update</b><small>Check the latest Innoval Field Visit version</small></div></div>'+
     '<button class="logout-btn" onclick="logout()">Log Out</button>';
   openModalLayer("modal");
@@ -1921,7 +1959,7 @@ function openPhotoEditor(data){
       canvas.width=Math.round(rect.width*d);canvas.height=Math.round(rect.height*d);
       canvas.style.width=rect.width+"px";canvas.style.height=rect.height+"px";
       const crop=Math.min(rect.width,rect.height)*.72;
-      photoEditor.minScale=Math.max(crop/img.width,crop/img.height);photoEditor.scale=photoEditor.minScale;
+      photoEditor.minScale=Math.max(crop/img.width,crop/img.height);photoEditor.scale=photoEditor.minScale*1.10;
       photoEditor.x=rect.width/2;photoEditor.y=rect.height/2;
       drawPhotoEditor();bindPhotoEditorPointer();
     });
@@ -1939,7 +1977,7 @@ function drawPhotoEditor(){
 function photoZoom(delta){
   if(!photoEditor.img)return;photoEditor.scale=Math.max(photoEditor.minScale,Math.min(photoEditor.minScale*4,photoEditor.scale*(1+delta)));drawPhotoEditor();}
 function photoReset(){
-  const stage=$("photoEditorStage");if(!stage||!photoEditor.img)return;const crop=Math.min(stage.clientWidth,stage.clientHeight)*.72;photoEditor.minScale=Math.max(crop/photoEditor.img.width,crop/photoEditor.img.height);photoEditor.scale=photoEditor.minScale;photoEditor.x=stage.clientWidth/2;photoEditor.y=stage.clientHeight/2;drawPhotoEditor();
+  const stage=$("photoEditorStage");if(!stage||!photoEditor.img)return;const crop=Math.min(stage.clientWidth,stage.clientHeight)*.72;photoEditor.minScale=Math.max(crop/photoEditor.img.width,crop/photoEditor.img.height);photoEditor.scale=photoEditor.minScale*1.10;photoEditor.x=stage.clientWidth/2;photoEditor.y=stage.clientHeight/2;drawPhotoEditor();
 }
 function distanceBetween(a,b){return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)}
 function bindPhotoEditorPointer(){
@@ -1959,9 +1997,9 @@ function saveEditedProfilePhoto(){
   const cropPx=Math.min(stage.clientWidth,stage.clientHeight)*.72,scaleOut=size/cropPx;
   const dw=img.width*photoEditor.scale*scaleOut,dh=img.height*photoEditor.scale*scaleOut;
   const cx=size/2+(photoEditor.x-stage.clientWidth/2)*scaleOut,cy=size/2+(photoEditor.y-stage.clientHeight/2)*scaleOut;
-  ctx.save();ctx.beginPath();ctx.arc(size/2,size/2,size/2,0,Math.PI*2);ctx.clip();ctx.fillStyle="#fff";ctx.fillRect(0,0,size,size);
+  ctx.save();ctx.beginPath();ctx.arc(size/2,size/2,size/2,0,Math.PI*2);ctx.clip();
   ctx.drawImage(img,cx-dw/2,cy-dh/2,dw,dh);ctx.restore();
-  const data=out.toDataURL("image/jpeg",0.88),p=profile();
+  const data=out.toDataURL("image/png"),p=profile();
   localStorage.setItem("innovalProfilePhoto_"+p.rep,data);applyProfilePhoto(data);closePhotoEditor();toast("Profile photo updated ✓");
 }
 function applyProfilePhoto(data){
@@ -2208,7 +2246,7 @@ function browserExcelDownload(blob,fileName){
 }
 // ===== Innoval App Update Checker =====
 // Keep the updater on window so inline Android/WebView handlers can always reach it.
-const APP_VERSION = "1.9.20";
+const APP_VERSION = "1.9.21";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 
 function compareVersions(a, b) {
