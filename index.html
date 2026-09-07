@@ -931,7 +931,7 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
     <div class="install-choice" id="landingAndroid">
       <h3>🤖 Android</h3>
       <p>Download the APK. If Chrome does not open the installer automatically, open <b>Files → Downloads</b> and tap the APK file.</p>
-      <a class="install-main-btn" style="display:block;text-decoration:none;text-align:center" href="./Innoval-Field-Visit-v1.9.9.apk" download="Innoval-Field-Visit.apk">Download Android App</a>
+      <a class="install-main-btn" style="display:block;text-decoration:none;text-align:center" href="./app-release.apk" download="Innoval-Field-Visit.apk">Download Android App</a>
       <div style="margin-top:8px;text-align:center;color:#7b8ca2;font-size:10px">Download → Open → Install → Open</div>
     </div>
     <div class="install-choice" id="landingIOS">
@@ -982,7 +982,7 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
     <div class="install-option" id="androidInstallOption">
       <h4>🤖 Android</h4>
       <p>Download the latest Innoval Field Visit APK and install it on your Android phone.</p>
-      <a class="install-action" href="https://ebrahimemary3-beep.github.io/Innoval-Field-Force/Innoval-Field-Visit-v1.9.9.apk" download="Innoval-Field-Visit.apk">Download Android App</a>
+      <a class="install-action" href="https://ebrahimemary3-beep.github.io/Innoval-Field-Force/app-release.apk" download="Innoval-Field-Visit.apk">Download Android App</a>
     </div>
     <div class="install-option" id="iosInstallOption">
       <h4> iPhone / iOS</h4>
@@ -1092,8 +1092,7 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
     <div class="field full"><label>Visit Date *</label><div class="input"><span>▣</span><input id="visitDate" type="date" required></div><small class="date-hint">You can record today’s visit or select any previous date.</small></div>
 
     <div class="field full"><label>Assigned Area *</label><div class="input"><span>⌖</span><select id="area" required aria-label="Assigned Area"></select></div><small class="assigned-area-note">Your area is controlled by your official account. Admin can select an area for testing and management.</small></div>
-    <div class="field"><label>Governorate</label><div class="input"><span>⌖</span><select id="governorate"><option value="">Select Governorate (Optional)</option></select></div><small class="assigned-area-note">Optional — select a governorate to narrow the customer list.</small></div>
-    <div class="field"><label>Customer Name *</label><div class="input"><span>●</span><input id="customer" list="customerList" required placeholder="Select customer" autocomplete="off"><datalist id="customerList"></datalist></div><small class="assigned-area-note">Only customers belonging to your assigned area and selected governorate are shown.</small></div>
+    <div class="field"><label>Customer Name *</label><div class="input"><span>●</span><input id="customer" list="customerList" required placeholder="Select customer" autocomplete="off"><datalist id="customerList"></datalist></div><small class="assigned-area-note">Only customers belonging to your assigned area are shown.</small></div>
     <div class="field"><label>Visit Type *</label><div class="input"><span>◉</span><select id="visitType" required><option value="">Select Visit Type</option><option value="Planned">Planned</option><option value="Unplanned">Unplanned</option></select></div><small class="assigned-area-note">Choose Planned when the visit is linked to your Weekly Plan.</small></div>
     <div class="field" id="plannedLinkField" style="display:none"><label>Planned Visit *</label><div class="input"><span>▣</span><select id="plannedVisitLink"><option value="">Select Planned Visit</option></select></div><small class="assigned-area-note">Only plans for the selected date and customer are shown.</small></div>
   </div>
@@ -1287,10 +1286,9 @@ function visitCustomerData(){
 function customerListData(){return visitCustomerData()}
 function refreshVisitFilters(resetCustomer=true){
   const areaEl=$("area");
-  const govEl=$("governorate");
   const customerEl=$("customer");
   const customerList=$("customerList");
-  if(!areaEl || !govEl || !customerList) return;
+  if(!areaEl || !customerList) return;
 
   const admin=isAdminUser();
   const p=profile();
@@ -1312,17 +1310,7 @@ function refreshVisitFilters(resetCustomer=true){
 
   const ids=allowedVisitAreaIds();
   const cs=customers().filter(c=>ids.includes(c.areaId));
-  const govs=[...new Set(cs.map(c=>c.gov).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ar'));
-
-  const prevGov=govEl.value;
-  govEl.innerHTML='<option value="">Select Governorate</option>'+
-    govs.map(g=>'<option value="'+esc(g)+'">'+esc(g)+'</option>').join('');
-  if(govs.includes(prevGov)) govEl.value=prevGov;
-  else govEl.value="";
-
-  const selectedGov=govEl.value;
-  const filtered=selectedGov ? cs.filter(c=>c.gov===selectedGov) : cs;
-  customerList.innerHTML=filtered.map(c=>'<option value="'+esc(c.name)+'">').join('');
+  customerList.innerHTML=cs.map(c=>'<option value="'+esc(c.name)+'">').join('');
 
   if(customerEl && resetCustomer){
     customerEl.value="";
@@ -1580,16 +1568,6 @@ $("area")?.addEventListener("change",()=>{
   refreshVisitFilters(true);
 });
 
-$("governorate")?.addEventListener("change",()=>{
-  const gov=$("governorate").value;
-  const ids=allowedVisitAreaIds();
-  const cs=customers().filter(c=>ids.includes(c.areaId) && (!gov || c.gov===gov));
-  $("customerList").innerHTML=cs.map(c=>'<option value="'+esc(c.name)+'">').join('');
-  $("customer").value="";
-  $("potential").value="";
-  $("loyalty").value="";
-});
-
 $("customer").addEventListener("change",()=>{
   const name=$("customer").value.trim();
   const c=customerListData().find(x=>x.name===name);
@@ -1602,7 +1580,6 @@ $("customer").addEventListener("change",()=>{
   if(isAdminUser() && c.areaId && $("area")){
     $("area").value=c.areaId;
   }
-  if(c.gov && $("governorate")) $("governorate").value=c.gov;
   $("potential").value=c.potential||"";
   $("loyalty").value=c.loyalty||"";
 });
@@ -1643,7 +1620,7 @@ $("visitForm").addEventListener("submit",e=>{
   const customer=customerListData().find(v=>v.name===customerName);
 
   if(!customer){
-    toast("Please select a customer from your assigned area and governorate");
+    toast("Please select a customer from your assigned area");
     return;
   }
 
@@ -1652,11 +1629,6 @@ $("visitForm").addEventListener("submit",e=>{
   if(!visitType){toast("Please select Planned or Unplanned visit");return;}
   if(visitType==="Planned" && !plannedVisit){toast("Please select the Planned Visit linked to this customer and date");return;}
   if(visitType==="Planned" && plannedVisit.customer && String(plannedVisit.customer).trim()!==customerName){toast("Selected plan does not match the customer");return;}
-
-  if($("governorate").value && customer.gov!==$("governorate").value){
-    toast("Customer does not belong to the selected governorate");
-    return;
-  }
 
   if(!isAdminUser() && !(profile().areaIds||[]).includes(customer.areaId)){
     toast("Customer is outside your assigned area");
@@ -1685,7 +1657,7 @@ $("visitForm").addEventListener("submit",e=>{
     visitNo:visitNo,
     rep:p.rep,
     customer:customerName,
-    gov:$("governorate").value,
+    gov:customer.gov||"",
     area:customer.area||AREA_NAME_BY_ID[$("area").value]||$("area").value||p.area,
     areaId:customer.areaId||$("area").value||((p.areaIds||[]).length===1?p.areaIds[0]:""),
     visitType:visitType,
