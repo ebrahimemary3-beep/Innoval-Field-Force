@@ -96,6 +96,17 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.top{height:70px
 }
 
 
+
+/* v1.9.19 application download / install */
+.app-download-wrap{margin:0 0 17px}
+.app-download-btn{width:100%;border:1px solid #d9e6f5;border-radius:14px;background:linear-gradient(180deg,#ffffff,#f5f9ff);color:var(--navy);padding:13px 15px;display:flex;align-items:center;gap:12px;text-align:left;box-shadow:0 7px 18px rgba(6,59,145,.08)}
+.app-download-icon{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;display:flex;align-items:center;justify-content:center;font-size:21px;flex:0 0 40px}
+.app-download-copy{min-width:0;flex:1}.app-download-copy b{display:block;font-size:13px}.app-download-copy span{display:block;font-size:10px;color:var(--muted);margin-top:3px;line-height:1.4}.app-download-arrow{font-size:20px;color:var(--blue);font-weight:900}
+.install-modal{position:fixed;inset:0;background:rgba(3,31,84,.58);display:none;align-items:center;justify-content:center;padding:20px;z-index:300;backdrop-filter:blur(5px)}
+.install-modal.show{display:flex}.install-card{width:min(460px,100%);background:#fff;border-radius:22px;padding:22px;box-shadow:0 24px 70px rgba(0,0,0,.28)}
+.install-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:15px}.install-head h3{margin:0;font-size:18px}.install-close{border:0;background:#f1f5fa;color:#4f5f73;width:34px;height:34px;border-radius:10px;font-size:19px}
+.install-option{border:1px solid #e1e8f2;border-radius:15px;padding:14px;margin-top:10px}.install-option h4{margin:0 0 6px;font-size:13px;color:var(--navy)}.install-option p{margin:0;color:var(--muted);font-size:11px;line-height:1.55}.install-action{display:block;width:100%;border:0;border-radius:11px;background:linear-gradient(100deg,var(--navy),var(--blue));color:#fff;padding:11px;margin-top:11px;font-weight:900;font-size:12px;text-align:center;text-decoration:none}.ios-steps{margin:9px 0 0;padding-left:19px;color:var(--ink);font-size:11px;line-height:1.7}.ios-steps b{color:var(--blue)}
+@media(max-width:520px){.install-modal{padding:12px}.install-card{padding:18px;border-radius:18px}}
 .login-screen{min-height:100vh;background:linear-gradient(145deg,#031f54 0%,#063b91 55%,#0b78d0 100%);display:flex;align-items:center;justify-content:center;padding:22px}.login-card{width:min(460px,100%);background:#fff;border-radius:24px;padding:30px 26px;box-shadow:0 22px 60px rgba(0,0,0,.22)}.login-brand{display:block;width:205px;max-width:72%;margin:0 auto 8px}.login-tag{width:max-content;max-width:100%;margin:0 auto 25px;padding:7px 15px;border-radius:30px;background:linear-gradient(90deg,#1297df,#0863c6);color:#fff;font-size:11px;font-weight:900}.login-title{text-align:center;font-size:23px;margin:0 0 5px}.login-sub{text-align:center;color:var(--muted);font-size:12px;margin:0 0 22px}.login-field{margin-bottom:14px}.login-field label{font-size:12px}.login-field select,.login-field input{padding-left:13px}.login-email-hint{font-size:10px;color:#8b96a8;margin-top:5px}.login-btn{width:100%;border:0;border-radius:13px;background:linear-gradient(100deg,var(--navy),var(--blue));color:#fff;padding:14px;font-size:16px;font-weight:900;margin-top:4px}.login-error{display:none;background:#fff1f0;color:var(--red);border:1px solid #ffd4d0;border-radius:10px;padding:10px;font-size:11px;margin:12px 0 0;text-align:center}.login-note{text-align:center;color:#8b96a8;font-size:10px;line-height:1.5;margin:17px 0 0}.hidden{display:none!important}.logout-btn{border:0;background:#fff1f0;color:var(--red);padding:11px;border-radius:10px;font-weight:900;width:100%;margin-top:9px}.setting-action{display:flex;align-items:center;gap:11px;padding:12px 8px;border:1px solid var(--line);border-radius:13px;margin:9px 0;background:#fff;cursor:pointer}.setting-action .drawer-icon{flex:0 0 38px}.setting-action b{display:block;font-size:12px;color:var(--ink)}.setting-action small{display:block;font-size:10px;color:var(--muted);margin-top:3px}
 .settings-note{font-size:11px;color:var(--muted);line-height:1.5;margin:0 0 13px}.password-row{position:relative}.password-row button{position:absolute;right:9px;top:8px;border:0;background:#eef3f8;border-radius:8px;padding:7px;font-size:11px}
 
@@ -809,6 +820,37 @@ html.modal-locked,body.modal-locked{overscroll-behavior:none;touch-action:none;o
 .security-card{padding:13px;border:1px solid #e1eaf4;background:#f7faff;border-radius:15px;margin-bottom:13px}.security-card .security-icon{width:38px;height:38px;border-radius:12px;background:#edf5ff;color:#0b66d1;display:grid;place-items:center;font-size:18px;margin-bottom:8px}.security-card b{font-size:13px;color:var(--ink)}.security-card p{font-size:10px;color:var(--muted);line-height:1.5;margin:5px 0 0}
 </style>
 
+<style id="v10-profile-photo-password-polish">
+.profile-photo-manage{position:relative;flex:0 0 68px;width:68px;height:68px}
+.profile-photo-manage .profile-hero-avatar{width:68px;height:68px;border-radius:20px;position:relative}
+.profile-photo-manage .profile-hero-avatar img{width:100%;height:100%;object-fit:cover}
+.profile-photo-plus{position:absolute;right:-3px;bottom:-3px;width:25px;height:25px;border:3px solid #fff;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--blue));color:#fff;font-size:17px;font-weight:900;line-height:19px;display:grid;place-items:center;cursor:pointer;box-shadow:0 4px 12px rgba(6,59,145,.28);z-index:2}
+.profile-modal-photo-actions{position:absolute;left:0;top:76px;width:230px;padding:9px;background:#fff;border:1px solid #e2e9f2;border-radius:16px;box-shadow:0 18px 42px rgba(7,31,70,.2);display:grid;grid-template-columns:1fr 1fr;gap:7px;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-5px) scale(.97);transition:.18s ease;z-index:30}
+.profile-modal-photo-actions.open{opacity:1;visibility:visible;pointer-events:auto;transform:none}
+.profile-modal-photo-actions button{min-height:58px;border:1px solid #e6ebf3;background:#f8fafc;border-radius:12px;color:#0b66d1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:18px;font-weight:900;cursor:pointer}
+.profile-modal-photo-actions button b{font-size:9px;color:#18365f;line-height:1.1}
+.profile-modal-photo-actions button.danger{color:#c62828}.profile-modal-photo-actions button.danger b{color:#c62828}.profile-modal-photo-actions button.cancel{color:#68778b}.profile-modal-photo-actions button.cancel b{color:#68778b}
+.profile-photo-manage .profile-hero-avatar.empty{color:#0b66d1;font-size:26px}
+.profile-photo-caption{font-size:9px;color:var(--muted);margin-top:5px}
+.password-page-intro{padding:13px 14px;border:1px solid #e1eaf4;background:linear-gradient(135deg,#f7faff,#eef6ff);border-radius:15px;margin-bottom:14px}
+.password-page-intro .password-title{font-size:12px;font-weight:900;color:var(--navy);margin-bottom:3px}
+.password-page-intro p{margin:0;color:var(--muted);font-size:10px;line-height:1.45}
+.password-fields-card{padding:13px;border:1px solid #e5ebf3;border-radius:16px;background:#fff;box-shadow:0 5px 18px rgba(16,42,91,.05)}
+.password-fields-card .field{position:relative;margin-bottom:12px}.password-fields-card .field:last-child{margin-bottom:0}
+.password-fields-card .password-icon{position:absolute;left:12px;top:34px;width:22px;height:22px;display:grid;place-items:center;color:#0b66d1;font-size:14px;z-index:1;pointer-events:none}
+.password-fields-card input{padding-left:42px!important;padding-right:42px!important}
+.password-toggle{position:absolute;right:8px;top:30px;width:32px;height:32px;border:0;background:transparent;color:#71809a;cursor:pointer;font-size:15px}
+.password-save,.profile-save{position:static!important;bottom:auto!important}
+.password-save{margin-top:13px!important}
+@media(max-width:520px){.profile-modal-photo-actions{left:-2px;top:76px;width:224px}}
+</style>
+
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Innoval Field Visit">
+<meta name="mobile-web-app-capable" content="yes">
 </head>
 <body>
 <div class="startup-splash" id="startupSplash">
@@ -824,6 +866,13 @@ html.modal-locked,body.modal-locked{overscroll-behavior:none;touch-action:none;o
     <div class="login-tag">POULTRY &amp; DISINFECTANT</div>
     <h1 class="login-title">Field Visit Login</h1>
     <p class="login-sub">Please sign in to register your field visits.</p>
+    <div class="app-download-wrap">
+      <button class="app-download-btn" type="button" onclick="openApplicationDownload()" aria-label="Download Application">
+        <span class="app-download-icon">⇩</span>
+        <span class="app-download-copy"><b>Download Application</b><span>Android APK • iPhone / iOS Web App</span></span>
+        <span class="app-download-arrow">›</span>
+      </button>
+    </div>
     <form id="loginForm">
       <div class="login-field"><label>Official Outlook Email</label><input id="loginEmail" type="email" inputmode="email" autocomplete="username" placeholder="name@ift-online.com" required></div>
       <div class="login-field"><label>Password</label><input id="loginPassword" type="password" inputmode="text" autocomplete="current-password" placeholder="Enter password" required></div>
@@ -832,6 +881,31 @@ html.modal-locked,body.modal-locked{overscroll-behavior:none;touch-action:none;o
       <div class="login-error" id="loginError">Incorrect employee name or password.</div>
     </form>
     <p class="login-note">Initial password: <b>1234</b><br>You can change your password after login.</p>
+  </div>
+</div>
+
+<div class="install-modal" id="installModal" role="dialog" aria-modal="true" aria-labelledby="installTitle">
+  <div class="install-card">
+    <div class="install-head">
+      <h3 id="installTitle">Download Application</h3>
+      <button class="install-close" type="button" onclick="closeApplicationDownload()" aria-label="Close">×</button>
+    </div>
+    <div class="install-option" id="androidInstallOption">
+      <h4>🤖 Android</h4>
+      <p>Download the latest Innoval Field Visit APK and install it on your Android phone.</p>
+      <a class="install-action" href="./app-release.apk" download="Innoval-Field-Visit.apk">Download Android App</a>
+    </div>
+    <div class="install-option" id="iosInstallOption">
+      <h4> iPhone / iOS</h4>
+      <p>For iPhone, use Safari and save Innoval as an app on your Home Screen.</p>
+      <ol class="ios-steps">
+        <li>Open this page in <b>Safari</b>.</li>
+        <li>Tap the <b>Share</b> button.</li>
+        <li>Select <b>Add to Home Screen</b>.</li>
+        <li>Tap <b>Add</b> to save the Innoval icon.</li>
+      </ol>
+      <button class="install-action" type="button" onclick="openIosInstallHelp()">Show iPhone Instructions</button>
+    </div>
   </div>
 </div>
 <div id="appShell">
@@ -1251,6 +1325,34 @@ function hideStartupSplash(){
   const s=$("startupSplash");
   if(s)s.classList.add("hide");
 }
+function isIOSDevice(){return /iPad|iPhone|iPod/.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&navigator.maxTouchPoints>1)}
+function isAndroidDevice(){return /Android/i.test(navigator.userAgent)}
+function openApplicationDownload(){
+  const modal=$("installModal");
+  if(!modal)return;
+  modal.classList.add("show");
+  document.documentElement.classList.add("modal-locked");
+  document.body.classList.add("modal-locked");
+  if(isAndroidDevice()){
+    setTimeout(()=>{const a=document.querySelector('#androidInstallOption .install-action');a?.focus();},50);
+  }
+}
+function closeApplicationDownload(){
+  const modal=$("installModal");
+  modal?.classList.remove("show");
+  document.documentElement.classList.remove("modal-locked");
+  document.body.classList.remove("modal-locked");
+}
+function openIosInstallHelp(){
+  if(isIOSDevice()){
+    alert("On iPhone: open Innoval in Safari → tap Share → Add to Home Screen → Add.");
+  }else{
+    alert("On iPhone: open this Innoval link in Safari, then tap Share → Add to Home Screen → Add.");
+  }
+}
+$('installModal')?.addEventListener('click',e=>{if(e.target.id==='installModal')closeApplicationDownload();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeApplicationDownload();});
+
 function init(){
   // Stable startup: initialize first, then show exactly ONE screen.
   const shell=$("appShell");
@@ -1775,10 +1877,11 @@ function closePhotoActions(){
 function removeProfilePhotoInline(){
   const p=profile();
   localStorage.removeItem("innovalProfilePhoto_"+p.rep);
-  const d=$("drawerAvatarButton"); if(d) d.innerHTML="👤";
-  const side=$("sideAvatar"); if(side) side.innerHTML="👤";
-  closePhotoActions();
-  toast("Profile photo removed ✓");
+  const d=$("drawerAvatarButton");if(d)d.innerHTML="👤";
+  const side=$("sideAvatar");if(side)side.innerHTML="👤";
+  const hero=$("profileHeroAvatarImg");if(hero)hero.outerHTML='<span id="profileHeroAvatarEmpty">👤</span>';
+  const heroBtn=document.querySelector(".profile-hero-avatar");if(heroBtn)heroBtn.classList.add("empty");
+  closePhotoActions();closeProfileModalPhotoActions();toast("Profile photo removed ✓");
 }
 function openPhotoActions(){
   // Backward-compatible fallback for any existing callers: use the inline action rail.
@@ -1796,39 +1899,42 @@ function pickProfilePhoto(){
 }
 function editProfilePhoto(){
   const data=profilePhotoData();
-  if(!data){ toast("Add a profile photo first"); pickProfilePhoto(); return; }
+  if(!data){toast("Add a profile photo first");pickProfilePhoto();return}
   openPhotoEditor(data);
 }
 function handleProfilePhoto(event){
-  const file=event.target.files && event.target.files[0];
-  if(!file) return;
+  const file=event.target.files&&event.target.files[0];if(!file)return;
   if(!file.type.startsWith("image/")){toast("Please select an image file");return}
-  const reader=new FileReader();
-  reader.onload=function(){openPhotoEditor(reader.result)};
-  reader.readAsDataURL(file);
+  const reader=new FileReader();reader.onload=function(){openPhotoEditor(reader.result)};reader.readAsDataURL(file);
 }
 function openPhotoEditor(data){
-  const modal=$("photoEditorModal"); if(!modal)return;
+  const modal=$("photoEditorModal");if(!modal||!data)return;
   const img=new Image();
   img.onload=function(){
-    const canvas=$("photoEditorCanvas"),stage=$("photoEditorStage");
-    if(!canvas||!stage)return;
-    photoEditor.img=img; photoEditor.sourceData=data; photoEditor.pointers=new Map();
-    const rect=stage.getBoundingClientRect(); canvas.width=Math.round(rect.width*devicePixelRatio); canvas.height=Math.round(rect.height*devicePixelRatio);
-    canvas.style.width=rect.width+"px";canvas.style.height=rect.height+"px";
-    const crop=Math.min(rect.width,rect.height)*.72;
-    photoEditor.minScale=Math.max(crop/img.width,crop/img.height);photoEditor.scale=photoEditor.minScale;photoEditor.x=rect.width/2;photoEditor.y=rect.height/2;
-    drawPhotoEditor();
+    const canvas=$("photoEditorCanvas"),stage=$("photoEditorStage");if(!canvas||!stage)return;
+    photoEditor.img=img;photoEditor.sourceData=data;photoEditor.pointers=new Map();
     modal.classList.add("open");modal.setAttribute("aria-hidden","false");document.documentElement.classList.add("modal-locked");document.body.classList.add("modal-locked");
-    bindPhotoEditorPointer();
+    requestAnimationFrame(()=>{
+      const rect=stage.getBoundingClientRect();
+      if(!rect.width||!rect.height){setTimeout(()=>openPhotoEditor(data),60);return}
+      const d=window.devicePixelRatio||1;
+      canvas.width=Math.round(rect.width*d);canvas.height=Math.round(rect.height*d);
+      canvas.style.width=rect.width+"px";canvas.style.height=rect.height+"px";
+      const crop=Math.min(rect.width,rect.height)*.72;
+      photoEditor.minScale=Math.max(crop/img.width,crop/img.height);photoEditor.scale=photoEditor.minScale;
+      photoEditor.x=rect.width/2;photoEditor.y=rect.height/2;
+      drawPhotoEditor();bindPhotoEditorPointer();
+    });
   };
+  img.onerror=function(){toast("Unable to load this profile photo. Please upload it again.")};
   img.src=data;
 }
 function drawPhotoEditor(){
   const canvas=$("photoEditorCanvas"),stage=$("photoEditorStage"),img=photoEditor.img;if(!canvas||!stage||!img)return;
-  const ctx=canvas.getContext("2d"),d=devicePixelRatio||1, w=stage.clientWidth,h=stage.clientHeight;
+  const ctx=canvas.getContext("2d"),d=window.devicePixelRatio||1,w=stage.clientWidth,h=stage.clientHeight;
   ctx.setTransform(d,0,0,d,0,0);ctx.clearRect(0,0,w,h);ctx.fillStyle="#101820";ctx.fillRect(0,0,w,h);
-  const sc=photoEditor.scale; const dw=img.width*sc,dh=img.height*sc;ctx.drawImage(img,photoEditor.x-dw/2,photoEditor.y-dh/2,dw,dh);
+  const sc=photoEditor.scale,dw=img.width*sc,dh=img.height*sc;
+  ctx.drawImage(img,photoEditor.x-dw/2,photoEditor.y-dh/2,dw,dh);
 }
 function photoZoom(delta){
   if(!photoEditor.img)return;photoEditor.scale=Math.max(photoEditor.minScale,Math.min(photoEditor.minScale*4,photoEditor.scale*(1+delta)));drawPhotoEditor();}
@@ -1849,17 +1955,22 @@ function closePhotoEditor(){
 }
 function saveEditedProfilePhoto(){
   const stage=$("photoEditorStage"),img=photoEditor.img;if(!stage||!img)return;
-  const out=document.createElement("canvas"),size=480;out.width=size;out.height=size;const ctx=out.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,size,size);
-  const cropPx=Math.min(stage.clientWidth,stage.clientHeight)*.72;const scaleOut=size/cropPx;const dw=img.width*photoEditor.scale*scaleOut,dh=img.height*photoEditor.scale*scaleOut;const cx=size/2+(photoEditor.x-stage.clientWidth/2)*scaleOut,cy=size/2+(photoEditor.y-stage.clientHeight/2)*scaleOut;
-  ctx.drawImage(img,cx-dw/2,cy-dh/2,dw,dh);
-  const data=out.toDataURL("image/jpeg",0.86);const p=profile();localStorage.setItem("innovalProfilePhoto_"+p.rep,data);applyProfilePhoto(data);closePhotoEditor();toast("Profile photo updated ✓");
+  const out=document.createElement("canvas"),size=480;out.width=size;out.height=size;const ctx=out.getContext("2d");
+  const cropPx=Math.min(stage.clientWidth,stage.clientHeight)*.72,scaleOut=size/cropPx;
+  const dw=img.width*photoEditor.scale*scaleOut,dh=img.height*photoEditor.scale*scaleOut;
+  const cx=size/2+(photoEditor.x-stage.clientWidth/2)*scaleOut,cy=size/2+(photoEditor.y-stage.clientHeight/2)*scaleOut;
+  ctx.save();ctx.beginPath();ctx.arc(size/2,size/2,size/2,0,Math.PI*2);ctx.clip();ctx.fillStyle="#fff";ctx.fillRect(0,0,size,size);
+  ctx.drawImage(img,cx-dw/2,cy-dh/2,dw,dh);ctx.restore();
+  const data=out.toDataURL("image/jpeg",0.88),p=profile();
+  localStorage.setItem("innovalProfilePhoto_"+p.rep,data);applyProfilePhoto(data);closePhotoEditor();toast("Profile photo updated ✓");
 }
 function applyProfilePhoto(data){
-  if(!data) return;
-  const d=$("drawerAvatarButton");
-  if(d) d.innerHTML='<img src="'+data+'" alt="Profile">';
-  const side=$("sideAvatar");
-  if(side) side.innerHTML='<img src="'+data+'" alt="Profile">';
+  if(!data)return;
+  const d=$("drawerAvatarButton");if(d)d.innerHTML='<img src="'+data+'" alt="Profile">';
+  const side=$("sideAvatar");if(side)side.innerHTML='<img src="'+data+'" alt="Profile">';
+  const hero=$("profileHeroAvatarImg");if(hero)hero.src=data;
+  const empty=$("profileHeroAvatarEmpty");if(empty)empty.outerHTML='<img id="profileHeroAvatarImg" src="'+data+'" alt="Profile">';
+  const heroBtn=document.querySelector(".profile-hero-avatar");if(heroBtn)heroBtn.classList.remove("empty");
 }
 function loadProfilePhoto(){
   const p=profile();
@@ -1867,24 +1978,47 @@ function loadProfilePhoto(){
   const data=localStorage.getItem("innovalProfilePhoto_"+p.rep);
   if(data) applyProfilePhoto(data);
 }
+function togglePasswordField(id,btn){
+  const input=$(id);if(!input)return;
+  input.type=input.type==="password"?"text":"password";
+  if(btn)btn.setAttribute("aria-label",input.type==="password"?"Show password":"Hide password");
+}
 function openPasswordSettings(){
-  const p=profile();
   $("modalTitle").textContent="Change Password";
   $("modalBody").innerHTML=
-    '<div class="security-card"><div class="security-icon">🔒</div><b>Account Security</b><p>Change your Innoval account password. Enter your current password, then choose a new password.</p></div>'+
-    '<div class="field"><label>Current Password</label><input id="oldPass" type="password" autocomplete="current-password" style="padding-left:12px" placeholder="Enter current password"></div>'+
-    '<div class="field"><label>New Password</label><input id="newPass" type="password" autocomplete="new-password" style="padding-left:12px" placeholder="Enter new password"></div>'+
-    '<div class="field"><label>Confirm New Password</label><input id="confirmPass" type="password" autocomplete="new-password" style="padding-left:12px" placeholder="Confirm new password"></div>'+
-    '<button class="save" onclick="changePassword()">Change Password</button>';
+    '<div class="password-page-intro"><div class="password-title">🔐 Account Security</div><p>Update your password securely. Enter your current password, then choose and confirm your new password.</p></div>'+
+    '<div class="password-fields-card">'+
+      '<div class="field"><label>Current Password</label><span class="password-icon">🔑</span><input id="oldPass" type="password" autocomplete="current-password" placeholder="Enter current password"><button class="password-toggle" type="button" onclick="togglePasswordField(\'oldPass\',this)" aria-label="Show password">◉</button></div>'+
+      '<div class="field"><label>New Password</label><span class="password-icon">🛡️</span><input id="newPass" type="password" autocomplete="new-password" placeholder="Enter new password"><button class="password-toggle" type="button" onclick="togglePasswordField(\'newPass\',this)" aria-label="Show password">◉</button></div>'+
+      '<div class="field"><label>Confirm New Password</label><span class="password-icon">✓</span><input id="confirmPass" type="password" autocomplete="new-password" placeholder="Confirm new password"><button class="password-toggle" type="button" onclick="togglePasswordField(\'confirmPass\',this)" aria-label="Show password">◉</button></div>'+
+    '</div>'+
+    '<button class="save password-save" onclick="changePassword()">Update Password</button>';
   openModalLayer("modal");setBottomActive("bnSettings");
 }
 function profilePhotoData(){const p=profile();return p.rep?localStorage.getItem("innovalProfilePhoto_"+p.rep)||"":""}
-function profileHeroAvatar(){const data=profilePhotoData();return data?'<img src="'+data+'" alt="Profile">':'👤'}
+function profileHeroAvatar(){const data=profilePhotoData();return data?'<img id="profileHeroAvatarImg" src="'+data+'" alt="Profile">':'<span id="profileHeroAvatarEmpty">👤</span>'}
+function toggleProfileModalPhotoActions(){const el=$("profileModalPhotoActions");if(el)el.classList.toggle("open")}
+function closeProfileModalPhotoActions(){const el=$("profileModalPhotoActions");if(el)el.classList.remove("open")}
+function openProfilePhotoPicker(){closeProfileModalPhotoActions();pickProfilePhoto()}
+function editProfilePhotoFromProfile(){closeProfileModalPhotoActions();editProfilePhoto()}
+function removeProfilePhotoFromProfile(){removeProfilePhotoInline();closeProfileModalPhotoActions()}
 function openSettings(){
-  const p=profile(), stored=JSON.parse(localStorage.getItem("innovalProfile_"+p.rep)||"{}");
+  const p=profile(),stored=JSON.parse(localStorage.getItem("innovalProfile_"+p.rep)||"{}");
   $("modalTitle").textContent="My Profile";
   $("modalBody").innerHTML=
-    '<div class="profile-hero-card"><div class="profile-hero-avatar">'+profileHeroAvatar()+'</div><div><b>'+esc(p.rep||"User")+'</b><small>My Profile • '+esc(p.role||"Field Team")+'</small></div></div>'+
+    '<div class="profile-hero-card" style="position:relative">'+
+      '<div class="profile-photo-manage">'+
+        '<button class="profile-hero-avatar '+(profilePhotoData()?"":"empty")+'" type="button" onclick="toggleProfileModalPhotoActions()" aria-label="Profile photo">'+profileHeroAvatar()+'</button>'+
+        '<button class="profile-photo-plus" type="button" onclick="toggleProfileModalPhotoActions()" aria-label="Profile photo options">+</button>'+
+        '<div class="profile-modal-photo-actions" id="profileModalPhotoActions">'+
+          '<button type="button" onclick="openProfilePhotoPicker()"><span>⬆</span><b>Upload Photo</b></button>'+
+          '<button type="button" onclick="editProfilePhotoFromProfile()"><span>✏️</span><b>Edit Photo</b></button>'+
+          '<button type="button" class="danger" onclick="removeProfilePhotoFromProfile()"><span>🗑️</span><b>Remove Photo</b></button>'+
+          '<button type="button" class="cancel" onclick="closeProfileModalPhotoActions()"><span>✕</span><b>Cancel</b></button>'+
+        '</div>'+
+      '</div>'+
+      '<div><b>'+esc(stored.fullName||p.rep||"User")+'</b><small>My Profile • '+esc(p.role||"Field Team")+'</small><div class="profile-photo-caption">Tap + to manage your profile photo</div></div>'+
+    '</div>'+
     '<div class="profile-section-title">Personal Information</div>'+
     '<p class="profile-note">Keep your personal profile information up to date.</p>'+
     '<div class="profile-form-grid">'+
@@ -2074,7 +2208,7 @@ function browserExcelDownload(blob,fileName){
 }
 // ===== Innoval App Update Checker =====
 // Keep the updater on window so inline Android/WebView handlers can always reach it.
-const APP_VERSION = "1.9.18";
+const APP_VERSION = "1.9.20";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 
 function compareVersions(a, b) {
@@ -2190,4 +2324,5 @@ loadNotifications();
   const current = document.getElementById("currentAppVersion");
   if (current) current.textContent = APP_VERSION;
 })();
-</script></body></html>
+</script><script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}</script>
+</body></html>
