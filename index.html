@@ -930,9 +930,9 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
     <p>Install the Innoval Field Visit application on your phone. After installation, open the Innoval icon to start from the secure login screen.</p>
     <div class="install-choice" id="landingAndroid">
       <h3>🤖 Android</h3>
-      <p>Download the APK, then tap <b>Install</b> in Android Package Installer.</p>
+      <p>Download the APK. If Chrome does not open the installer automatically, open <b>Files → Downloads</b> and tap the APK file.</p>
       <a class="install-main-btn" style="display:block;text-decoration:none;text-align:center" href="./app-release.apk" download="Innoval-Field-Visit.apk">Download Android App</a>
-      <div style="margin-top:8px;text-align:center;color:#7b8ca2;font-size:10px">After download: Open → Install → Open</div>
+      <div style="margin-top:8px;text-align:center;color:#7b8ca2;font-size:10px">Download → Open → Install → Open</div>
     </div>
     <div class="install-choice" id="landingIOS">
       <h3> iPhone / iOS</h3>
@@ -2398,7 +2398,7 @@ function browserExcelDownload(blob,fileName){
 }
 // ===== Innoval App Update Checker =====
 // Keep the updater on window so inline Android/WebView handlers can always reach it.
-const APP_VERSION = "1.9.24";
+const APP_VERSION = "1.9.25";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 
 function compareVersions(a, b) {
