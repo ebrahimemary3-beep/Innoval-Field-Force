@@ -354,6 +354,7 @@ html,body{min-height:100%;background:var(--bg)}
 
 .visit-type-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:900;background:#eaf3ff;color:#075dcc}
 .admin-data-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:12px 0}.admin-data-tabs button{border:1px solid #d7e3f2;background:#f6f9fd;border-radius:12px;padding:10px 6px;font-weight:800;color:#23476e}.admin-data-tabs button.active{background:linear-gradient(100deg,var(--navy),var(--blue));color:#fff;border-color:transparent}.admin-data-filter{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}.admin-data-table{border:1px solid #e0e8f2;border-radius:15px;overflow:hidden;background:#fff}.admin-data-row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:12px 13px;border-bottom:1px solid #edf1f6}.admin-data-row:last-child{border-bottom:0}.admin-data-row b{display:block;color:#163b66}.admin-data-row small{display:block;color:#7b8ca2;margin-top:3px}.admin-data-pill{align-self:center;padding:5px 9px;border-radius:999px;background:#edf5ff;color:#176fcf;font-size:10px;font-weight:900}.admin-data-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.admin-kpi{background:#f5f9fe;border:1px solid #e0eaf6;border-radius:13px;padding:10px;text-align:center}.admin-kpi strong{display:block;font-size:20px;color:#075dcc}.admin-kpi span{font-size:9px;color:#72839a;font-weight:800}.planned-link-highlight{border-color:#39a9d8!important;box-shadow:0 0 0 3px rgba(57,169,216,.10)}
+.weekly-delete{margin-left:auto;width:28px;height:28px;border:0;border-radius:9px;background:#fff0f0;color:#c62828;font-size:20px;font-weight:900;cursor:pointer;line-height:1}.weekly-delete:hover{background:#ffdede}
 @media(max-width:430px){.admin-data-filter{grid-template-columns:1fr}.admin-data-summary{grid-template-columns:repeat(2,1fr)}}
 </style>
 <style id="v140-professional-overrides">
@@ -931,7 +932,7 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
     <div class="install-choice" id="landingAndroid">
       <h3>🤖 Android</h3>
       <p>Download the APK. If Chrome does not open the installer automatically, open <b>Files → Downloads</b> and tap the APK file.</p>
-      <a class="install-main-btn" style="display:block;text-decoration:none;text-align:center" href="./Innoval-Field-Visit-v1.9.9-final.apk" download="Innoval-Field-Visit.apk">Download Android App</a>
+      <button class="install-main-btn" type="button" onclick="downloadLatestAndroidApk()">Download Android App</button>
       <div style="margin-top:8px;text-align:center;color:#7b8ca2;font-size:10px">Download → Open → Install → Open</div>
     </div>
     <div class="install-choice" id="landingIOS">
@@ -982,7 +983,7 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
     <div class="install-option" id="androidInstallOption">
       <h4>🤖 Android</h4>
       <p>Download the latest Innoval Field Visit APK and install it on your Android phone.</p>
-      <a class="install-action" href="https://ebrahimemary3-beep.github.io/Innoval-Field-Force/Innoval-Field-Visit-v1.9.9-final.apk" download="Innoval-Field-Visit.apk">Download Android App</a>
+      <button class="install-action" type="button" onclick="downloadLatestAndroidApk()">Download Android App</button>
     </div>
     <div class="install-option" id="iosInstallOption">
       <h4> iPhone / iOS</h4>
@@ -1091,17 +1092,19 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
   <div class="section-grid">
     <div class="field full"><label>Visit Date *</label><div class="input"><span>▣</span><input id="visitDate" type="date" required></div><small class="date-hint">You can record today’s visit or select any previous date.</small></div>
 
-    <div class="field full"><label>Assigned Area *</label><div class="input"><span>⌖</span><select id="area" required aria-label="Assigned Area"></select></div><small class="assigned-area-note">Your area is controlled by your official account. Admin can select an area for testing and management.</small></div>
-    <div class="field"><label>Customer Name *</label><div class="input"><span>●</span><input id="customer" list="customerList" required placeholder="Select customer" autocomplete="off"><datalist id="customerList"></datalist></div><small class="assigned-area-note">Only customers belonging to your assigned area are shown.</small></div>
-    <div class="field"><label>Visit Type *</label><div class="input"><span>◉</span><select id="visitType" required><option value="">Select Visit Type</option><option value="Planned">Planned</option><option value="Unplanned">Unplanned</option></select></div><small class="assigned-area-note">Choose Planned when the visit is linked to your Weekly Plan.</small></div>
-    <div class="field" id="plannedLinkField" style="display:none"><label>Planned Visit *</label><div class="input"><span>▣</span><select id="plannedVisitLink"><option value="">Select Planned Visit</option></select></div><small class="assigned-area-note">Only plans for the selected date and customer are shown.</small></div>
+    <div class="field full"><label>Assigned Area</label><div class="input"><span>⌖</span><select id="area" aria-label="Assigned Area"></select></div><small class="assigned-area-note">Field Force area is controlled by the official account. Admin can choose an area; leaving it on Choose Area shows all areas.</small></div>
+    <div class="field full"><label>Visit Type *</label><div class="input"><span>◉</span><select id="visitType" required><option value="">Select Visit Type</option><option value="Planned">Planned</option><option value="Not Planned">Not Planned</option></select></div></div>
+    <div class="field full" id="plannedCustomerField" style="display:none"><label>Planned Customer *</label><div class="input"><span>▣</span><select id="plannedVisitCustomer"><option value="">Select customer from today's Weekly Plan</option></select></div><small class="assigned-area-note">Only customers planned for the selected visit date are shown.</small></div>
+    <div class="field full" id="notPlannedModeField" style="display:none"><label>Not Planned Customer *</label><div class="input"><span>●</span><select id="notPlannedMode"><option value="Existing Customer">Existing Customer</option><option value="New Customer">New Customer</option></select></div></div>
+    <div class="field full" id="existingCustomerField" style="display:none"><label>Existing Customer *</label><div class="input"><span>●</span><input id="customer" list="customerList" placeholder="Select customer" autocomplete="off"><datalist id="customerList"></datalist></div><small class="assigned-area-note">Only customers belonging to your assigned area are shown.</small></div>
+    <div class="field full" id="newVisitCustomerField" style="display:none"><label>New Customer Name *</label><div class="input"><span>＋</span><input id="newVisitCustomerName" type="text" placeholder="Enter new customer name" autocomplete="off"></div></div>
   </div>
 </div>
 
 <div class="visit-section vs-teal">
   <div class="visit-section-head"><div class="section-art art-person">♙</div><div><span>STEP 02</span><h3>Customer Profile</h3><p>Define who you met and the customer profile.</p></div></div>
   <div class="section-grid">
-    <div class="field"><label>Customer Type *</label><div class="input"><span>♟</span><select id="type" required><option value="">Select Type</option><option>Veterinarian</option><option>Pharmacist</option><option>Farm Owner</option><option>Farm Manager</option><option>Distributor</option><option>Dealer</option><option>Other</option></select></div></div>
+    <div class="field"><label>Customer Type *</label><div class="input"><span>♟</span><select id="type" required><option value="">Select Type</option><option>Veterinarian</option><option>Pharmacist</option><option>Farm Owner</option><option>Farm Manager</option><option>Accountant / محاسب</option><option>Engineering Office</option><option>Distributor</option><option>Other</option></select></div></div>
     <div class="field"><label>Potentiality</label><div class="input"><span>↗</span><select id="potential"><option value="">Select Potentiality</option></select></div></div>
     <div class="field"><label>Loyalty</label><div class="input"><span>♥</span><select id="loyalty"><option value="">Select Loyalty</option></select></div></div>
     <div class="field"><label>Met Person</label><div class="input"><span>●</span><input id="meted" placeholder="Name"></div></div>
@@ -1273,8 +1276,8 @@ function isAdminUser(){
 function allowedVisitAreaIds(){
   const p=profile();
   if(isAdminUser()){
-    const selected=$("area")?.value||"A00";
-    return selected==="A00" ? MASTER_DATA.areas.filter(a=>a.active && a.id!=="A00").map(a=>a.id) : [selected];
+    const selected=$("area")?.value||"";
+    return (!selected || selected==="A00") ? MASTER_DATA.areas.filter(a=>a.active && a.id!=="A00").map(a=>a.id) : [selected];
   }
   return (p.areaIds||[]).filter(id=>id!=="A00");
 }
@@ -1296,10 +1299,10 @@ function refreshVisitFilters(resetCustomer=true){
 
   if(admin){
     areaEl.disabled=false;
-    areaEl.innerHTML='<option value="A00">All Areas</option>'+
+    areaEl.innerHTML='<option value="">Choose Area</option>'+
       MASTER_DATA.areas.filter(a=>a.active && a.id!=="A00")
       .map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join('');
-    areaEl.value=currentArea && Array.from(areaEl.options).some(o=>o.value===currentArea) ? currentArea : "A00";
+    areaEl.value=currentArea && Array.from(areaEl.options).some(o=>o.value===currentArea) ? currentArea : "";
   }else{
     const ids=(p.areaIds||[]).filter(id=>id!=="A00");
     areaEl.innerHTML=ids.map(id=>'<option value="'+esc(id)+'">'+esc(AREA_NAME_BY_ID[id]||id)+'</option>').join('');
@@ -1323,7 +1326,6 @@ function setAssignedAreaFromUser(){
   if(!areaEl) return;
 
   if(isAdminUser()){
-    if(!areaEl.value) areaEl.value="A00";
     refreshVisitFilters(false);
     return;
   }
@@ -1407,15 +1409,25 @@ function hideStartupSplash(){
 }
 function isIOSDevice(){return /iPad|iPhone|iPod/.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&navigator.maxTouchPoints>1)}
 function isAndroidDevice(){return /Android/i.test(navigator.userAgent)}
+async function downloadLatestAndroidApk(){
+  try{
+    const response=await fetch(UPDATE_MANIFEST+"?t="+Date.now(),{cache:"no-store"});
+    if(!response.ok)throw new Error("Update server unavailable");
+    const data=await response.json();
+    const url=data.url||data.downloadUrl||data.apk_url||"";
+    if(!url)throw new Error("APK URL is missing");
+    window.location.href=url;
+  }catch(e){
+    alert("Could not get the latest Android application. Please check your internet connection and try again.");
+  }
+}
 function openApplicationDownload(){
   const modal=$("installModal");
   if(!modal)return;
   modal.classList.add("show");
   document.documentElement.classList.add("modal-locked");
   document.body.classList.add("modal-locked");
-  if(isAndroidDevice()){
-    setTimeout(()=>{const a=document.querySelector('#androidInstallOption .install-action');a?.focus();},50);
-  }
+  if(isAndroidDevice()) setTimeout(()=>document.querySelector('#androidInstallOption .install-action')?.focus(),50);
 }
 function closeApplicationDownload(){
   const modal=$("installModal");
@@ -1435,8 +1447,12 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeApplicationDown
 
 function isInstalledAppMode(){
   try{
-    return location.protocol==='file:' || window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone===true;
-  }catch(e){ return location.protocol==='file:'; }
+    const standalone=window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+    const iosStandalone=window.navigator && window.navigator.standalone===true;
+    const ua=navigator.userAgent||'';
+    const isAndroidWebView=/;\s*wv\)/i.test(ua) || (/Android/i.test(ua)&&/Version\/4\.0/i.test(ua)&&/Chrome\//i.test(ua));
+    return location.protocol==='file:' || standalone || iosStandalone || isAndroidWebView || !!window.Android;
+  }catch(e){ return location.protocol==='file:' || !!window.Android; }
 }
 function showIOSInstallSteps(){
   alert('iPhone: open this link in Safari → Share → Add to Home Screen → Add. Then launch Innoval from the new Home Screen icon.');
@@ -1488,7 +1504,7 @@ function init(){
       return;
     }
     hideInstallLanding();
-    const dl=$('app-download-wrap');
+    const dl=$('appDownloadEntry');
     if(dl) dl.style.display='none';
     let logged=false;
     try{
@@ -1588,19 +1604,51 @@ function plannedRowsForCurrentUser(){
   try{return JSON.parse(localStorage.getItem("innovalWeeklyPlanRows")||"[]").filter(x=>x.rep===p.rep);}catch(e){return []}
 }
 function refreshPlannedVisitOptions(){
-  const typeEl=$("visitType"), field=$("plannedLinkField"), link=$("plannedVisitLink");
-  if(!typeEl||!field||!link)return;
-  const isPlanned=typeEl.value==="Planned"; field.style.display=isPlanned?"block":"none"; link.required=isPlanned; link.classList.toggle("planned-link-highlight",isPlanned);
-  if(!isPlanned){link.innerHTML='<option value="">Select Planned Visit</option>';link.value="";return;}
-  const date=$("visitDate")?.value||today(), customer=$("customer")?.value?.trim()||"";
-  const rows=plannedRowsForCurrentUser().filter(x=>x.date===date && (!customer || String(x.customer||"").trim()===customer));
-  link.innerHTML='<option value="">Select Planned Visit</option>'+rows.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.customer)+' • '+esc(x.area||"")+' • '+esc(x.day||"")+'</option>').join("");
-  if(rows.length===1)link.value=rows[0].id;
+  syncVisitCustomerMode();
 }
-function getSelectedPlannedVisit(){const id=$("plannedVisitLink")?.value||"";if(!id)return null;return plannedRowsForCurrentUser().find(x=>x.id===id)||null;}
-$("visitType")?.addEventListener("change",refreshPlannedVisitOptions);
-$("visitDate")?.addEventListener("change",refreshPlannedVisitOptions);
-$("customer")?.addEventListener("input",refreshPlannedVisitOptions);
+function syncVisitCustomerMode(){
+  const type=$('visitType')?.value||'';
+  const plannedField=$('plannedCustomerField');
+  const modeField=$('notPlannedModeField');
+  const existingField=$('existingCustomerField');
+  const newField=$('newVisitCustomerField');
+  const plannedSelect=$('plannedVisitCustomer');
+  const mode=$('notPlannedMode')?.value||'Existing Customer';
+
+  if(plannedField) plannedField.style.display=type==='Planned'?'block':'none';
+  if(modeField) modeField.style.display=type==='Not Planned'?'block':'none';
+  if(existingField) existingField.style.display=(type==='Not Planned' && mode==='Existing Customer')?'block':'none';
+  if(newField) newField.style.display=(type==='Not Planned' && mode==='New Customer')?'block':'none';
+
+  if(type==='Planned' && plannedSelect){
+    const date=$('visitDate')?.value||today();
+    const rows=plannedRowsForCurrentUser().filter(x=>x.date===date);
+    const old=plannedSelect.value;
+    plannedSelect.innerHTML='<option value="">Select customer from today\'s Weekly Plan</option>'+rows.map(x=>'<option value="'+esc(x.id)+'" data-customer="'+esc(x.customer||'')+'" data-area-id="'+esc(x.areaId||'')+'">'+esc(x.customer)+' • '+esc(x.area||'')+'</option>').join('');
+    if(rows.some(x=>x.id===old)) plannedSelect.value=old;
+    if(rows.length===1) plannedSelect.value=rows[0].id;
+  }
+  if(type!=='Planned' && plannedSelect) plannedSelect.value='';
+  if(type==='Not Planned' && mode==='Existing Customer') refreshVisitFilters(false);
+}
+function getSelectedPlannedVisit(){
+  const id=$('plannedVisitCustomer')?.value||'';
+  if(!id)return null;
+  return plannedRowsForCurrentUser().find(x=>x.id===id)||null;
+}
+$('visitType')?.addEventListener('change',()=>{syncVisitCustomerMode();refreshVisitFilters(false)});
+$('notPlannedMode')?.addEventListener('change',syncVisitCustomerMode);
+$('visitDate')?.addEventListener('change',syncVisitCustomerMode);
+$('customer')?.addEventListener('input',()=>{
+  const name=$('customer')?.value?.trim()||'';
+  const c=customerListData().find(x=>x.name===name);
+  if(c){
+    if($('potential'))$('potential').value=c.potential||'';
+    if($('loyalty'))$('loyalty').value=c.loyalty||'';
+    if(isAdminUser() && c.areaId && $('area')) $('area').value=c.areaId;
+  }
+});
+
 function showVisitSuccess(customer,date){
   $("successCustomer").textContent=customer||"—";
   $("successDate").textContent=formatDate(date||today());
@@ -1616,41 +1664,56 @@ $("visitForm").addEventListener("submit",e=>{
   const p=profile();
   const d=visits();
   const visitDate=$("visitDate").value||today();
-  const customerName=$("customer").value.trim();
-  const customer=customerListData().find(v=>v.name===customerName);
+  const visitType=$("visitType")?.value||"";
+  if(!visitType){toast("Please select Planned or Not Planned visit");return;}
 
-  if(!customer){
-    toast("Please select a customer from your assigned area");
-    return;
+  let plannedVisit=null;
+  let customerName="";
+  let customer=null;
+
+  if(visitType==="Planned"){
+    plannedVisit=getSelectedPlannedVisit();
+    if(!plannedVisit){toast("Please select a customer from today's Weekly Plan");return;}
+    customerName=String(plannedVisit.customer||"").trim();
+    customer=customerListData().find(v=>String(v.name||"").trim()===customerName) || customers().find(v=>String(v.name||"").trim()===customerName);
+    if(!customer){
+      customer={name:customerName,gov:"",area:plannedVisit.area||AREA_NAME_BY_ID[plannedVisit.areaId]||"",areaId:plannedVisit.areaId||"",potential:"",loyalty:""};
+    }
+  }else{
+    const mode=$("notPlannedMode")?.value||"Existing Customer";
+    if(mode==="Existing Customer"){
+      customerName=$("customer")?.value?.trim()||"";
+      customer=customerListData().find(v=>v.name===customerName);
+      if(!customer){toast("Please select an existing customer from your assigned area");return;}
+    }else{
+      customerName=$("newVisitCustomerName")?.value?.trim()||"";
+      if(!customerName){toast("Please enter the new customer name");return;}
+      const selectedArea=$("area")?.value||"";
+      const pArea=(p.areaIds||[]).filter(id=>id!=="A00");
+      const areaId=selectedArea || (pArea.length===1?pArea[0]:"");
+      if(!areaId){toast("Please choose an area for the new customer");return;}
+      customer={name:customerName,gov:"",area:AREA_NAME_BY_ID[areaId]||areaId,areaId,potential:$("potential")?.value||"",loyalty:$("loyalty")?.value||"",type:$("type")?.value||"Other"};
+      try{
+        const all=customers();
+        if(!all.some(c=>String(c.name||"").trim().toLowerCase()===customerName.toLowerCase())) saveCustomers(all.concat(customer));
+      }catch(err){console.warn("Could not save new customer",err)}
+    }
   }
 
-  const visitType=$("visitType")?.value||"";
-  const plannedVisit=getSelectedPlannedVisit();
-  if(!visitType){toast("Please select Planned or Unplanned visit");return;}
-  if(visitType==="Planned" && !plannedVisit){toast("Please select the Planned Visit linked to this customer and date");return;}
-  if(visitType==="Planned" && plannedVisit.customer && String(plannedVisit.customer).trim()!==customerName){toast("Selected plan does not match the customer");return;}
-
-  if(!isAdminUser() && !(profile().areaIds||[]).includes(customer.areaId)){
+  const customerAreaId=customer.areaId||$("area")?.value||((p.areaIds||[]).length===1?p.areaIds[0]:"");
+  if(!isAdminUser() && customerAreaId && !(profile().areaIds||[]).includes(customerAreaId)){
     toast("Customer is outside your assigned area");
     return;
   }
 
   const existingCount=d.filter(v=>v.rep===p.rep&&v.date===visitDate).length;
-  if(existingCount>=10){
-    toast("Maximum 10 visits per day");
-    return;
-  }
+  if(existingCount>=10){toast("Maximum 10 visits per day");return;}
 
   const objective=$("objective").value;
   const selected=selectedProducts();
-
-  if(isProductPromotionObjective(objective) && selected.length===0){
-    toast("Please select at least one promoted product");
-    return;
-  }
+  if(isProductPromotionObjective(objective) && selected.length===0){toast("Please select at least one promoted product");return;}
 
   const visitNo=String(existingCount+1);
-
   d.unshift({
     id:"V"+String(d.length+1).padStart(3,"0"),
     date:visitDate,
@@ -1658,8 +1721,8 @@ $("visitForm").addEventListener("submit",e=>{
     rep:p.rep,
     customer:customerName,
     gov:customer.gov||"",
-    area:customer.area||AREA_NAME_BY_ID[$("area").value]||$("area").value||p.area,
-    areaId:customer.areaId||$("area").value||((p.areaIds||[]).length===1?p.areaIds[0]:""),
+    area:customer.area||AREA_NAME_BY_ID[customerAreaId]||customerAreaId||p.area,
+    areaId:customerAreaId,
     visitType:visitType,
     planId:plannedVisit?.id||"",
     potential:$("potential").value,
@@ -1682,9 +1745,11 @@ $("visitForm").addEventListener("submit",e=>{
   e.target.reset();
   $("visitDate").value=today();
   $("todayLabel").textContent=visitDate;
+  if($("plannedVisitCustomer"))$("plannedVisitCustomer").value="";
+  if($("newVisitCustomerName"))$("newVisitCustomerName").value="";
   if($("visitType"))$("visitType").value="";
-  if($("plannedLinkField"))$("plannedLinkField").style.display="none";
-  if($("plannedVisitLink")){ $("plannedVisitLink").value=""; $("plannedVisitLink").innerHTML='<option value="">Select Planned Visit</option>'; }
+  if($("notPlannedMode"))$("notPlannedMode").value="Existing Customer";
+  syncVisitCustomerMode();
   try{refreshVisitFilters(true);}catch(e){}
   try{setAssignedAreaFromUser();}catch(e){}
   syncProductPicker();
@@ -1710,7 +1775,7 @@ function showVisitPage(){
   $("mainShell").classList.remove("hidden");
   $("bottomNav").classList.remove("hidden");
   setBottomActive("bnNew");
-  if($("visitDate")){$("visitDate").value=today();$("todayLabel").textContent=today();} setAssignedAreaFromUser(); syncProductPicker(); if($("visitType"))$("visitType").value=""; refreshPlannedVisitOptions();
+  if($("visitDate")){$("visitDate").value=today();$("todayLabel").textContent=today();} setAssignedAreaFromUser(); syncProductPicker(); if($("visitType"))$("visitType").value=""; if($("notPlannedMode"))$("notPlannedMode").value="Existing Customer"; syncVisitCustomerMode();
   window.scrollTo({top:0,behavior:"smooth"});
   setTimeout(()=>{$("visitDate")?.focus()},120);
 }
@@ -1820,7 +1885,7 @@ function openAddCustomer(){
     '<div class="field"><label>Customer Name *</label><input id="newCustomerName" style="padding-left:12px" required placeholder="Enter customer name"></div>'+
     '<div class="field"><label>Governorate *</label><select id="newCustomerGov" required style="padding-left:12px"><option value="">Select Governorate</option>'+DATA.govs.map(g=>'<option>'+esc(g)+'</option>').join('')+'</select></div>'+
     '<div class="field"><label>Area *</label><input id="newCustomerArea" style="padding-left:12px" required placeholder="Enter area"></div>'+
-    '<div class="field"><label>Customer Type *</label><select id="newCustomerType" required style="padding-left:12px"><option value="">Select Type</option><option>Veterinarian</option><option>Pharmacist</option><option>Farm Owner</option><option>Farm Manager</option><option>Distributor</option><option>Dealer</option><option>Other</option></select></div>'+
+    '<div class="field"><label>Customer Type *</label><select id="newCustomerType" required style="padding-left:12px"><option value="">Select Type</option><option>Veterinarian</option><option>Pharmacist</option><option>Farm Owner</option><option>Farm Manager</option><option>Accountant / محاسب</option><option>Engineering Office</option><option>Distributor</option><option>Other</option></select></div>'+
     '<div class="field"><label>Potentiality</label><select id="newCustomerPotential" style="padding-left:12px">'+DATA.potential.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select></div>'+
     '<div class="field"><label>Loyalty</label><select id="newCustomerLoyalty" style="padding-left:12px">'+DATA.loyalty.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select></div>'+
     '<button class="save" type="submit">＋ &nbsp; Add Customer</button>'+
@@ -2015,7 +2080,6 @@ function openAppSettings(){
     '<p class="profile-note">Manage your profile, password, application updates, and account access.</p>'+
     '<div class="update-status"><strong>Application Version</strong><div style="margin-top:6px"><span class="version-badge">v'+APP_VERSION+'</span> <span style="margin-left:6px;color:var(--muted)">Installed version</span></div></div>'+
     '<div class="setting-action" onclick="closeModal();openSettings()"><span class="drawer-icon">●</span><div><b>Profile</b><small>Personal information and work details</small></div></div>'+
-    '<div class="setting-action" onclick="closeModal();openPasswordSettings()"><span class="drawer-icon">🔒</span><div><b>Password</b><small>Change your account password</small></div></div>'+
     '<div class="home-layout-switch"><div><b>Home Layout</b><small>Use larger visual cards, icons and headlines for faster access.</small></div><button class="home-layout-toggle" type="button" onclick="toggleHomeLayout()">'+(localStorage.getItem('innovalHomeLayout')==='compact'?'Use Visual Layout':'Use Compact Layout')+'</button></div>'+
     (isAdminUser()?'<div class="setting-action" onclick="closeModal();openAdminDataCenter()"><span class="drawer-icon">▦</span><div><b>Admin Data Center</b><small>Manage and review users, areas, customers and products across All Areas</small></div></div>':'')+
     '<div class="setting-action" onclick="closeModal();window.checkForUpdate()"><span class="drawer-icon">↻</span><div><b>Check for Update</b><small>Check the latest Innoval Field Visit version</small></div></div>'+
@@ -2251,7 +2315,7 @@ function renderWeeklyPlan(range){
   const days=range.dates.map(dt=>{
     const arr=byDate[dt]||[];
     return '<div class="weekly-day"><div class="weekly-day-head"><b>'+weeklyDayName(dt)+'</b><span>'+formatDate(dt)+' • '+arr.length+' planned</span></div>'+
-      (arr.length?arr.map(item=>{n++;const done=visits().some(v=>v.rep===profile().rep&&((v.planId&&item.id&&v.planId===item.id)||(String(v.customer||"").trim()===String(item.customer||"").trim()&&v.date===item.date)));return '<div class="weekly-plan-row"><span class="weekly-plan-num">'+n+'</span><div class="weekly-plan-info"><b>'+esc(item.customer)+'</b><small>'+esc(item.area||"—")+'</small></div><span class="weekly-status '+(done?'done':'')+'">'+(done?'✓ Done':'Planned')+'</span></div>'}).join(''):'<div class="weekly-empty">No planned customer yet.</div>')+
+      (arr.length?arr.map(item=>{n++;const done=visits().some(v=>v.rep===profile().rep&&((v.planId&&item.id&&v.planId===item.id)||(String(v.customer||"").trim()===String(item.customer||"").trim()&&v.date===item.date)));return '<div class="weekly-plan-row"><span class="weekly-plan-num">'+n+'</span><div class="weekly-plan-info"><b>'+esc(item.customer)+'</b><small>'+esc(item.area||"—")+'</small></div><span class="weekly-status '+(done?'done':'')+'">'+(done?'✓ Done':'Planned')+'</span><button type="button" class="weekly-delete" onclick="deletePlannedVisit(&quot;'+esc(item.id)+'&quot;)" aria-label="Delete planned visit">×</button></div>'}).join(''):'<div class="weekly-empty">No planned customer yet.</div>')+
       '<button class="weekly-add" type="button" onclick="openAddPlannedVisit(\''+dt+'\')">＋ Add Another Planned Customer</button></div>';
   }).join('');
   const pct=Math.min(100,info.percent);
@@ -2260,6 +2324,14 @@ function renderWeeklyPlan(range){
     '<div class="weekly-plan-summary"><div class="weekly-kpi"><strong>'+info.planned+'</strong><span>Planned</span></div><div class="weekly-kpi"><strong>'+info.matched+'</strong><span>Matched</span></div><div class="weekly-kpi"><strong>'+info.percent+'%</strong><span>Plan Match</span></div></div>'+
     '<div class="weekly-progress"><span style="width:'+pct+'%"></span></div>'+days+
     '<div class="weekly-toolbar"><button type="button" onclick="openWeeklyFullView()">▤ Full Week View</button><button type="button" onclick="openAddPlannedVisit(weeklyCurrentRange().start)">＋ Add Planned Visit</button></div>';
+}
+function deletePlannedVisit(id){
+  if(!id)return;
+  if(!confirm("Delete this planned visit?"))return;
+  const rows=weeklyPlanRows().filter(x=>x.id!==id);
+  saveWeeklyPlanRows(rows);
+  toast("Planned visit deleted ✓");
+  renderWeeklyPlan(weeklyCurrentRange());
 }
 function openAddPlannedVisit(date){
   const range=weeklyCurrentRange();
@@ -2369,122 +2441,113 @@ function browserExcelDownload(blob,fileName){
  toast('Excel download started ✓');
 }
 // ===== Innoval App Update Checker =====
-// Keep the updater on window so inline Android/WebView handlers can always reach it.
+// Web/PWA updater. Native Android uses the Android bridge for the actual APK installation.
 const APP_VERSION = "1.9.31";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
+let innovalSwRegistration=null;
 
-function compareVersions(a, b) {
-  const pa = String(a || "0").replace(/^v/i, "").split(".").map(n => parseInt(n,10) || 0);
-  const pb = String(b || "0").replace(/^v/i, "").split(".").map(n => parseInt(n,10) || 0);
-  for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
-    const x = pa[i] || 0, y = pb[i] || 0;
-    if (x > y) return 1;
-    if (x < y) return -1;
-  }
+function compareVersions(a,b){
+  const pa=String(a||"0").replace(/^v/i,"").split(".").map(n=>parseInt(n,10)||0);
+  const pb=String(b||"0").replace(/^v/i,"").split(".").map(n=>parseInt(n,10)||0);
+  for(let i=0;i<Math.max(pa.length,pb.length);i++){const x=pa[i]||0,y=pb[i]||0;if(x>y)return 1;if(x<y)return -1;}
   return 0;
 }
-window.compareInnovalVersions = compareVersions;
-
-function setUpdateHomeState(text, sub, icon, disabled) {
-  const btn = document.getElementById("homeUpdateBtn");
-  const t = document.getElementById("homeUpdateText");
-  const subEl = document.getElementById("homeUpdateSub");
-  const ic = document.getElementById("homeUpdateIcon");
-  if (btn) { btn.disabled = !!disabled; btn.style.opacity = disabled ? ".78" : "1"; }
-  if (t) t.textContent = text;
-  if (subEl) subEl.textContent = sub;
-  if (ic) ic.textContent = icon;
+window.compareInnovalVersions=compareVersions;
+function setUpdateHomeState(text,sub,icon,disabled){
+  const btn=$("homeUpdateBtn"),t=$("homeUpdateText"),s=$("homeUpdateSub"),ic=$("homeUpdateIcon");
+  if(btn){btn.disabled=!!disabled;btn.style.opacity=disabled?".78":"1";}
+  if(t)t.textContent=text;if(s)s.textContent=sub;if(ic)ic.textContent=icon;
 }
-
-function setVersionInfo(latestVersion, checked) {
-  const current = document.getElementById("currentAppVersion");
-  const last = document.getElementById("lastUpdateCheck");
-  if (current) current.textContent = APP_VERSION;
-  if (last && checked) last.textContent = "• Checked just now";
+function setVersionInfo(latestVersion,checked){
+  const current=$("currentAppVersion"),last=$("lastUpdateCheck");
+  if(current)current.textContent=APP_VERSION;
+  if(last&&checked)last.textContent="• Checked just now";
 }
-
-function addUpdateButton() {
-  const body = document.getElementById("modalBody");
-  if (!body || document.getElementById("checkUpdateBtn")) return;
-  const btn = document.createElement("button");
-  btn.id = "checkUpdateBtn";
-  btn.className = "update-btn";
-  btn.style.cssText = "width:100%;margin-top:12px;padding:12px;border:0;border-radius:10px;background:#075dcc;color:#fff;font-weight:700;cursor:pointer;";
-  btn.innerHTML = "↻ &nbsp; Check for Update";
-  btn.onclick = window.checkForUpdate;
-  body.appendChild(btn);
+function addUpdateButton(){
+  const body=$("modalBody");if(!body||$("checkUpdateBtn"))return;
+  const btn=document.createElement("button");btn.id="checkUpdateBtn";btn.className="update-btn";
+  btn.style.cssText="width:100%;margin-top:12px;padding:12px;border:0;border-radius:10px;background:#075dcc;color:#fff;font-weight:700;cursor:pointer;";
+  btn.innerHTML="↻ &nbsp; Check for Update";btn.onclick=window.checkForUpdate;body.appendChild(btn);
 }
+function showWebUpdatePrompt(latestVersion){
+  $("modalTitle").textContent="🔔 New Update Available";
+  $("modalBody").innerHTML='<div style="padding:4px 0 8px"><p style="margin:0 0 10px;color:var(--text,#163b66);font-weight:700">A newer Innoval Field Visit version is ready.</p><div style="background:#f4f8fd;border-radius:12px;padding:12px;font-size:12px;color:#5f7188"><b>Current:</b> v'+esc(APP_VERSION)+'<br><b>Latest:</b> v'+esc(latestVersion)+'</div><p style="margin:12px 0 0;color:#7a8ba1;font-size:11px">The iPhone / iOS Home Screen app will refresh to the latest web version.</p></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px"><button type="button" class="close" onclick="closeModal()">LATER</button><button type="button" class="save" onclick="applyWebUpdate()">UPDATE NOW</button></div>';
+  openModalLayer("modal");
+}
+async function applyWebUpdate(){
+  try{
+    if(innovalSwRegistration){
+      await innovalSwRegistration.update();
+      const waiting=innovalSwRegistration.waiting;
+      if(waiting){try{waiting.postMessage({type:"SKIP_WAITING"});}catch(e){}}
+    }
+  }catch(e){}
+  closeModal();
+  setTimeout(()=>{location.reload();},350);
+}
+window.checkForUpdate=async function checkForUpdate(options){
+  options=options||{};
+  const current=APP_VERSION;
+  setUpdateHomeState("Checking for Update…","Checking the latest Innoval version","⟳",true);
+  try{
+    const response=await fetch(UPDATE_MANIFEST+"?t="+Date.now(),{cache:"no-store"});
+    if(!response.ok)throw new Error("Update server unavailable");
+    const data=await response.json();
+    const latestVersion=String(data.version||"").trim();
+    const downloadUrl=data.url||data.downloadUrl||data.apk_url||"";
+    if(!latestVersion)throw new Error("Invalid version file");
+    const comparison=compareVersions(latestVersion,current);
+    setVersionInfo(latestVersion,true);
 
-window.checkForUpdate = async function checkForUpdate() {
-  const homeBtn = document.getElementById("homeUpdateBtn");
-  const homeText = document.getElementById("homeUpdateText");
-  const homeSub = document.getElementById("homeUpdateSub");
-  const homeIcon = document.getElementById("homeUpdateIcon");
-  const current = APP_VERSION;
-
-  setUpdateHomeState("Checking for Update…", "Checking the latest Innoval version", "⟳", true);
-
-  try {
-    const response = await fetch(UPDATE_MANIFEST + "?t=" + Date.now(), { cache: "no-store" });
-    if (!response.ok) throw new Error("Update server unavailable");
-
-    const data = await response.json();
-    const latestVersion = String(data.version || "").trim();
-    const downloadUrl = data.url || data.downloadUrl || data.apk_url || "";
-    if (!latestVersion) throw new Error("Invalid version file");
-
-    const comparison = compareVersions(latestVersion, current);
-    setVersionInfo(latestVersion, true);
-
-    if (comparison > 0) {
-      setUpdateHomeState("Update Available", "Version " + latestVersion + " is ready", "↑", false);
-      const go = confirm(
-        "A new version of Innoval Field Visit is available.\n\n" +
-        "Current version: " + current + "\n" +
-        "Latest version: " + latestVersion + "\n\n" +
-        "Open the download link now?"
-      );
-      if (go && downloadUrl) {
-        if (window.Android && typeof window.Android.openUrl === "function") window.Android.openUrl(downloadUrl);
-        else window.open(downloadUrl, "_blank");
+    if(comparison>0){
+      setUpdateHomeState("Update Available","Version "+latestVersion+" is ready","↑",false);
+      // Native Android: hand the APK to the existing signed native updater.
+      if(window.Android && typeof window.Android.downloadAndInstallApk==="function" && downloadUrl){
+        window.Android.downloadAndInstallApk(downloadUrl,latestVersion);
+        return;
       }
+      // iOS / browser PWA: update the service worker and refresh after user confirmation.
+      showWebUpdatePrompt(latestVersion);
       return;
     }
-
-    if (comparison === 0) {
-      setUpdateHomeState("You're Up to Date", "Current version " + current + " • Latest version " + latestVersion, "✓", false);
-      if (typeof toast === "function") toast("You are up to date ✓");
+    if(comparison===0){
+      setUpdateHomeState("You're Up to Date","Current version "+current+" • Latest version "+latestVersion,"✓",false);
+      if(typeof toast==="function"&&!options.silent)toast("You are up to date ✓");
       return;
     }
-
-    // Local build is newer than the server manifest (useful while preparing a release).
-    setUpdateHomeState("You're Up to Date", "Current version " + current + " • Latest public version " + latestVersion, "✓", false);
-    if (typeof toast === "function") toast("You are using a newer app build ✓");
-  } catch (error) {
-    setUpdateHomeState("Check for Update", "Could not connect to the update server", "↻", false);
-    if (typeof toast === "function") toast("Could not check for updates");
-    else alert("Could not check for updates.\nPlease check your internet connection.");
+    setUpdateHomeState("You're Up to Date","Current version "+current+" • Latest public version "+latestVersion,"✓",false);
+    if(typeof toast==="function"&&!options.silent)toast("You are using a newer app build ✓");
+  }catch(error){
+    setUpdateHomeState("Check for Update","Could not connect to the update server","↻",false);
+    if(!options.silent){if(typeof toast==="function")toast("Could not check for updates");else alert("Could not check for updates.\\nPlease check your internet connection.");}
   }
 };
-
-// Expose a small version helper for the UI / WebView.
-window.getInnovalAppVersion = function(){ return APP_VERSION; };
+window.getInnovalAppVersion=function(){return APP_VERSION;};
 function applyInstallationAwareDownloadVisibility(){
-  const el = document.getElementById("appDownloadEntry");
-  if (!el) return;
-  const standalone = window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
-  const iosStandalone = window.navigator && window.navigator.standalone === true;
-  const ua = navigator.userAgent || "";
-  const isAndroidWebView = /;\s*wv\)/i.test(ua) || (/Android/i.test(ua) && /Version\/4\.0/i.test(ua) && /Chrome\//i.test(ua));
-  const installedApp =
-  standalone ||
-  iosStandalone ||
-  isAndroidWebView ||
-  !!window.Android;
-  el.classList.toggle("install-hidden", installedApp);
+  const el=$("appDownloadEntry");if(!el)return;
+  const standalone=window.matchMedia&&window.matchMedia("(display-mode: standalone)").matches;
+  const iosStandalone=window.navigator&&window.navigator.standalone===true;
+  const ua=navigator.userAgent||"";
+  const isAndroidWebView=/;\s*wv\)/i.test(ua)||(/Android/i.test(ua)&&/Version\/4\.0/i.test(ua)&&/Chrome\//i.test(ua));
+  const installedApp=standalone||iosStandalone||isAndroidWebView||!!window.Android;
+  el.classList.toggle("install-hidden",installedApp);
 }
-window.applyInstallationAwareDownloadVisibility = applyInstallationAwareDownloadVisibility;
+window.applyInstallationAwareDownloadVisibility=applyInstallationAwareDownloadVisibility;
 
+// Automatic web update checks are intentionally skipped inside native Android; WorkManager handles Android in the background.
+function scheduleWebUpdateChecks(){
+  if(window.Android || !isInstalledAppMode())return;
+  const run=()=>{
+    if(document.visibilityState==='hidden')return;
+    const last=Number(localStorage.getItem("innovalLastWebUpdateCheck")||0);
+    if(Date.now()-last<30*60*1000)return;
+    localStorage.setItem("innovalLastWebUpdateCheck",String(Date.now()));
+    window.checkForUpdate({silent:true});
+  };
+  setTimeout(run,2200);
+  window.addEventListener("online",run);
+  document.addEventListener("visibilitychange",()=>{if(document.visibilityState==='visible')run();});
+}
 
 // Add the update action automatically inside Profile & Account if that screen is opened.
 if (typeof openSettings === "function") {
@@ -2502,7 +2565,19 @@ loadNotifications();
   const current = document.getElementById("currentAppVersion");
   if (current) current.textContent = APP_VERSION;
 })();
-</script><script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}</script>
-</body></html>
 
-<script>applyInstallationAwareDownloadVisibility();</script>
+  // Service worker registration for iOS / PWA updates.
+  if(!window.Android && 'serviceWorker' in navigator){
+    window.addEventListener('load',()=>{
+      navigator.serviceWorker.register('./sw.js').then(reg=>{
+        innovalSwRegistration=reg;
+        reg.update().catch(()=>{});
+      }).catch(()=>{});
+    });
+  }
+  applyInstallationAwareDownloadVisibility();
+  window.addEventListener('pageshow',applyInstallationAwareDownloadVisibility);
+  window.addEventListener('resize',applyInstallationAwareDownloadVisibility);
+  scheduleWebUpdateChecks();
+</script>
+</body></html>
