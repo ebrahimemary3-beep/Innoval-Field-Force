@@ -881,6 +881,70 @@ html.modal-locked,body.modal-locked{overscroll-behavior:none;touch-action:none;o
 .password-save,.profile-save{position:static!important;bottom:auto!important}
 .password-save{margin-top:13px!important}
 @media(max-width:520px){.profile-modal-photo-actions{left:-2px;top:76px;width:224px}}
+
+/* ===== v1.9.35 MASTER COMMAND HOME ===== */
+.home-command-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:14px!important;padding:0 17px 18px!important}
+.home-command-card,.home-command-wide{
+  position:relative;border:1px solid #dfe8f2;border-radius:23px;background:#fff;
+  box-shadow:0 9px 24px rgba(21,52,94,.07);overflow:hidden;
+}
+.home-command-card{padding:17px!important;min-height:310px!important}
+.reporting-card{background:linear-gradient(145deg,#eef7ff,#fff)!important}
+.customers-card{background:linear-gradient(145deg,#effcf8,#fff)!important}
+.command-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+.command-icon{width:54px;height:54px;flex:0 0 54px;border-radius:17px;display:grid;place-items:center;background:#edf5ff;color:#0b66d1;font-size:25px;font-weight:900}
+.customers-card .command-icon{background:#eaf9f4;color:#16a87f}
+.command-head h3{margin:1px 0 4px;font-size:19px;font-weight:900;color:#1254a2}
+.customers-card .command-head h3{color:#168867}
+.command-head p{margin:0;color:#71809a;font-size:10px;line-height:1.4}
+.command-actions{display:grid;gap:9px}
+.command-actions button{
+  width:100%;min-height:67px;border:1px solid #dfe7f1;border-radius:14px;background:rgba(255,255,255,.92);
+  display:flex;align-items:center;gap:10px;padding:9px 10px;text-align:left;color:#15345e;
+}
+.command-actions button:active{transform:scale(.99)}
+.command-action-icon{width:36px;height:36px;flex:0 0 36px;border-radius:11px;background:#edf5ff;color:#0b66d1;display:grid;place-items:center;font-size:18px;font-weight:900}
+.customers-card .command-action-icon{background:#eaf9f4;color:#16a87f}
+.command-actions button>span:nth-child(2){min-width:0;flex:1}
+.command-actions b{display:block;font-size:12px;font-weight:900}
+.command-actions small{display:block;margin-top:3px;font-size:9px;color:#7a899d}
+.command-arrow{font-size:22px;color:#7890aa;font-weight:900}
+.home-command-wide{
+  grid-column:1/-1!important;min-height:125px;padding:18px 20px!important;
+  display:flex;align-items:center;gap:15px;text-align:left;
+}
+.dashboard-command{background:linear-gradient(145deg,#f4f1ff,#fff)}
+.export-command{background:linear-gradient(145deg,#fff8e9,#fff)}
+.wide-command-icon{
+  width:58px;height:58px;flex:0 0 58px;border-radius:18px;display:grid;place-items:center;
+  background:#ece8ff;color:#5b4ac3;font-size:29px;font-weight:900;
+}
+.export-command .wide-command-icon{background:#fff0d3;color:#c97c0c}
+.home-command-wide h3{margin:0 0 5px;font-size:19px;font-weight:900;color:#5544bd}
+.export-command h3{color:#c97c0c}
+.home-command-wide p{margin:0;color:#71809a;font-size:10px;line-height:1.45;max-width:520px}
+.wide-command-arrow{margin-left:auto;font-size:28px;color:#778aa4}
+.page-with-close{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.page-close{width:40px;height:40px;flex:0 0 40px;border:1px solid #dce5ef;border-radius:12px;background:#fff;color:#607087;font-size:20px;font-weight:800;box-shadow:0 5px 15px rgba(21,52,94,.06)}
+.customer-picker{width:100%;min-height:48px;border:1px solid #dce3ee;border-radius:11px;background:#fff;color:#71809a;padding:12px 41px 12px 41px;text-align:left;position:relative}
+.customer-picker.selected{color:var(--ink);font-weight:700}
+.customer-picker:after{content:"⌄";position:absolute;right:13px;top:50%;transform:translateY(-50%);font-size:18px;color:#71809a}
+.visit-customer-modal-list{display:grid;gap:8px;margin-top:10px}
+.visit-customer-option{width:100%;border:1px solid #e0e7f0;background:#fff;border-radius:13px;padding:12px;text-align:left}
+.visit-customer-option b{display:block;font-size:12px;color:#163b66}
+.visit-customer-option small{display:block;margin-top:4px;color:#7b8ca2;font-size:9px}
+.visit-customer-option:active{background:#f4f8fd}
+.visit-customer-search{width:100%;padding:12px!important;margin-bottom:8px}
+@media(max-width:650px){
+ .home-command-grid{grid-template-columns:1fr!important;padding:0 12px 18px!important;gap:12px!important}
+ .home-command-card{min-height:0!important}
+ .home-command-wide{grid-column:auto!important;min-height:110px;padding:15px!important}
+ .command-head h3{font-size:18px}
+ .command-actions button{min-height:63px}
+ .wide-command-icon{width:52px;height:52px;flex-basis:52px}
+ .home-command-wide h3{font-size:17px}
+ .page-with-close{align-items:flex-start}
+}
 </style>
 
 <link rel="manifest" href="manifest.json">
@@ -1048,57 +1112,43 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
     <button class="hero-cta" type="button" onclick="showVisitPage()">＋ &nbsp; Start New Visit</button>
   </div>
 
-  <div class="home-grid home-grid-rich">
-  <button class="home-card rich-card rich-blue" onclick="showVisitPage()">
-    <span class="home-icon rich-icon"><svg viewBox="0 0 48 48"><path d="M7 23h34v18H7zM10 23l5-9h18l5 9M16 14v-4h16v4"/><circle cx="24" cy="31" r="4"/><path d="M24 35v5"/></svg></span>
-    <span class="rich-art chicken-art" aria-hidden="true">
-      <svg viewBox="0 0 260 180" class="art-svg">
-        <defs><linearGradient id="farmSky" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#dff5ff"/><stop offset="1" stop-color="#eefcff"/></linearGradient><linearGradient id="birdBody" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#dcecff"/></linearGradient></defs>
-        <circle cx="215" cy="35" r="22" fill="#fff3bd" opacity=".8"/><path d="M0 132c42-34 85-30 126-3 39 25 79 22 134-7v58H0z" fill="#cceeff"/><path d="M0 145c55-25 93-18 130 3 37 20 82 13 130-12v44H0z" fill="#b6e6c6"/>
-        <path d="M15 137h230" stroke="#8dc7df" stroke-width="3"/><path d="M180 136l18-39 18 39M198 97V75M188 83l10-11 10 11" fill="#78b6d9"/>
-        <g class="anim-chicken"><ellipse cx="102" cy="105" rx="49" ry="42" fill="url(#birdBody)" stroke="#b9d9ef" stroke-width="3"/><circle cx="138" cy="77" r="29" fill="#fff" stroke="#b9d9ef" stroke-width="3"/><path d="M159 78l20 9-20 9" fill="#f3b62d"/><circle cx="147" cy="69" r="3" fill="#173d69"/><path d="M119 54c-9-16 2-26 13-20 6-15 21-7 20 6 12-3 17 11 8 18-13 7-28 6-41-4z" fill="#ef5260"/><path d="M66 91c-25-18-39-7-37 10 11-4 19-2 26 5M73 137v17M120 137v17" stroke="#d1e4f2" stroke-width="8" stroke-linecap="round"/><path d="M74 111c15 13 34 16 50 9" stroke="#a6cce7" stroke-width="4" fill="none"/></g>
-        <g class="floating-virus"><circle cx="44" cy="48" r="18" fill="#8fd9ef" opacity=".55"/><path d="M44 23v8M44 65v8M19 48h8M61 48h8M27 31l6 6M55 59l6 6M61 31l-6 6M33 59l-6 6" stroke="#2a9dcc" stroke-width="3" stroke-linecap="round"/></g>
-      </svg>
-    </span>
-    <span class="home-copy"><h3>New Visit</h3><p>Start a new field visit to customer / farm</p></span><span class="home-go">›</span>
+  <div class="home-grid home-grid-rich home-command-grid">
+  <section class="home-command-card reporting-card">
+    <div class="command-head">
+      <div class="command-icon">▣</div>
+      <div><h3>Reporting</h3><p>Plan, record and review your field visits.</p></div>
+    </div>
+    <div class="command-actions">
+      <button type="button" onclick="showVisitPage()"><span class="command-action-icon">＋</span><span><b>New Visit</b><small>Record a field visit</small></span><span class="command-arrow">›</span></button>
+      <button type="button" onclick="openWeeklyPlan()"><span class="command-action-icon">▤</span><span><b>Weekly Plan</b><small>Plan customers by date</small></span><span class="command-arrow">›</span></button>
+      <button type="button" onclick="openVisits()"><span class="command-action-icon">☷</span><span><b>Visit History</b><small>Review previous visits</small></span><span class="command-arrow">›</span></button>
+    </div>
+  </section>
+
+  <section class="home-command-card customers-card">
+    <div class="command-head">
+      <div class="command-icon">♙</div>
+      <div><h3>Customers</h3><p>Manage customer information and records.</p></div>
+    </div>
+    <div class="command-actions">
+      <button type="button" onclick="openCustomerCards()"><span class="command-action-icon">♙</span><span><b>Customer Cards</b><small>Browse customer details</small></span><span class="command-arrow">›</span></button>
+      <button type="button" onclick="openAddCustomer()"><span class="command-action-icon">＋</span><span><b>Add New Customer</b><small>Create a new customer</small></span><span class="command-arrow">›</span></button>
+    </div>
+  </section>
+
+  <button type="button" class="home-command-wide dashboard-command" onclick="openDashboard()">
+    <div class="wide-command-icon">⌁</div>
+    <div><h3>Dashboard</h3><p>Track daily activity, monthly performance and visit insights.</p></div>
+    <span class="wide-command-arrow">›</span>
   </button>
 
-  <button class="home-card rich-card rich-blue weekly-plan-card" onclick="openWeeklyPlan()">
-    <span class="home-icon rich-icon"><svg viewBox="0 0 48 48"><rect x="8" y="10" width="32" height="30" rx="5"/><path d="M14 7v7M34 7v7M8 19h32"/><path d="M15 26h6M27 26h6M15 33h6M27 33h6" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span>
-    <span class="rich-art weekly-art" aria-hidden="true"><svg viewBox="0 0 260 180" class="art-svg"><rect x="44" y="26" width="172" height="126" rx="14" fill="#fff" stroke="#a8c8ef" stroke-width="4"/><path d="M44 58h172" stroke="#8bb8e8" stroke-width="4"/><path d="M70 18v20M190 18v20" stroke="#176fd0" stroke-width="7" stroke-linecap="round"/><circle cx="74" cy="82" r="9" fill="#dcecff"/><circle cx="111" cy="82" r="9" fill="#dcecff"/><circle cx="148" cy="82" r="9" fill="#dcecff"/><circle cx="185" cy="82" r="9" fill="#dcecff"/><circle cx="74" cy="116" r="9" fill="#e8f8f3"/><circle cx="111" cy="116" r="9" fill="#e8f8f3"/><circle cx="148" cy="116" r="9" fill="#e8f8f3"/><circle cx="185" cy="116" r="9" fill="#e8f8f3"/><path d="M68 82h12M105 82h12M142 82h12M179 82h12" stroke="#176fd0" stroke-width="3"/><path d="M68 116h12M105 116h12M142 116h12M179 116h12" stroke="#22aa7c" stroke-width="3"/><circle cx="205" cy="135" r="23" fill="#e9f7ff" stroke="#176fd0" stroke-width="3"/><path d="M195 135l7 7 13-16" stroke="#176fd0" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-    <span class="home-copy"><h3>Weekly Plan</h3><p>Plan your customers from Saturday to Friday and track your weekly match</p></span><span class="home-go">›</span>
+  <button type="button" class="home-command-wide export-command" onclick="openExport()">
+    <div class="wide-command-icon">⇩</div>
+    <div><h3>Export Visit History</h3><p>Export selected visit records to the official HR-style Excel report.</p></div>
+    <span class="wide-command-arrow">›</span>
   </button>
-
-  <button class="home-card rich-card rich-green" onclick="openVisits()">
-    <span class="home-icon rich-icon"><svg viewBox="0 0 48 48"><rect x="9" y="7" width="30" height="34" rx="4"/><path d="M15 15h18M15 22h18M15 29h12"/><circle cx="35" cy="34" r="6"/><path d="M35 31v3l2 2"/></svg></span>
-    <span class="rich-art history-art" aria-hidden="true"><svg viewBox="0 0 260 180" class="art-svg"><rect x="77" y="25" width="116" height="132" rx="12" fill="#fff" stroke="#8fd5bf" stroke-width="4"/><rect x="108" y="14" width="54" height="25" rx="8" fill="#2fb98f"/><path d="M98 61h72M98 80h62M98 99h69M98 118h51" stroke="#9bdcca" stroke-width="7" stroke-linecap="round"/><path d="M88 61l5 5 10-12M88 80l5 5 10-12M88 99l5 5 10-12" stroke="#21a879" stroke-width="4" fill="none" stroke-linecap="round"/><rect x="24" y="91" width="62" height="51" rx="9" fill="#e8fbf5" stroke="#72c7aa" stroke-width="3"/><path d="M24 108h62M38 82v20M72 82v20" stroke="#55b895" stroke-width="4"/><circle cx="55" cy="126" r="7" fill="#22aa7c"/><g class="anim-tick"><path d="M182 132c17-10 29-7 37 7" stroke="#26b184" stroke-width="5" fill="none" stroke-linecap="round"/></g></svg></span>
-    <span class="home-copy"><h3>Visit History</h3><p>View visits by date, customer and area</p></span><span class="home-go">›</span>
-  </button>
-
-  <button class="home-card rich-card rich-purple" onclick="openCustomerCards()">
-    <span class="home-icon rich-icon"><svg viewBox="0 0 48 48"><circle cx="24" cy="16" r="7"/><path d="M11 39c1-8 6-12 13-12s12 4 13 12"/><path d="M8 10h8M12 6v8M34 30h7M37 27v7"/></svg></span>
-    <span class="rich-art customer-art" aria-hidden="true"><svg viewBox="0 0 260 180" class="art-svg"><rect x="28" y="42" width="204" height="108" rx="15" fill="#fff" stroke="#c8bdf5" stroke-width="3"/><rect x="44" y="58" width="72" height="76" rx="12" fill="#eeeaff"/><circle cx="80" cy="82" r="18" fill="#7258df"/><path d="M55 123c3-18 13-27 25-27s22 9 25 27" fill="#9b87ee"/><path d="M135 68h70M135 87h55M135 106h76M135 125h43" stroke="#bdb4ed" stroke-width="7" stroke-linecap="round"/><circle cx="214" cy="136" r="18" fill="#7356df"/><path d="M206 136h16M214 128v16" stroke="#fff" stroke-width="4" stroke-linecap="round"/><g class="anim-dna"><path d="M174 24c-16 10-16 23 0 33s16 23 0 33" stroke="#8b78e8" stroke-width="3" fill="none" opacity=".45"/><path d="M195 24c16 10 16 23 0 33s-16 23 0 33" stroke="#b6a9f4" stroke-width="3" fill="none" opacity=".45"/></g></svg></span>
-    <span class="home-copy"><h3>Customer Cards</h3><p>Browse customer, farm and contact information</p></span><span class="home-go">›</span>
-  </button>
-
-  <button class="home-card rich-card rich-orange" onclick="openAddCustomer()">
-    <span class="home-icon rich-icon"><svg viewBox="0 0 48 48"><circle cx="19" cy="16" r="6"/><path d="M8 37c1-7 5-11 11-11s10 4 11 11"/><circle cx="35" cy="31" r="8"/><path d="M35 27v8M31 31h8"/></svg></span>
-    <span class="rich-art hatchery-art" aria-hidden="true"><svg viewBox="0 0 260 180" class="art-svg"><path d="M24 143h212" stroke="#f2c66e" stroke-width="4"/><path d="M42 128c0-39 31-62 73-62s73 23 73 62" fill="#fff7e4" stroke="#f2b53e" stroke-width="4"/><path d="M57 104h116M71 86h88" stroke="#f6ca70" stroke-width="5" stroke-linecap="round"/><g class="egg"><ellipse cx="96" cy="124" rx="19" ry="25" fill="#fff" stroke="#e8bd65" stroke-width="3"/><path d="M91 126c5 7 10 7 15 0" stroke="#f2b53e" stroke-width="3" fill="none"/></g><g class="chick"><ellipse cx="147" cy="128" rx="27" ry="20" fill="#ffe08c"/><circle cx="166" cy="112" r="16" fill="#ffe79d"/><path d="M180 114l13 6-13 6" fill="#f1a82c"/><circle cx="171" cy="107" r="2.5" fill="#173d69"/><path d="M138 145v10M159 145v10" stroke="#e7a83c" stroke-width="4"/><path d="M138 108c-7-8-2-14 5-11 3-8 11-4 10 3 7-1 9 8 3 11" fill="#efc34f"/></g><g class="hatch-bubble"><circle cx="213" cy="51" r="23" fill="#fff" stroke="#f5bd47" stroke-width="3"/><path d="M202 51h22M213 40v22" stroke="#f2a72c" stroke-width="4" stroke-linecap="round"/></g></svg></span>
-    <span class="home-copy"><h3>Add New Customer</h3><p>Register a new farmer, supervisor or customer</p></span><span class="home-go">›</span>
-  </button>
-
-  <button class="home-card home-wide rich-card rich-blue vaccine-wide" onclick="openDashboard()">
-    <span class="home-icon rich-icon"><svg viewBox="0 0 48 48"><path d="M8 39V9M8 39h32"/><path d="M13 32l7-8 6 4 11-14"/><circle cx="20" cy="24" r="2"/><circle cx="26" cy="28" r="2"/><circle cx="37" cy="21" r="2"/></svg></span>
-    <span class="rich-art dashboard-art" aria-hidden="true"><svg viewBox="0 0 430 190" class="art-svg"><path d="M20 160h390" stroke="#bcd7f5" stroke-width="3"/><path d="M45 160v-38h36v38M98 160v-62h36v62M151 160V77h36v83M204 160V59h36v101M257 160V39h36v121" fill="#dcecff"/><path class="chart-line" d="M45 124l53-31 53 19 53-47 53-23 48-25" stroke="#176fd0" stroke-width="7" fill="none" stroke-linecap="round" stroke-linejoin="round"/><g class="chart-points" fill="#176fd0"><circle cx="45" cy="124" r="7"/><circle cx="98" cy="93" r="7"/><circle cx="151" cy="112" r="7"/><circle cx="204" cy="65" r="7"/><circle cx="257" cy="42" r="7"/><circle cx="305" cy="17" r="7"/></g><g class="vial"><rect x="335" y="58" width="48" height="82" rx="10" fill="#eaf6ff" stroke="#3a87d9" stroke-width="4"/><rect x="344" y="43" width="30" height="18" rx="4" fill="#8cbbe9"/><path d="M345 91h28M345 105h28" stroke="#3a87d9" stroke-width="5" stroke-linecap="round"/><path d="M359 76v10M354 81h10" stroke="#176fd0" stroke-width="4" stroke-linecap="round"/><circle cx="398" cy="76" r="20" fill="#e9fbf4" stroke="#25b688" stroke-width="3"/><path d="M389 76l6 6 12-14" stroke="#22aa7c" stroke-width="4" fill="none" stroke-linecap="round"/></g><g class="virus-float"><circle cx="370" cy="158" r="13" fill="#a9e3d2" opacity=".8"/><path d="M370 139v7M370 170v7M351 158h7M382 158h7" stroke="#35ad89" stroke-width="3"/></g></svg></span>
-    <span class="home-copy"><h3>Dashboard</h3><p>Track visits, customers, performance and vaccine / poultry activity insights</p></span><span class="home-go">›</span>
-  </button>
-  <button class="home-card home-wide rich-card rich-export" onclick="openExport()">
-    <span class="home-icon rich-icon"><svg viewBox="0 0 48 48"><path d="M24 7v24M15 22l9 9 9-9"/><path d="M10 31v7a3 3 0 0 0 3 3h22a3 3 0 0 0 3-3v-7"/><rect x="13" y="10" width="22" height="28" rx="4" opacity=".12"/></svg></span>
-    <span class="rich-art export-art" aria-hidden="true"><svg viewBox="0 0 430 190" class="art-svg"><rect x="86" y="27" width="185" height="132" rx="14" fill="#fff" stroke="#9fc4ee" stroke-width="4"/><path d="M108 62h141M108 87h116M108 112h130M108 137h92" stroke="#b8d5f3" stroke-width="8" stroke-linecap="round"/><path d="M292 67v60" stroke="#1d72cf" stroke-width="8" stroke-linecap="round"/><path d="M274 108l18 19 18-19" fill="none" stroke="#1d72cf" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/><rect x="324" y="57" width="62" height="77" rx="11" fill="#eaf7ff" stroke="#55a1df" stroke-width="4"/><path d="M338 78h34M338 94h34M338 110h24" stroke="#55a1df" stroke-width="5" stroke-linecap="round"/></svg></span>
-    <span class="home-copy"><h3>Export Visit History</h3><p>Export selected visits to the official HR-style Excel report</p></span><span class="home-go">›</span>
-  </button>
-  </div>
-  <div class="home-footer-art" aria-hidden="true">
+</div>
+<div class="home-footer-art" aria-hidden="true">
     <svg viewBox="0 0 800 120" preserveAspectRatio="none">
       <path d="M0 100h800M30 100c15-28 34-38 58-40 24 2 43 12 56 40M180 100c12-22 27-32 46-33 19 1 34 11 45 33M650 100c13-29 31-40 55-40 23 1 42 11 56 40" fill="#9ec6ec"/>
       <circle cx="98" cy="65" r="18" fill="#d7e8f8"/><circle cx="695" cy="62" r="18" fill="#d7e8f8"/>
@@ -1113,7 +1163,7 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
 <div class="sec">▥ TODAY'S SUMMARY</div><div class="kpis">
 <div class="kpi"><i>♟</i><strong id="today">0</strong><span>Visits Today</span></div><div class="kpi"><i>♟</i><strong id="month">0</strong><span>Visits This Month</span></div><div class="kpi"><i>★</i><strong id="high">0</strong><span>High Potential</span></div><div class="kpi"><i>◎</i><strong id="ach">0%</strong><span>Achievement</span></div></div>
 <div class="sec">⚡ QUICK ACTIONS</div><div class="quick"><button class="primary" onclick="focusCustomer()">⊕ &nbsp; New Visit</button><button onclick="openVisits()">▣ &nbsp; My Visits</button></div></aside>
-<main class="content"><div class="welcome"><h1>Record a New Visit</h1><p>Fast, simple and standardized field visit registration.</p></div>
+<main class="content"><div class="welcome page-with-close"><div><h1>Record a New Visit</h1><p>Fast, simple and standardized field visit registration.</p></div><button class="page-close" type="button" onclick="closeVisitPage()" aria-label="Back to Home">✕</button></div>
 <section class="card"><div class="card-head"><h2>▣ &nbsp; Visit Details</h2><span id="todayLabel"></span></div>
 <form class="form" id="visitForm">
 <div class="visit-section vs-blue">
@@ -1125,7 +1175,7 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
     <div class="field full"><label>Visit Type *</label><div class="input"><span>◉</span><select id="visitType" required><option value="">Select Visit Type</option><option value="Planned">Planned</option><option value="Not Planned">Not Planned</option></select></div></div>
     <div class="field full" id="plannedCustomerField" style="display:none"><label>Planned Customer *</label><div class="input"><span>▣</span><select id="plannedVisitCustomer"><option value="">Select customer from selected date's Weekly Plan</option></select></div><small class="assigned-area-note">Only customers planned for the selected visit date are shown.</small></div>
     <div class="field full" id="notPlannedModeField" style="display:none"><label>Not Planned Customer *</label><div class="input"><span>●</span><select id="notPlannedMode"><option value="Existing Customer">Existing Customer</option><option value="New Customer">New Customer</option></select></div></div>
-    <div class="field full" id="existingCustomerField" style="display:none"><label>Existing Customer *</label><div class="input"><span>●</span><input id="customer" list="customerList" placeholder="Select customer" autocomplete="off"><datalist id="customerList"></datalist></div><small class="assigned-area-note">Only customers belonging to your assigned area are shown.</small></div>
+    <div class="field full" id="existingCustomerField" style="display:none"><label>Existing Customer *</label><div class="input"><span>●</span><button id="customerPicker" class="customer-picker" type="button" onclick="openVisitCustomerPicker()">Select customer</button><input id="customer" type="hidden" value=""><datalist id="customerList"></datalist></div><small class="assigned-area-note">Only customers belonging to your assigned area are shown.</small></div>
     <div class="field full" id="newVisitCustomerField" style="display:none"><label>New Customer Name *</label><div class="input"><span>＋</span><input id="newVisitCustomerName" type="text" placeholder="Enter new customer name" autocomplete="off"></div></div>
   </div>
 </div>
@@ -1272,7 +1322,7 @@ function mergeMasterEmployees(){
   let old=[];
   try{old=JSON.parse(localStorage.getItem("innovalEmployeesFinal")||"[]");if(!Array.isArray(old))old=[];}catch(e){old=[];}
   const findPrevious=u=>old.find(x=>String(x.userId||"")===String(u.id))||old.find(x=>String(x.email||"").trim().toLowerCase()===String(u.email||"").trim().toLowerCase())||old.find(x=>String(x.name||"").trim().toLowerCase()===String(u.name||"").trim().toLowerCase());
-  const adminResetNeeded=localStorage.getItem("innovalAdminPasswordReset1934")!=="1";
+  const adminResetNeeded=localStorage.getItem("innovalAdminPasswordReset1935")!=="1";
   const result=MASTER_DATA.users.map(u=>{
     const prev=findPrevious(u);
     let password=prev?.password||"1234";
@@ -1280,7 +1330,7 @@ function mergeMasterEmployees(){
     if(u.role==="Admin" && adminResetNeeded) password="1234";
     return {name:u.name,email:u.email,userId:u.id,role:u.role,areaIds:u.areaIds,area:u.areaIds.includes("A00")?"All Areas":u.areaIds.map(id=>AREA_NAME_BY_ID[id]||id).join(" / "),password};
   });
-  if(adminResetNeeded)localStorage.setItem("innovalAdminPasswordReset1934","1");
+  if(adminResetNeeded)localStorage.setItem("innovalAdminPasswordReset1935","1");
   return result;
 }
 function syncMasterData(){
@@ -1638,21 +1688,36 @@ $("area")?.addEventListener("change",()=>{
   refreshVisitFilters(true);
 });
 
-$("customer").addEventListener("change",()=>{
-  const name=$("customer").value.trim();
+function openVisitCustomerPicker(){
+  const selectedArea=$("area")?.value||"";
+  const current=$("customer")?.value||"";
+  const list=customerListData().filter(c=>!selectedArea||isAdminUser()||!c.areaId||c.areaId===selectedArea);
+  $("modalTitle").textContent="Select Existing Customer";
+  $("modalBody").innerHTML=
+    '<input id="visitCustomerSearch" class="visit-customer-search" placeholder="Search customer, area or governorate" value="">'+
+    '<div id="visitCustomerResults" class="visit-customer-modal-list"></div>';
+  const render=()=>{
+    const q=String($("visitCustomerSearch")?.value||"").trim().toLowerCase();
+    const rows=list.filter(c=>!q||String(c.name||"").toLowerCase().includes(q)||String(c.area||"").toLowerCase().includes(q)||String(c.gov||"").toLowerCase().includes(q));
+    $("visitCustomerResults").innerHTML=rows.length?rows.map(c=>'<button type="button" class="visit-customer-option" onclick="selectVisitCustomer('+JSON.stringify(c.name).replace(/"/g,"&quot;")+')"><b>'+esc(c.name)+'</b><small>'+esc(c.area||"—")+' • '+esc(c.gov||"—")+'</small></button>').join(''):'<div class="customer-empty">No customers found.</div>';
+  };
+  $("visitCustomerSearch").addEventListener("input",render);
+  render();
+  openModalLayer("modal");
+}
+function selectVisitCustomer(name){
   const c=customerListData().find(x=>x.name===name);
-  if(!c){
-    $("potential").value="";
-    $("loyalty").value="";
-    return;
-  }
-
-  if(isAdminUser() && c.areaId && $("area")){
-    $("area").value=c.areaId;
-  }
+  if(!c)return;
+  $("customer").value=c.name;
+  const picker=$("customerPicker");
+  if(picker){picker.textContent=c.name;picker.classList.add("selected");}
+  if(isAdminUser() && c.areaId && $("area")) $("area").value=c.areaId;
   $("potential").value=c.potential||"";
   $("loyalty").value=c.loyalty||"";
-});
+  closeModal();
+}
+function closeVisitPage(){ showHome(); }
+
 function plannedRowsForCurrentUser(){
   const p=profile();
   return weeklyPlanRows().filter(x=>x.rep===p.rep);
@@ -1829,7 +1894,7 @@ function showVisitPage(){
   $("mainShell").classList.remove("hidden");
   $("bottomNav").classList.remove("hidden");
   setBottomActive("bnNew");
-  if($("visitDate")){$("visitDate").value=today();$("todayLabel").textContent=today();} setAssignedAreaFromUser(); syncProductPicker(); if($("visitType"))$("visitType").value=""; if($("notPlannedMode"))$("notPlannedMode").value="Existing Customer"; syncVisitCustomerMode();
+  if($("visitDate")){$("visitDate").value=today();$("todayLabel").textContent=today();} setAssignedAreaFromUser(); syncProductPicker(); if($("visitType"))$("visitType").value=""; if($("notPlannedMode"))$("notPlannedMode").value="Existing Customer"; if($("customerPicker")){ $("customerPicker").textContent="Select customer"; $("customerPicker").classList.remove("selected"); } if($("customer"))$("customer").value=""; syncVisitCustomerMode();
   window.scrollTo({top:0,behavior:"smooth"});
   setTimeout(()=>{$("visitDate")?.focus()},120);
 }
@@ -1924,6 +1989,7 @@ function openCustomerCard(index){
 function showVisitPageForCustomer(name){
   showVisitPage();
   $("customer").value=name;
+  if($("customerPicker")){ $("customerPicker").textContent=name; $("customerPicker").classList.add("selected"); }
   const c=customerListData().find(x=>x.name===name);
   if(c){
     $("area").value=(c.area||"")+" / "+(c.gov||"");
@@ -2498,7 +2564,7 @@ function browserExcelDownload(blob,fileName){
 }
 // ===== Innoval App Update Checker =====
 // Web/PWA updater. Native Android uses the Android bridge for the actual APK installation.
-const APP_VERSION = "1.9.34";
+const APP_VERSION = "1.9.35";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 let innovalSwRegistration=null;
 
