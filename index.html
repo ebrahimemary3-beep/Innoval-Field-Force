@@ -2476,7 +2476,11 @@ function applyInstallationAwareDownloadVisibility(){
   const iosStandalone = window.navigator && window.navigator.standalone === true;
   const ua = navigator.userAgent || "";
   const isAndroidWebView = /;\s*wv\)/i.test(ua) || (/Android/i.test(ua) && /Version\/4\.0/i.test(ua) && /Chrome\//i.test(ua));
-  const installedApp = standalone || iosStandalone || isAndroidWebView;
+  const installedApp =
+  standalone ||
+  iosStandalone ||
+  isAndroidWebView ||
+  !!window.Android;
   el.classList.toggle("install-hidden", installedApp);
 }
 window.applyInstallationAwareDownloadVisibility = applyInstallationAwareDownloadVisibility;
