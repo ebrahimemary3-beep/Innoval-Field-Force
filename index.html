@@ -17,13 +17,39 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.top{height:70px
 .home-card h3{margin:0 0 5px;font-size:16px}.home-card p{margin:0;color:var(--muted);font-size:11px;line-height:1.4}
 .home-card.primary{background:linear-gradient(135deg,#075dcc,#063b91);color:#fff}.home-card.primary .home-icon{background:rgba(255,255,255,.16);color:#fff}.home-card.primary p{color:rgba(255,255,255,.82)}
 .home-wide{grid-column:1/-1}
-.customer-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.customer-card{background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px;margin-bottom:10px;box-shadow:0 5px 18px rgba(16,42,91,.05);cursor:pointer}
-.customer-card b{font-size:14px}.customer-card small{display:block;color:var(--muted);font-size:11px;margin-top:5px}.customer-meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.customer-meta .chip{margin-top:0}.customer-empty{text-align:center;padding:30px 10px;color:var(--muted)}
+/* ===== v1.9.46 Customer List + Customer Database ===== */
+.customer-toolbar{display:flex;gap:10px;margin-bottom:12px}
+.customer-toolbar input{flex:1}
+.customer-list-head,.customer-db-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 10px}
+.customer-list-head b,.customer-db-head b{font-size:12px;color:var(--ink)}
+.customer-list-head span,.customer-db-head span{font-size:10px;color:var(--muted)}
+.customer-list-row{background:#fff;border:1px solid var(--line);border-radius:13px;padding:12px 13px;margin-bottom:8px;cursor:pointer;transition:.18s;box-shadow:0 3px 12px rgba(16,42,91,.04)}
+.customer-list-row:hover{border-color:#b9d5f4;transform:translateY(-1px)}
+.customer-list-row-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.customer-list-row-top b{font-size:13px;color:var(--ink)}
+.customer-list-row-top .arrow{font-size:18px;color:var(--blue);font-weight:900}
+.customer-list-row small{display:block;color:var(--muted);font-size:10px;margin-top:4px}
+.customer-list-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.customer-list-meta .chip{margin-top:0;font-size:9px;padding:4px 7px}
+.customer-empty,.customer-db-empty{text-align:center;padding:30px 10px;color:var(--muted)}
+.customer-db-row{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 14px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 3px 12px rgba(16,42,91,.04)}
+.customer-db-row:hover{border-color:#b9d5f4;transform:translateY(-1px)}
+.customer-db-row b{display:block;font-size:13px;color:var(--ink)}
+.customer-db-row small{display:block;color:var(--muted);font-size:10px;margin-top:4px}
+.customer-db-arrow{font-size:22px;color:var(--blue);font-weight:900}
+.customer-db-section{font-size:10px;font-weight:900;color:var(--blue);letter-spacing:.3px;margin:15px 0 7px;padding-bottom:6px;border-bottom:1px solid #e8eef6}
+.customer-db-detail-head{padding:4px 0 12px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.customer-db-detail-head h3{margin:0 0 3px;font-size:19px;color:var(--ink)}
+.customer-db-detail-head p{margin:0;color:var(--muted);font-size:10px}
+.customer-db-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.customer-db-item{background:#f7f9fc;border:1px solid #edf1f6;border-radius:11px;padding:10px}
+.customer-db-item span{display:block;color:var(--muted);font-size:9px;margin-bottom:4px}
+.customer-db-item b{display:block;color:var(--ink);font-size:12px;line-height:1.35}
+.customer-db-item.full{grid-column:1/-1}
+.customer-db-note{margin:10px 0 0;padding:9px 10px;border-radius:10px;background:#f4f8fd;color:var(--muted);font-size:9px;line-height:1.45}
 .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0}.detail-item{background:#f7f9fc;border-radius:10px;padding:10px}.detail-item span{display:block;color:var(--muted);font-size:9px;margin-bottom:3px}.detail-item b{font-size:12px}
 .form-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.secondary-btn{width:100%;border:1px solid var(--line);border-radius:13px;background:#fff;color:var(--ink);padding:13px;font-weight:800}
-@media(max-width:650px){.customer-toolbar,.detail-grid,.form-actions{grid-template-columns:1fr}}
+@media(max-width:650px){.customer-toolbar,.detail-grid,.form-actions{grid-template-columns:1fr}.customer-db-grid{grid-template-columns:1fr}.customer-db-item.full{grid-column:auto}}
 
 @media(max-width:650px){.home-screen{padding:20px 15px 90px}.home-grid{grid-template-columns:1fr;gap:12px}.home-card{min-height:92px}.home-wide{grid-column:auto}.home-hero{padding:22px 19px}.home-hero h1{font-size:22px}}
 
@@ -363,6 +389,19 @@ html,body{min-height:100%;background:var(--bg)}
 .success-summary span{display:block;font-size:9px;color:#7a8798;margin-bottom:4px}.success-summary b{display:block;font-size:11px;color:#18365f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .success-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.success-actions button{border:0;border-radius:14px;padding:12px 9px;font-weight:700;font-size:11px}
 .success-secondary{background:#edf4fd;color:#075dcc}.success-primary{background:linear-gradient(110deg,#063b91,#0876df);color:#fff}
+
+.customer-warning-overlay{position:fixed;inset:0;background:rgba(6,25,60,.58);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:22px;z-index:101}
+.customer-warning-overlay.open{display:flex;animation:successFade .22s ease}
+.customer-warning-card{position:relative;width:min(430px,100%);background:#fff;border-radius:30px;padding:28px 22px 22px;text-align:center;box-shadow:0 28px 70px rgba(3,20,55,.28);overflow:hidden}
+.customer-warning-card:before{content:"";position:absolute;width:220px;height:220px;border-radius:50%;background:rgba(22,168,127,.10);top:-125px;right:-80px}
+.customer-warning-close{position:absolute;right:15px;top:15px;width:36px;height:36px;border:0;border-radius:12px;background:#f1f4f8;color:#64738a;font-size:18px}
+.customer-warning-orbit{width:116px;height:116px;margin:6px auto 15px;border-radius:50%;border:1px solid #ccefe3;position:relative;display:grid;place-items:center;background:radial-gradient(circle,#effcf8 0 47%,#fff 48%)}
+.customer-warning-icon{width:68px;height:68px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#12a77d,#18c997);color:#fff;font-size:35px;font-weight:900;box-shadow:0 12px 24px rgba(22,168,127,.25);animation:successPop .45s cubic-bezier(.2,1.4,.4,1)}
+.customer-warning-kicker{font-size:9px;letter-spacing:2px;font-weight:800;color:#16a87f;margin-top:2px}
+.customer-warning-card h2{margin:7px 0 7px;font-size:24px;color:#102a5b}.customer-warning-card p{margin:0 auto 18px;color:#71809a;font-size:12px;max-width:320px;line-height:1.5}
+.customer-warning-summary{display:grid;grid-template-columns:1fr;gap:9px;text-align:left;margin:0 0 17px}.customer-warning-summary>div{background:#f6f9fc;border:1px solid #e5ebf2;border-radius:14px;padding:10px 11px}.customer-warning-summary span{display:block;font-size:9px;color:#7a8798;margin-bottom:4px}.customer-warning-summary b{display:block;font-size:11px;color:#18365f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.customer-warning-actions{display:grid;grid-template-columns:1fr;gap:9px}.customer-warning-actions button{border:0;border-radius:14px;padding:12px 9px;font-weight:700;font-size:11px}.customer-warning-primary{background:linear-gradient(110deg,#063b91,#0876df);color:#fff}
+@media(max-width:520px){.customer-warning-card{padding:25px 17px 18px}}
 @keyframes successPop{0%{transform:scale(.35);opacity:0}75%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
 @keyframes successFade{from{opacity:0}to{opacity:1}}
 @media(max-width:520px){.section-grid{grid-template-columns:1fr}.section-grid .full{grid-column:auto}.visit-section{border-radius:21px;padding:16px 13px}.visit-section-head h3{font-size:17px}.success-card{padding:25px 17px 18px}.success-actions{grid-template-columns:1fr}.success-summary{gap:7px}}
@@ -385,6 +424,23 @@ html,body{min-height:100%;background:var(--bg)}
 .admin-data-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:12px 0}.admin-data-tabs button{border:1px solid #d7e3f2;background:#f6f9fd;border-radius:12px;padding:10px 6px;font-weight:800;color:#23476e}.admin-data-tabs button.active{background:linear-gradient(100deg,var(--navy),var(--blue));color:#fff;border-color:transparent}.admin-data-filter{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}.admin-data-table{border:1px solid #e0e8f2;border-radius:15px;overflow:hidden;background:#fff}.admin-data-row{display:grid;grid-template-columns:1fr auto;gap:10px;padding:12px 13px;border-bottom:1px solid #edf1f6}.admin-data-row:last-child{border-bottom:0}.admin-data-row b{display:block;color:#163b66}.admin-data-row small{display:block;color:#7b8ca2;margin-top:3px}.admin-data-pill{align-self:center;padding:5px 9px;border-radius:999px;background:#edf5ff;color:#176fcf;font-size:10px;font-weight:900}.admin-data-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.admin-kpi{background:#f5f9fe;border:1px solid #e0eaf6;border-radius:13px;padding:10px;text-align:center}.admin-kpi strong{display:block;font-size:20px;color:#075dcc}.admin-kpi span{font-size:9px;color:#72839a;font-weight:800}.planned-link-highlight{border-color:#39a9d8!important;box-shadow:0 0 0 3px rgba(57,169,216,.10)}
 .weekly-delete{margin-left:auto;width:28px;height:28px;border:0;border-radius:9px;background:#fff0f0;color:#c62828;font-size:20px;font-weight:900;cursor:pointer;line-height:1}.weekly-delete:hover{background:#ffdede}
 @media(max-width:430px){.admin-data-filter{grid-template-columns:1fr}.admin-data-summary{grid-template-columns:repeat(2,1fr)}}
+/* ===== v1.9.46 Add Customer + Customer List / Database UX ===== */
+.add-customer-area-note{display:block;margin-top:5px;font-size:10px;color:var(--muted);line-height:1.4}
+#newCustomerArea{font-weight:700;background:#f7f9fc;color:#18365f}
+#newCustomerArea:disabled{opacity:1;color:#18365f}
+/* ===== v1.9.46 Customer Database + Add Customer Success ===== */
+.customer-success-overlay{position:fixed;inset:0;background:rgba(6,25,60,.58);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:22px;z-index:102}
+.customer-success-overlay.open{display:flex;animation:successFade .22s ease}
+.customer-success-card{position:relative;width:min(430px,100%);background:#fff;border-radius:30px;padding:28px 22px 22px;text-align:center;box-shadow:0 28px 70px rgba(3,20,55,.28);overflow:hidden}
+.customer-success-card:before{content:"";position:absolute;width:220px;height:220px;border-radius:50%;background:rgba(22,184,134,.08);top:-125px;right:-80px}
+.customer-success-close{position:absolute;right:15px;top:15px;width:36px;height:36px;border:0;border-radius:12px;background:#f1f4f8;color:#64738a;font-size:18px}
+.customer-success-orbit{width:116px;height:116px;margin:6px auto 15px;border-radius:50%;border:1px solid #d9f3ea;position:relative;display:grid;place-items:center;background:radial-gradient(circle,#effcf7 0 47%,#fff 48%)}
+.customer-success-check{width:68px;height:68px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#11a875,#23c994);color:#fff;font-size:38px;font-weight:700;box-shadow:0 12px 24px rgba(22,184,134,.25);animation:successPop .45s cubic-bezier(.2,1.4,.4,1)}
+.customer-success-kicker{font-size:9px;letter-spacing:2px;font-weight:800;color:#16a57b;margin-top:2px}
+.customer-success-card h2{margin:7px 0 7px;font-size:24px;color:#102a5b}.customer-success-card p{margin:0 auto 18px;color:#71809a;font-size:12px;max-width:320px;line-height:1.5}
+.customer-success-summary{display:grid;grid-template-columns:1fr;gap:9px;text-align:left;margin:0 0 17px}.customer-success-summary>div{background:#f6f9fc;border:1px solid #e5ebf2;border-radius:14px;padding:10px 11px}.customer-success-summary span{display:block;font-size:9px;color:#7a8798;margin-bottom:4px}.customer-success-summary b{display:block;font-size:11px;color:#18365f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.customer-success-primary{width:100%;border:0;border-radius:14px;padding:12px 9px;font-weight:700;font-size:11px;background:linear-gradient(110deg,#063b91,#0876df);color:#fff}
+@media(max-width:520px){.customer-success-card{padding:25px 17px 18px}}
 </style>
 <style id="v140-professional-overrides">
 /* ===== v1.4.0 Enterprise Home ===== */
@@ -1006,7 +1062,9 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
 .install-landing-card.hidden{display:none!important}
 @media(max-width:430px){#installLanding{padding:16px}.install-landing-card{padding:24px 16px 20px;border-radius:26px}.install-landing-card h1{font-size:25px}.install-choice{padding:15px}}
 </style>
-</head>
+<style id="v1947-customer-db-management">
+.customer-db-shell{background:linear-gradient(180deg,#f5f1ff 0%,#fbfaff 100%);border:1px solid #ded5f3;border-radius:18px;padding:12px}.customer-db-banner{display:flex;align-items:center;gap:10px;padding:12px 13px;border-radius:14px;background:linear-gradient(135deg,#39256f,#6548aa);color:#fff;margin-bottom:12px;box-shadow:0 10px 22px rgba(57,37,111,.15)}.customer-db-banner-icon{width:40px;height:40px;border-radius:12px;background:#ffffff20;display:grid;place-items:center;font-size:21px}.customer-db-banner b{display:block;font-size:13px}.customer-db-banner small{display:block;margin-top:3px;font-size:9px;opacity:.82}.customer-db-row{background:#fff!important;border:1px solid #ddd6ee!important;border-left:4px solid #6d55b5!important;border-radius:14px!important;padding:11px 11px 11px 13px!important;margin-bottom:8px!important;display:flex!important;align-items:center;gap:10px;box-shadow:0 4px 14px rgba(57,37,111,.06)!important}.customer-db-row:hover{border-color:#b9abe0!important}.customer-db-main{min-width:0;flex:1}.customer-db-row b{color:#30205d!important}.customer-db-row-actions{display:flex;align-items:center;gap:5px;flex:0 0 auto}.customer-db-action{width:32px;height:32px;border:1px solid #e1dbf0;border-radius:9px;background:#faf8ff;color:#5b3fa2;font-size:15px;font-weight:900;display:grid;place-items:center;cursor:pointer}.customer-db-action.delete{color:#c93636;background:#fff7f7;border-color:#f0d8d8}.customer-db-action:hover{background:#eee8ff}.customer-db-action.delete:hover{background:#ffeaea}.customer-db-detail-wrap{background:linear-gradient(180deg,#faf8ff,#fff);border:1px solid #ded5f3;border-radius:18px;padding:13px}.customer-db-detail-actions{display:flex;gap:7px;margin:0 0 12px}.customer-db-detail-actions.bottom{margin-top:12px;margin-bottom:0}.customer-db-manage-btn{flex:1;border:1px solid #ddd6ef;border-radius:11px;padding:10px;background:#fff;color:#513b8f;font-weight:900;font-size:11px}.customer-db-manage-btn.update{background:#f2edff;border-color:#cfc1ed}.customer-db-manage-btn.delete{background:#fff4f4;border-color:#f1d3d3;color:#c53636}.customer-db-updated-note{margin:8px 0 0;padding:8px 10px;border-radius:10px;background:#f0ebfb;color:#67528e;font-size:9px}@media(max-width:650px){.customer-db-detail-actions{flex-wrap:wrap}}
+</style></head>
 <body>
 <div class="startup-splash" id="startupSplash">
   <div class="splash-inner">
@@ -1131,7 +1189,8 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
       <div><h3>Customers</h3><p>Manage customer information and records.</p></div>
     </div>
     <div class="command-actions">
-      <button type="button" onclick="openCustomerCards()"><span class="command-action-icon">♙</span><span><b>Customer Cards</b><small>Browse customer details</small></span><span class="command-arrow">›</span></button>
+      <button type="button" onclick="openCustomerCards()"><span class="command-action-icon">♙</span><span><b>Customer List</b><small>Your assigned customer list</small></span><span class="command-arrow">›</span></button>
+      <button type="button" onclick="openAreaDatabase()"><span class="command-action-icon">▦</span><span><b>Customer Database</b><small>View your area customer database</small></span><span class="command-arrow">›</span></button>
       <button type="button" onclick="openAddCustomer()"><span class="command-action-icon">＋</span><span><b>Add New Customer</b><small>Create a new customer</small></span><span class="command-arrow">›</span></button>
     </div>
   </section>
@@ -1261,7 +1320,8 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
     <button class="drawer-item" onclick="menuNewVisit()"><span class="drawer-icon">＋</span><span>New Visit</span></button>
     <button class="drawer-item" onclick="menuVisits()"><span class="drawer-icon">▣</span><span>Visit History</span></button>
     <button class="drawer-item" onclick="menuExport()"><span class="drawer-icon">↥</span><span>Export Visit History</span></button>
-    <button class="drawer-item" onclick="menuCustomers()"><span class="drawer-icon">♙</span><span>Customer Cards</span></button>
+    <button class="drawer-item" onclick="menuCustomers()"><span class="drawer-icon">♙</span><span>Customer List</span></button>
+    <button class="drawer-item" onclick="menuCustomerDatabase()"><span class="drawer-icon">▦</span><span>Customer Database</span></button>
     <button class="drawer-item" onclick="menuAddCustomer()"><span class="drawer-icon">⊕</span><span>Add New Customer</span></button>
     <button class="drawer-item" onclick="menuDashboard()"><span class="drawer-icon">⌁</span><span>Dashboard</span></button>
     <button class="drawer-item admin-only-item" id="adminDataCenterItem" style="display:none" onclick="menuAdminDataCenter()"><span class="drawer-icon">▦</span><span>Admin Data Center</span></button>
@@ -1276,6 +1336,43 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
     <small>Innoval • Poultry & Disinfectant</small>
   </div>
 </aside>
+
+<!-- Customer Already Exists Overlay -->
+<div class="customer-warning-overlay" id="customerExistsModal" aria-hidden="true">
+  <div class="customer-warning-card">
+    <button class="customer-warning-close" type="button" onclick="closeCustomerExists()">✕</button>
+    <div class="customer-warning-orbit">
+      <div class="customer-warning-icon">✓</div>
+      <span class="orbit-dot dot1"></span><span class="orbit-dot dot2"></span><span class="orbit-dot dot3"></span>
+    </div>
+    <div class="customer-warning-kicker">INNOVAL FIELD VISIT</div>
+    <h2>Customer Already Exists</h2>
+    <p id="customerExistsInfo">This customer is already registered in your customer database.</p>
+    <div class="customer-warning-summary">
+      <div><span>Customer</span><b id="customerExistsName">—</b></div>
+    </div>
+    <div class="customer-warning-actions">
+      <button type="button" class="customer-warning-primary" onclick="closeCustomerExists()">OK</button>
+    </div>
+  </div>
+</div>
+<!-- Customer Added Success Overlay -->
+<div class="customer-success-overlay" id="customerSuccessModal" aria-hidden="true">
+  <div class="customer-success-card">
+    <button class="customer-success-close" type="button" onclick="closeCustomerSuccess()">✕</button>
+    <div class="customer-success-orbit">
+      <div class="customer-success-check">✓</div>
+      <span class="orbit-dot dot1"></span><span class="orbit-dot dot2"></span><span class="orbit-dot dot3"></span>
+    </div>
+    <div class="customer-success-kicker">INNOVAL FIELD VISIT</div>
+    <h2>Customer Successfully Added</h2>
+    <p id="customerSuccessInfo">Customer successfully added to your Customer List.</p>
+    <div class="customer-success-summary">
+      <div><span>Customer</span><b id="customerSuccessName">—</b></div>
+    </div>
+    <button type="button" class="customer-success-primary" onclick="closeCustomerSuccess()">OK</button>
+  </div>
+</div>
 <!-- Visit Success Overlay -->
 <div class="success-overlay" id="visitSuccess" aria-hidden="true">
   <div class="success-card">
@@ -1313,6 +1410,288 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
 <div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="modal-box"><div class="modal-head"><h3 id="modalTitle">My Visits</h3><button class="close" onclick="closeModal()">✕</button></div><div id="modalBody"></div></div></div><div class="modal" id="exportModal" onclick="if(event.target===this)closeExport()"><div class="modal-box"><div class="modal-head"><h3>Export Visit History</h3><button class="close" onclick="closeExport()">✕</button></div><p class="settings-note">Export visits in the selected date range using the HR-style monthly report structure.</p><div class="export-grid"><div class="field"><label>From</label><input id="exportFrom" class="date-input" type="date" onchange="updateExportCount()"></div><div class="field"><label>To</label><input id="exportTo" class="date-input" type="date" onchange="updateExportCount()"></div></div><div class="quick-title">Quick Range</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:7px"><button class="close" onclick="setExportRange('week')">This Week</button><button class="close" onclick="setExportRange('lastweek')">Last Week</button><button class="close" onclick="setExportRange('month')">This Month</button></div><div class="export-count" id="exportCount">Select a date range</div><div class="export-actions"><button class="save" type="button" onclick="exportHRExcel()">📊 &nbsp; Export &amp; Download Excel</button></div><p class="settings-note" style="margin-top:10px">The Excel file will download automatically to your device after export.</p></div></div>
 </div><!-- appShell -->
 <script>
+/* ===== Innoval Cloud Layer v1.9.37 — Auth UUID fix ===== */
+/* Load Supabase asynchronously so the app UI never gets stuck on the splash screen. */
+let innovalSupabase = null;
+let innovalSupabaseLoadPromise = null;
+function ensureSupabaseClient(){
+  if(innovalSupabase) return Promise.resolve(innovalSupabase);
+  if(innovalSupabaseLoadPromise) return innovalSupabaseLoadPromise;
+  innovalSupabaseLoadPromise=new Promise((resolve,reject)=>{
+    if(window.supabase?.createClient){
+      try{ innovalSupabase=window.supabase.createClient(INNOVAL_SUPABASE_URL,INNOVAL_SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}}); resolve(innovalSupabase); }catch(e){reject(e);}
+      return;
+    }
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+    s.async=true;
+    s.onload=()=>{
+      try{
+        if(!window.supabase?.createClient) throw new Error('Supabase library loaded but client is unavailable.');
+        innovalSupabase=window.supabase.createClient(INNOVAL_SUPABASE_URL,INNOVAL_SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:false}});
+        resolve(innovalSupabase);
+      }catch(e){reject(e);}
+    };
+    s.onerror=()=>reject(new Error('Could not load the Supabase library.'));
+    document.head.appendChild(s);
+  });
+  return innovalSupabaseLoadPromise;
+}
+const INNOVAL_SUPABASE_URL = "https://yzvnkbakuodlilxkiyew.supabase.co";
+const INNOVAL_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_VwpwTjkf4XQy04K6pQRsew_-BUnW2ia";
+let innovalCloudReady = true;
+let innovalCloudBusy = false;
+async function cloudSignIn(email, password){
+  try{
+    await ensureSupabaseClient();
+    const {data,error}=await innovalSupabase.auth.signInWithPassword({email, password});
+    if(error) throw error;
+    if(!data?.session) return {ok:false,error:"Supabase login returned no active session."};
+    return {ok:true};
+  }catch(error){
+    const msg=error?.message || String(error);
+    console.warn("Innoval cloud sign-in unavailable:", msg);
+    return {ok:false,error:msg};
+  }
+}
+
+async function cloudSession(){
+  try{
+    await ensureSupabaseClient();
+    const {data}=await innovalSupabase.auth.getSession();
+    if(data?.session) return data.session;
+
+    // The app keeps its own local login state. If the page was reopened from
+    // a local HTML file, the Supabase session may be gone while the app still
+    // considers the employee logged in. Restore the Cloud session silently.
+    const p=currentUserRecord();
+    if(!p?.email) return null;
+    const emp=employeeList().find(x=>String(x.email||'').trim().toLowerCase()===String(p.email||'').trim().toLowerCase());
+    const password=emp?.password||'';
+    if(!password) return null;
+
+    const auth=await cloudSignIn(p.email,password);
+    if(!auth.ok) return null;
+    const restored=await innovalSupabase.auth.getSession();
+    return restored?.data?.session || null;
+  }catch(e){
+    console.warn('Innoval cloud session restore failed:', e?.message||e);
+    return null;
+  }
+}
+
+// Cloud tables use the app_users.user_id (e.g. U000). Supabase Auth UUID is used only for authentication.
+function cloudVisitRow(v,appUserId){
+  const p=currentUserRecord();
+  return {
+    id:String(v.id||""),
+    visit_date:v.date||null,
+    visit_no:Number(v.visitNo||0),
+    user_id:String(appUserId||""),
+    customer_id:String(v.customerId||""),
+    customer_name:String(v.customer||""),
+    governorate:String(v.gov||""),
+    area:String(v.area||""),
+    area_id:String(v.areaId||""),
+    visit_type:String(v.visitType||""),
+    plan_id:(String(v.planId||"").trim()||null),
+    potential:String(v.potential||""),
+    loyalty:(String(v.loyalty||"").trim()||"Neutral"),
+    meted:String(v.meted||""),
+    job_title:String(v.jobTitle||""),
+    customer_type:String(v.type||""),
+    objective:String(v.objective||""),
+    next_date:v.nextDate||null,
+    comments:String(v.comments||""),
+    conclusion:String(v.conclusion||""),
+    collection:String(v.collection||""),
+    feedback:String(v.feedback||""),
+    updated_by:String(appUserId||""),
+    updated_at:new Date().toISOString()
+  };
+}
+
+async function cloudSyncVisit(v){
+  const session=await cloudSession();
+  if(!session || !innovalSupabase || !v) return {ok:false,error:"No Supabase session."};
+  try{
+    const authUserId=session?.user?.id||"";
+    const appUserId=String(currentUserRecord()?.id||"");
+    if(!authUserId) return {ok:false,error:"Supabase Auth user ID is missing."};
+    if(!appUserId) return {ok:false,error:"App user ID is missing."};
+    const row=cloudVisitRow(v,appUserId);
+    if(!row.id || !row.user_id) return {ok:false,error:"Visit ID or user ID is missing."};
+    const {error}=await innovalSupabase.from("visits").upsert(row,{onConflict:"id"});
+    if(error) throw error;
+    await cloudSyncVisitProducts(v);
+    return {ok:true};
+  }catch(error){
+    const msg=error?.message || String(error);
+    console.warn("Innoval visit cloud sync failed:", msg);
+    return {ok:false,error:msg};
+  }
+}
+
+async function cloudSyncVisitProducts(v){
+  if(!innovalSupabase || !v?.id) return;
+  const session=await cloudSession();
+  if(!session) return;
+  const names=[v.p1,v.p2,v.p3].map(x=>String(x||"").trim()).filter(Boolean);
+  if(!names.length) return;
+  try{
+    const {data:products,error:pErr}=await innovalSupabase.from("products").select("product_id,name").in("name",names);
+    if(pErr) throw pErr;
+    const byName=Object.fromEntries((products||[]).map(x=>[String(x.name),x.product_id]));
+    for(let i=0;i<names.length;i++){
+      const pid=byName[names[i]];
+      if(!pid) continue;
+      const {data:existing,error:eErr}=await innovalSupabase.from("visit_products").select("id").eq("visit_id",String(v.id)).eq("position",i+1).maybeSingle();
+      if(eErr) throw eErr;
+      if(existing){
+        const {error}=await innovalSupabase.from("visit_products").update({product_id:pid,product_name:names[i]}).eq("id",existing.id);
+        if(error) throw error;
+      }else{
+        const {error}=await innovalSupabase.from("visit_products").insert({visit_id:String(v.id),product_id:pid,product_name:names[i],position:i+1});
+        if(error) throw error;
+      }
+    }
+  }catch(error){ console.warn("Innoval visit products sync failed:",error?.message||error); }
+}
+
+async function cloudSyncWeeklyRows(rows){
+  const session=await cloudSession();
+  if(!session || !innovalSupabase) return false;
+  const p=currentUserRecord();
+  const authUserId=session?.user?.id||"";
+  const appUserId=String(p?.id||"");
+  if(!appUserId || !authUserId) return false;
+  try{
+    const mine=(Array.isArray(rows)?rows:[]).filter(x=>x.rep===p.name);
+    const payload=mine.map(x=>({
+      id:String(x.id),
+      user_id:appUserId,
+      visit_date:x.date||null,
+      customer_id:String(x.customerId||""),
+      customer_name:String(x.customer||""),
+      area_id:String(x.areaId||""),
+      area_name:String(x.area||""),
+      updated_at:new Date().toISOString()
+    }));
+    if(payload.length){
+      const {error}=await innovalSupabase.from("weekly_plans").upsert(payload,{onConflict:"id"});
+      if(error) throw error;
+    }
+    return true;
+  }catch(error){ console.warn("Innoval weekly plan sync failed:",error?.message||error); return false; }
+}
+
+async function cloudSyncCustomer(customer,isNewCustomer=false){
+  const session=await cloudSession();
+  const p=currentUserRecord();
+  if(!session || !innovalSupabase || !p?.id || !customer?.name) return {ok:false,error:"No Supabase session or app user."};
+  try{
+    const row={
+      customer_id:String(customer.customerId||("C"+Date.now())),
+      name:String(customer.name),
+      governorate:String(customer.gov||""),
+      area:String(customer.area||""),
+      area_id:String(customer.areaId||""),
+      customer_type:String(customer.type||"Other"),
+      potential:String(customer.potential||""),
+      loyalty:(String(customer.loyalty||"").trim()||"Neutral"),
+      active:true,
+      created_by:p.id,
+      updated_at:new Date().toISOString()
+    };
+    if(!row.customer_id) return {ok:false,error:"Customer ID is missing."};
+
+    // The visit has a hard FK to customers.customer_id. Keep the customer
+    // record available in Cloud, but NEVER touch customer_assignments here.
+    // Assignments are a separate admin/master-data concern.
+    const {error}=await innovalSupabase
+      .from("customers")
+      .upsert(row,{onConflict:"customer_id"});
+    if(error) throw error;
+    return {ok:true};
+  }catch(error){
+    const msg=error?.message || String(error);
+    console.warn("Innoval customer cloud sync failed:",msg);
+    return {ok:false,error:msg};
+  }
+}
+
+async function cloudPullMyData(){
+  const session=await cloudSession();
+  const p=currentUserRecord();
+  const authUserId=session?.user?.id||"";
+  const appUserId=String(p?.id||"");
+  if(!session || !innovalSupabase || !appUserId || !authUserId) return false;
+  try{
+    const {data:vr,error:vErr}=await innovalSupabase.from("visits").select("*").eq("user_id",appUserId);
+    if(vErr) throw vErr;
+    const local=visits();
+    const map=new Map(local.map(x=>[String(x.id),x]));
+    (vr||[]).forEach(v=>{
+      map.set(String(v.id),{
+        id:String(v.id),date:v.visit_date,visitNo:String(v.visit_no||""),rep:p.name,customer:v.customer_name||"",gov:v.governorate||"",area:v.area||"",areaId:v.area_id||"",visitType:v.visit_type||"",planId:v.plan_id||"",potential:v.potential||"",loyalty:v.loyalty||"",meted:v.meted||"",jobTitle:v.job_title||"",type:v.customer_type||"",objective:v.objective||"",nextDate:v.next_date||"",comments:v.comments||"",conclusion:v.conclusion||"",collection:v.collection||"",feedback:v.feedback||""
+      });
+    });
+    saveVisits(Array.from(map.values()));
+
+    const {data:wp,error:wErr}=await innovalSupabase.from("weekly_plans").select("*").eq("user_id",appUserId);
+    if(wErr) throw wErr;
+    if(Array.isArray(wp)){
+      const rows=weeklyPlanRows();
+      const wm=new Map(rows.map(x=>[String(x.id),x]));
+      wp.forEach(x=>wm.set(String(x.id),{id:String(x.id),rep:p.name,date:x.visit_date,day:weeklyDayName(x.visit_date),customer:x.customer_name||"",area:x.area_name||"",areaId:x.area_id||"",createdAt:String(x.created_at||"").slice(0,10)}));
+      saveWeeklyPlanRows(Array.from(wm.values()));
+    }
+    return true;
+  }catch(error){ console.warn("Innoval cloud pull failed:",error?.message||error); return false; }
+}
+
+async function cloudBootstrapMasterData(){
+  const session=await cloudSession();
+  const p=currentUserRecord();
+  if(!session || !innovalSupabase || !p || String(p.role).toLowerCase()!=="admin") return false;
+  try{
+    const areas=(MASTER_DATA.areas||[]).map(a=>({id:a.id,name:a.name,active:a.active!==false}));
+    const products=(MASTER_DATA.products||[]).map(x=>({product_id:x.id,name:x.name,product_type:x.type||"",unit:x.unit||"",active:x.active!==false}));
+    if(areas.length){const {error}=await innovalSupabase.from("areas").upsert(areas,{onConflict:"id"});if(error)throw error;}
+    if(products.length){const {error}=await innovalSupabase.from("products").upsert(products,{onConflict:"product_id"});if(error)throw error;}
+    const customers=(MASTER_DATA.customers||[]).map(c=>({customer_id:String(c.customerId),name:String(c.name||""),governorate:String(c.gov||""),area:String(c.area||""),area_id:String(c.areaId||""),customer_type:String(c.type||"Other"),potential:String(c.potential||""),loyalty:(String(c.loyalty||"").trim()||"Neutral"),active:c.active!==false,created_by:p.id,updated_at:new Date().toISOString()})).filter(c=>c.customer_id&&c.name);
+    for(let i=0;i<customers.length;i+=100){const batch=customers.slice(i,i+100);const {error}=await innovalSupabase.from("customers").upsert(batch,{onConflict:"customer_id"});if(error)throw error;}
+    return true;
+  }catch(error){console.warn("Innoval master cloud bootstrap failed:",error?.message||error);return false;}
+}
+
+async function cloudSyncCurrentState(){
+  if(innovalCloudBusy)return {ok:false,error:"Cloud sync is already running."};
+  innovalCloudBusy=true;
+  try{
+    const session=await cloudSession();
+    if(!session)return {ok:false,error:"No active Supabase session."};
+    const pullOk=await cloudPullMyData();
+    if(!pullOk)return {ok:false,error:"Cloud pull failed. Check Supabase RLS policies."};
+    await cloudBootstrapMasterData();
+    const p=currentUserRecord();
+    const localVisits=visits().filter(v=>v.rep===p?.name);
+    for(const v of localVisits){
+      const r=await cloudSyncVisit(v);
+      if(!r.ok)return {ok:false,error:`Visit ${v.id} sync failed: ${r.error}`};
+    }
+    const weeklyOk=await cloudSyncWeeklyRows(weeklyPlanRows());
+    if(weeklyOk===false)return {ok:false,error:"Weekly plan sync failed."};
+    return {ok:true};
+  }finally{ innovalCloudBusy=false; }
+}
+
+window.innovalCloudStatus=async function(){
+  const session=await cloudSession();
+  return {configured:!!innovalSupabase,authenticated:!!session};
+};
+</script>
+<script>
 /* ===== Innoval Master Data v1.8.0 ===== */
 const MASTER_DATA = {"areas":[{"id":"A01","name":"Beheira","active":true},{"id":"A02","name":"Dakahliya","active":true},{"id":"A03","name":"Gharbia","active":true},{"id":"A04","name":"Menoufia","active":true},{"id":"A05","name":"Sharqiya","active":true},{"id":"A06","name":"UE","active":true},{"id":"A07","name":"Fayoum","active":true},{"id":"A08","name":"Cairo","active":true},{"id":"A00","name":"All Areas","active":true}],"products":[{"id":"P001","name":"Innovax ND-IBD 2000","type":"Vaccine","unit":"Vial","active":true},{"id":"P002","name":"Innovax ND-IBD 5000","type":"Vaccine","unit":"Vial","active":true},{"id":"P003","name":"Innovax ILT","type":"Vaccine","unit":"Vial","active":true},{"id":"P004","name":"Nobilis H9N2 P 2000D","type":"Vaccine","unit":"Bottle","active":true},{"id":"P005","name":"Nobilis H9N2+ND P 2000D","type":"Vaccine","unit":"Bottle","active":true},{"id":"P006","name":"Vaxsafe ND","type":"Vaccine","unit":"Vial","active":true},{"id":"P007","name":"Bursavac","type":"Vaccine","unit":"Vial","active":true},{"id":"P008","name":"Biosentry","type":"Disinfectant","unit":"Pack","active":true},{"id":"P009","name":"Virkon-S","type":"Disinfectant","unit":"Drum","active":true},{"id":"P010","name":"Shift","type":"Disinfectant","unit":"Pack","active":true},{"id":"P011","name":"Gpc","type":"Disinfectant","unit":"Pack","active":true}],"users":[{"id":"U001","name":"Ahmed Atef Akl","email":"Ahmed.Akl@ift-online.com","areaIds":["A06"],"role":"User","active":true},{"id":"U002","name":"Mostafa Ahmed Abdelrady","email":"Mostafa.Abdelrady@ift-online.com","areaIds":["A06"],"role":"User","active":true},{"id":"U003","name":"Hossam Bashier","email":"Hossam.Bashier@ift-online.com","areaIds":["A06"],"role":"User","active":true},{"id":"U004","name":"Mohamed Gaber","email":"Mohamed.Gaber@ift-online.com","areaIds":["A06","A07"],"role":"User","active":true},{"id":"U005","name":"Ahmed Abdel-Naser Mohamed","email":"Ahmed.abdelnaser@ift-online.com","areaIds":["A07"],"role":"User","active":true},{"id":"U006","name":"Mohamed El-Saeid Awad","email":"Mohamed.Elsaeid@ift-online.com","areaIds":["A04"],"role":"User","active":true},{"id":"U007","name":"Mohamed Saad Mekheimar","email":"Mohamed.Mekheimar@ift-online.com","areaIds":["A01"],"role":"User","active":true},{"id":"U008","name":"Ahmed Aly Abdel Atty Ebeid","email":"ahmed.aly.ebeid@ift-online.com","areaIds":["A01"],"role":"User","active":true},{"id":"U009","name":"Moamen Mohamed Ali","email":"Moamen.Mohamed@ift-online.com","areaIds":["A03"],"role":"User","active":true},{"id":"U010","name":"Amr Ibrahim Mady","email":"amr.mady@ift-online.com","areaIds":["A03"],"role":"User","active":true},{"id":"U011","name":"Ibrahim Mousa","email":"Ibrahim.Mousa@ift-online.com","areaIds":["A05"],"role":"User","active":true},{"id":"U012","name":"Islam Mohamady Mansour","email":"Islam.mohamady@ift-online.com","areaIds":["A05"],"role":"User","active":true},{"id":"U013","name":"Mohamed Gomaa Ibrahim Gomaa","email":"mohamed.gomaa@ift-online.com","areaIds":["A05"],"role":"User","active":true},{"id":"U014","name":"Mahmoud Nasr","email":"mahmoud.nasr@ift-online.com","areaIds":["A02"],"role":"User","active":true},{"id":"U015","name":"Mostafa Ahmed Mostafa Ramadan","email":"Mostafa.ramadan@ift-online.com","areaIds":["A02"],"role":"User","active":true},{"id":"U016","name":"Mohamed Abdel Aziz Rashed","email":"mohamed.rashed@ift-online.com","areaIds":["A02"],"role":"User","active":true},{"id":"U017","name":"Ahmed Osama Hamdy","email":"Ahmed.osama@ift-online.com","areaIds":["A02"],"role":"User","active":true},{"id":"U018","name":"Abdelrahman Ragaee Mabrouk","email":"Abdelrahman.Ragia@ift-online.com","areaIds":["A08"],"role":"User","active":true},{"id":"U019","name":"Mohamed Abo Shanab","email":"Mohamed.Aboshanab@ift-online.com","areaIds":["A08"],"role":"User","active":true},{"id":"U020","name":"Mohamed Mostafa AbouEl Yazied","email":"mohamed.aboelyazid@ift-online.com","areaIds":["A00"],"role":"User","active":true},{"id":"U021","name":"Mohamed, Ibrahim Mahmoud Ali El Zayat","email":"Mohamed.Elzayat@ift-online.com","areaIds":["A00"],"role":"User","active":true},{"id":"U022","name":"Belal Mohamed Sayed Mohamed Marzouk","email":"belalmarzou@ift-online.com","areaIds":["A00"],"role":"User","active":true},{"id":"U000","name":"Ibrahim El-Emary","email":"ibrahim.elemary@ift-online.com","areaIds":["A00"],"role":"Admin","active":true}],"customers":[{"customerId":"MEN001","name":"ماهر نصير","area":"Menoufia","areaId":"A04","active":true},{"customerId":"MEN002","name":"حاتم نصير","area":"Menoufia","areaId":"A04","active":true},{"customerId":"MEN003","name":"عادل عبد السلام","area":"Menoufia","areaId":"A04","active":true},{"customerId":"MEN004","name":"سلامة البربري","area":"Menoufia","areaId":"A04","active":true},{"customerId":"MEN005","name":"مصطفي ابراهيم","area":"Menoufia","areaId":"A04","active":true},{"customerId":"MEN006","name":"فهد نصير","area":"Menoufia","areaId":"A04","active":true},{"customerId":"MEN007","name":"مكتب زاد","area":"Menoufia","areaId":"A04","active":true},{"customerId":"MEN008","name":"البطل فيت","area":"Menoufia","areaId":"A04","active":true},{"customerId":"MEN009","name":"محمود الصغير","area":"Menoufia","areaId":"A04","active":true},{"customerId":"MEN010","name":"مصطفي أبو حديد","area":"Menoufia","areaId":"A04","active":true},{"customerId":"MEN011","name":"مجدي عزيز","area":"Menoufia","areaId":"A04","active":true},{"customerId":"MEN012","name":"د خالد بركات","area":"Menoufia","areaId":"A04","active":true},{"customerId":"MEN013","name":"عميل جديد 3","area":"Menoufia","areaId":"A04","active":true},{"customerId":"FAY001","name":"شعبان احمد عبد الفتاح","area":"Fayoum","areaId":"A07","active":true},{"customerId":"FAY002","name":"عبد الله حمدي","area":"Fayoum","areaId":"A07","active":true},{"customerId":"FAY003","name":"الحمد للتجاره الاعلاف","area":"Fayoum","areaId":"A07","active":true},{"customerId":"FAY004","name":"مصطفي عيد","area":"Fayoum","areaId":"A07","active":true},{"customerId":"FAY005","name":"محمود جمال عبد الستار","area":"Fayoum","areaId":"A07","active":true},{"customerId":"FAY006","name":"الكيان فيت","area":"Fayoum","areaId":"A07","active":true},{"customerId":"FAY007","name":"حسن شعبان رمضان","area":"Fayoum","areaId":"A07","active":true},{"customerId":"FAY008","name":"رمضان رشيد","area":"Fayoum","areaId":"A07","active":true},{"customerId":"FAY009","name":"حمدي شعبان","area":"Fayoum","areaId":"A07","active":true},{"customerId":"FAY010","name":"رضا عبد العليم","area":"Fayoum","areaId":"A07","active":true},{"customerId":"UE001","name":"مايكل - مرسا نصر جاد","area":"UE","areaId":"A06","active":true},{"customerId":"UE002","name":"جنوب الوادى- صلاح هاشم","area":"UE","areaId":"A06","active":true},{"customerId":"UE003","name":"الطيب محمد","area":"UE","areaId":"A06","active":true},{"customerId":"UE004","name":"علي ابو ضيف","area":"UE","areaId":"A06","active":true},{"customerId":"UE005","name":"محمد محمد على","area":"UE","areaId":"A06","active":true},{"customerId":"UE006","name":"دير الفاخورى","area":"UE","areaId":"A06","active":true},{"customerId":"UE007","name":"احمد عبد الرحمن ابراهيم","area":"UE","areaId":"A06","active":true},{"customerId":"UE008","name":"الهوارى عبد السلام","area":"UE","areaId":"A06","active":true},{"customerId":"UE009","name":"مصطفى حسب الله","area":"UE","areaId":"A06","active":true},{"customerId":"UE010","name":"منتصر هاشم","area":"UE","areaId":"A06","active":true},{"customerId":"UE011","name":"عمر محمد ابوالوفا محمود","area":"UE","areaId":"A06","active":true},{"customerId":"UE012","name":"باسم جورجى بلال سعيد","area":"UE","areaId":"A06","active":true},{"customerId":"UE013","name":"خالد عبد الحميد ابراهيم","area":"UE","areaId":"A06","active":true},{"customerId":"UE014","name":"محمد اسماعيل عبد الباري","area":"UE","areaId":"A06","active":true},{"customerId":"UE015","name":"جمال خليل","area":"UE","areaId":"A06","active":true},{"customerId":"UE016","name":"رانيا محمود صلاح الدين","area":"UE","areaId":"A06","active":true},{"customerId":"UE017","name":"مصطفي سعودي","area":"UE","areaId":"A06","active":true},{"customerId":"UE018","name":"منتصر صابر","area":"UE","areaId":"A06","active":true},{"customerId":"UE019","name":"محمود مختار","area":"UE","areaId":"A06","active":true},{"customerId":"UE020","name":"الامير جروب","area":"UE","areaId":"A06","active":true},{"customerId":"UE021","name":"محمد عبد اللاه","area":"UE","areaId":"A06","active":true},{"customerId":"UE022","name":"نزهى صالح","area":"UE","areaId":"A06","active":true},{"customerId":"UE023","name":"احمد عبدالفتاح هاشم محمد","area":"UE","areaId":"A06","active":true},{"customerId":"UE024","name":"محمد فؤاد","area":"UE","areaId":"A06","active":true},{"customerId":"UE025","name":"ياسر فاروق","area":"UE","areaId":"A06","active":true},{"customerId":"UE026","name":"ملاك رسمى","area":"UE","areaId":"A06","active":true},{"customerId":"UE027","name":"البدرى احمد ضيف -المنار","area":"UE","areaId":"A06","active":true},{"customerId":"UE028","name":"حسن البشير","area":"UE","areaId":"A06","active":true},{"customerId":"SHA001","name":"ابو هاشم","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA002","name":"الاخلاص","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA003","name":"احمد ابو الحسن","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA004","name":"وائل الديربي","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA005","name":"نوفا فارم","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA006","name":"سامح سمير","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA007","name":"فيت كير","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA008","name":"النعيم ابو موسي","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA009","name":"نيوجين","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA010","name":"احمد البنا","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA011","name":"الابرار","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA012","name":"العالمية","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA013","name":"انماء","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA014","name":"الصالحية احمدعبد العاليم","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA015","name":"وادي الخير","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA016","name":"دواجن ايجيبت","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA017","name":"فيت سنتر","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA018","name":"الخواص","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA019","name":"تعاون ههيا","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA020","name":"عمرو بكر","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA021","name":"محمد شاكر الجوهري","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA022","name":"صلاح سعودي","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA023","name":"اسماعيل الفقي","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA024","name":"تعاون الابرهيمية","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA025","name":"الصالحية للاستثمار والتنمية","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"SHA026","name":"د شحاتة عثمان","area":"Sharqiya","areaId":"A05","active":true},{"customerId":"GHA001","name":"البركة","area":"Gharbia","areaId":"A03","active":true},{"customerId":"GHA002","name":"فارما وورلد","area":"Gharbia","areaId":"A03","active":true},{"customerId":"GHA003","name":"المتحدة حسين ذكي","area":"Gharbia","areaId":"A03","active":true},{"customerId":"GHA004","name":"الهنا","area":"Gharbia","areaId":"A03","active":true},{"customerId":"GHA005","name":"محمد فوزي البيلي","area":"Gharbia","areaId":"A03","active":true},{"customerId":"GHA006","name":"الياسمين","area":"Gharbia","areaId":"A03","active":true},{"customerId":"GHA007","name":"فاروق ذكي سراج","area":"Gharbia","areaId":"A03","active":true},{"customerId":"GHA008","name":"المراعي","area":"Gharbia","areaId":"A03","active":true},{"customerId":"GHA009","name":"الجودة","area":"Gharbia","areaId":"A03","active":true},{"customerId":"GHA010","name":"فوربس","area":"Gharbia","areaId":"A03","active":true},{"customerId":"GHA011","name":"العصر","area":"Gharbia","areaId":"A03","active":true},{"customerId":"GHA012","name":"محمد يوسف الرضوان","area":"Gharbia","areaId":"A03","active":true},{"customerId":"GHA013","name":"عبد الوهاب البدري","area":"Gharbia","areaId":"A03","active":true},{"customerId":"GHA014","name":"الوادي الاخضر","area":"Gharbia","areaId":"A03","active":true},{"customerId":"GHA015","name":"الوارين","area":"Gharbia","areaId":"A03","active":true},{"customerId":"GHA016","name":"الغنيمي","area":"Gharbia","areaId":"A03","active":true},{"customerId":"BEH001","name":"ميدفاكس","area":"Beheira","areaId":"A01","active":true},{"customerId":"BEH002","name":"محمد االسكران","area":"Beheira","areaId":"A01","active":true},{"customerId":"BEH003","name":"بسام البرهومي","area":"Beheira","areaId":"A01","active":true},{"customerId":"BEH004","name":"رمضان ابوصالح","area":"Beheira","areaId":"A01","active":true},{"customerId":"BEH005","name":"الراتب","area":"Beheira","areaId":"A01","active":true},{"customerId":"BEH006","name":"فتحي علام","area":"Beheira","areaId":"A01","active":true},{"customerId":"BEH007","name":"كريم هلال","area":"Beheira","areaId":"A01","active":true},{"customerId":"BEH008","name":"الضحي","area":"Beheira","areaId":"A01","active":true},{"customerId":"BEH009","name":"عبد الله شلبي","area":"Beheira","areaId":"A01","active":true},{"customerId":"BEH010","name":"عزام","area":"Beheira","areaId":"A01","active":true},{"customerId":"BEH011","name":"سامح شاور","area":"Beheira","areaId":"A01","active":true},{"customerId":"BEH012","name":"النيل","area":"Beheira","areaId":"A01","active":true},{"customerId":"CAI001","name":"اورجانو","area":"Cairo","areaId":"A08","active":true},{"customerId":"CAI002","name":"كايرو ثرى","area":"Cairo","areaId":"A08","active":true},{"customerId":"CAI003","name":"القاهرة للدواجن","area":"Cairo","areaId":"A08","active":true},{"customerId":"CAI004","name":"الثلاثه","area":"Cairo","areaId":"A08","active":true},{"customerId":"CAI005","name":"مصطفى البشبيشى","area":"Cairo","areaId":"A08","active":true},{"customerId":"CAI006","name":"كايرو ثرى بياض","area":"Cairo","areaId":"A08","active":true},{"customerId":"CAI007","name":"الوادى","area":"Cairo","areaId":"A08","active":true},{"customerId":"CAI008","name":"المهندسون المتحدون","area":"Cairo","areaId":"A08","active":true},{"customerId":"CAI009","name":"مصطفى حيدر","area":"Cairo","areaId":"A08","active":true},{"customerId":"CAI010","name":"عياد","area":"Cairo","areaId":"A08","active":true},{"customerId":"CAI011","name":"دلتا مصر","area":"Cairo","areaId":"A08","active":true},{"customerId":"CAI013","name":"وايت فالى","area":"Cairo","areaId":"A08","active":true},{"customerId":"CAI014","name":"زينهم","area":"Cairo","areaId":"A08","active":true},{"customerId":"CAI015","name":"مركز التكامل","area":"Cairo","areaId":"A08","active":true},{"customerId":"CAI016","name":"باب الخير","area":"Cairo","areaId":"A08","active":true},{"customerId":"CAI017","name":"خالد حمزه","area":"Cairo","areaId":"A08","active":true},{"customerId":"CAI018","name":"النوباريه جمالكو","area":"Cairo","areaId":"A08","active":true},{"customerId":"CAI019","name":"عميل نقدى القاهرة","area":"Cairo","areaId":"A08","active":true},{"customerId":"DAK001","name":"فاكسي ميون","area":"Dakahliya","areaId":"A02","active":true},{"customerId":"DAK002","name":"احمد العوضي","area":"Dakahliya","areaId":"A02","active":true},{"customerId":"DAK003","name":"محمد زكريا زاك","area":"Dakahliya","areaId":"A02","active":true},{"customerId":"DAK004","name":"محمد شندل","area":"Dakahliya","areaId":"A02","active":true},{"customerId":"DAK005","name":"القصبي","area":"Dakahliya","areaId":"A02","active":true},{"customerId":"DAK006","name":"فايف ايه","area":"Dakahliya","areaId":"A02","active":true},{"customerId":"DAK007","name":"علي البرشلي","area":"Dakahliya","areaId":"A02","active":true},{"customerId":"DAK008","name":"جادية","area":"Dakahliya","areaId":"A02","active":true}]};
 const AREA_NAME_BY_ID = Object.fromEntries(MASTER_DATA.areas.map(a=>[a.id,a.name]));
@@ -1344,14 +1723,14 @@ const customers=()=>{
   let base=MASTER_DATA.customers.slice();
   try{
     const extra=JSON.parse(localStorage.getItem("innovalExtraCustomersV17")||"[]");
-    if(Array.isArray(extra))base=base.concat(extra);
+    if(Array.isArray(extra))base=base.concat(extra.filter(c=>String(c?.customerScope||"both")!=="db"));
   }catch(e){}
   if(!u || (u.areaIds||[]).includes("A00")) return base;
   return base.filter(c=>(u.areaIds||[]).includes(c.areaId));
 };
 const saveCustomers=v=>{
   const masterNames=new Set(MASTER_DATA.customers.map(c=>c.name));
-  const extras=(Array.isArray(v)?v:[]).filter(c=>!masterNames.has(c.name));
+  const extras=(Array.isArray(v)?v:[]).filter(c=>!masterNames.has(c.name)).map(c=>Object.assign({},c,{customerScope:c.customerScope||"both"}));
   localStorage.setItem("innovalExtraCustomersV17",JSON.stringify(extras));
 };
 function currentUserRecord(){
@@ -1403,7 +1782,7 @@ function refreshVisitFilters(resetCustomer=true){
   }
 
   const ids=allowedVisitAreaIds();
-  const cs=customers().filter(c=>ids.includes(c.areaId));
+  const cs=customerListData().filter(c=>ids.includes(c.areaId));
   customerList.innerHTML=cs.map(c=>'<option value="'+esc(c.name)+'">').join('');
 
   if(customerEl && resetCustomer){
@@ -1511,6 +1890,9 @@ function hideStartupSplash(){
   const s=$("startupSplash");
   if(s)s.classList.add("hide");
 }
+// Hard fail-safe: a slow/blocked CDN must never leave the app frozen on the splash screen.
+setTimeout(()=>{try{hideStartupSplash();}catch(e){}},2200);
+window.addEventListener('load',()=>setTimeout(()=>{try{hideStartupSplash();}catch(e){}},250));
 function isIOSDevice(){return /iPad|iPhone|iPod/.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&navigator.maxTouchPoints>1)}
 function isAndroidDevice(){return /Android/i.test(navigator.userAgent)}
 async function downloadLatestAndroidApk(){
@@ -1601,12 +1983,7 @@ function init(){
   };
 
   setTimeout(()=>{
-    // Public website is an installation landing page; installed Android/PWA opens the real login/app.
-    if(!isInstalledAppMode()){
-      hideStartupSplash();
-      showInstallLanding();
-      return;
-    }
+    // Normal startup: always open the account login screen in the local HTML app.
     hideInstallLanding();
     const dl=$('appDownloadEntry');
     if(dl) dl.style.display='none';
@@ -1655,18 +2032,37 @@ function init(){
     }
   },1250);
 }
-$("loginForm").addEventListener("submit",e=>{
+$("loginForm").addEventListener("submit",async e=>{
   e.preventDefault();
   const email=$("loginEmail").value.trim().toLowerCase();
   const pass=$("loginPassword").value;
   const emp=findEmployeeByEmail(email);
-  if(emp&&emp.password===pass){
+  const errEl=$("loginError");
+  if(!(emp&&emp.password===pass)){
+    errEl.textContent="Invalid official Outlook email or password.";
+    errEl.style.display="block";
+    return;
+  }
+  errEl.style.display="none";
+  try{
+    const auth=await cloudSignIn(email,pass);
+    if(!auth.ok){
+      errEl.textContent="Cloud login failed: "+auth.error;
+      errEl.style.display="block";
+      return;
+    }
     setLoggedIn(emp.name);
-    $("loginError").style.display="none";
+    const sync=await cloudSyncCurrentState();
+    if(!sync.ok){
+      errEl.textContent="Cloud sync failed: "+sync.error;
+      errEl.style.display="block";
+      return;
+    }
     location.reload();
-  }else{
-    $("loginError").textContent="Invalid official Outlook email or password.";
-    $("loginError").style.display="block";
+  }catch(err){
+    console.error("Cloud login/sync error:",err);
+    errEl.textContent="Cloud connection error: "+(err?.message||err);
+    errEl.style.display="block";
   }
 });
 
@@ -1768,6 +2164,18 @@ $('customer')?.addEventListener('input',()=>{
   }
 });
 
+function showCustomerExists(name){
+  $("customerExistsName").textContent=name||"—";
+  $("customerExistsModal").classList.add("open");
+  $("customerExistsModal").setAttribute("aria-hidden","false");
+  document.documentElement.classList.add("modal-locked");
+  document.body.classList.add("modal-locked");
+}
+function closeCustomerExists(){
+  $("customerExistsModal").classList.remove("open");
+  $("customerExistsModal").setAttribute("aria-hidden","true");
+  unlockModalLayer();
+}
 function showVisitSuccess(customer,date){
   $("successCustomer").textContent=customer||"—";
   $("successDate").textContent=formatDate(date||today());
@@ -1777,7 +2185,7 @@ function showVisitSuccess(customer,date){
 function closeVisitSuccess(){
   $("visitSuccess").classList.remove("open");$("visitSuccess").setAttribute("aria-hidden","true");unlockModalLayer();
 }
-$("visitForm").addEventListener("submit",e=>{
+$("visitForm").addEventListener("submit",async e=>{
   e.preventDefault();
 
   const p=profile();
@@ -1789,6 +2197,7 @@ $("visitForm").addEventListener("submit",e=>{
   let plannedVisit=null;
   let customerName="";
   let customer=null;
+  let isNewCustomer=false;
 
   if(visitType==="Planned"){
     plannedVisit=getSelectedPlannedVisit();
@@ -1825,6 +2234,16 @@ $("visitForm").addEventListener("submit",e=>{
     return;
   }
 
+  // Resolve and preserve the database customer_id. visits.customer_id is a foreign key
+  // to customers.customer_id, so the visit must carry a real customer key.
+  if(!customer.customerId){
+    const matched=customers().find(c=>String(c.name||"").trim().toLowerCase()===String(customerName||"").trim().toLowerCase());
+    if(matched?.customerId) customer.customerId=matched.customerId;
+  }
+  if(!customer.customerId){
+    customer.customerId="C"+Date.now();
+  }
+
   const existingCount=d.filter(v=>v.rep===p.rep&&v.date===visitDate).length;
   if(existingCount>=10){toast("Maximum 10 visits per day");return;}
 
@@ -1839,6 +2258,7 @@ $("visitForm").addEventListener("submit",e=>{
     visitNo:visitNo,
     rep:p.rep,
     customer:customerName,
+    customerId:String(customer.customerId||""),
     gov:customer.gov||"",
     area:customer.area||AREA_NAME_BY_ID[customerAreaId]||customerAreaId||p.area,
     areaId:customerAreaId,
@@ -1860,7 +2280,39 @@ $("visitForm").addEventListener("submit",e=>{
     feedback:$("feedback").value
   });
 
+  // Always keep the local copy first (offline-first), then ensure the referenced
+  // customer exists in Cloud before inserting the visit (FK: visits.customer_id).
   saveVisits(d);
+  let cloudResult={ok:false,error:"Cloud sync was not attempted."};
+  try{
+    const customerResult=await cloudSyncCustomer(customer,isNewCustomer);
+    if(!customerResult.ok){
+      cloudResult={ok:false,error:customerResult.error||"Customer could not be synchronized to Cloud."};
+    }else{
+      // If this visit came from Weekly Plan, make sure the referenced
+      // weekly_plans row exists in Cloud before inserting the visit (FK: visits.plan_id).
+      if(plannedVisit){
+        const planResult=await cloudSyncWeeklyRows([plannedVisit]);
+        if(!planResult){
+          cloudResult={ok:false,error:"The selected Weekly Plan could not be synchronized to Cloud."};
+        }else{
+          cloudResult=await cloudSyncVisit(d[0]);
+        }
+      }else{
+        cloudResult=await cloudSyncVisit(d[0]);
+      }
+    }
+  }catch(err){
+    cloudResult={ok:false,error:err?.message||String(err)};
+  }
+
+  if(!cloudResult.ok){
+    update();
+    const msg=`Visit saved on this device, but Cloud sync failed.\n\n${cloudResult.error||"Unknown Cloud error."}\n\nPlease keep this browser/app connected to the internet and try syncing again after the Cloud issue is fixed.`;
+    alert(msg);
+    return;
+  }
+
   e.target.reset();
   $("visitDate").value=today();
   $("todayLabel").textContent=visitDate;
@@ -1944,22 +2396,33 @@ function openDashboard(){
   }
 }
 
-function openCustomerCards(){
-  $("modalTitle").textContent="Customer Cards";
+function openCustomerCards(title){
+  $("modalTitle").textContent=title||"Customer List";
   $("modalBody").innerHTML=
-    '<div class="customer-toolbar"><input id="customerSearch" style="padding-left:12px" placeholder="Search customer"></div>'+
+    '<div class="customer-toolbar"><input id="customerSearch" style="padding-left:12px" placeholder="Search customer, area or governorate"></div>'+
+    '<div class="customer-list-head"><b>Customer List</b><span id="customerListCount">0 customers</span></div>'+
     '<div id="customerResults"></div>';
   const render=()=>{
     const q=String($("customerSearch").value||"").trim().toLowerCase();
-    const cs=customerListData().filter(c=>!q || String(c.name).toLowerCase().includes(q) || String(c.area).toLowerCase().includes(q) || String(c.gov).toLowerCase().includes(q));
+    const cs=customerListData().filter(c=>!q ||
+      String(c.name||"").toLowerCase().includes(q) ||
+      String(c.area||"").toLowerCase().includes(q) ||
+      String(c.gov||"").toLowerCase().includes(q));
+    $("customerListCount").textContent=cs.length+" customer"+(cs.length===1?"":"s");
     $("customerResults").innerHTML=cs.length?cs.map((c,i)=>{
       const vd=visits().filter(v=>v.customer===c.name);
-      const last=vd.length?vd.sort((a,b)=>String(b.date).localeCompare(String(a.date)))[0]:null;
-      return '<div class="customer-card" onclick="openCustomerCard('+i+')" data-customer-index="'+i+'">'+
-        '<b>'+esc(c.name)+'</b><small>'+esc(c.area||"—")+' • '+esc(c.gov||"—")+'</small>'+
-        '<div class="customer-meta"><span class="chip '+String(c.potential||"").toLowerCase()+'">'+esc(c.potential||"—")+'</span><span class="chip">'+esc(c.loyalty||"—")+'</span><span class="chip">'+vd.length+' visits</span></div>'+
-        '<small>Last Visit: '+esc(last?last.date:"No visit yet")+'</small></div>';
-    }).join(''):'<div class="customer-empty">No customers found.</div>';
+      const last=vd.length?vd.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)))[0]:null;
+      return '<div class="customer-list-row" onclick="openCustomerCard('+i+')" data-customer-index="'+i+'">'+
+        '<div class="customer-list-row-top"><b>'+esc(c.name)+'</b><span class="arrow">›</span></div>'+
+        '<small>'+esc(c.area||"—")+' • '+esc(c.gov||"—")+'</small>'+
+        '<div class="customer-list-meta">'+
+          '<span class="chip '+String(c.potential||"").toLowerCase()+'">'+esc(c.potential||"—")+'</span>'+
+          '<span class="chip">'+esc(c.loyalty||"—")+'</span>'+
+          '<span class="chip">'+vd.length+' visits</span>'+
+        '</div>'+
+        '<small>Last Visit: '+esc(last?formatDate(last.date):"No visit yet")+'</small>'+
+      '</div>';
+    }).join(''):'<div class="customer-empty">No customers found in your assigned area.</div>';
     window.__customerCardResults=cs;
   };
   $("customerSearch").addEventListener("input",render);
@@ -1971,7 +2434,7 @@ function openCustomerCard(index){
   if(!c)return;
   const vd=visits().filter(v=>v.customer===c.name).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
   const last=vd[0]||null;
-  $("modalTitle").textContent="Customer Card";
+  $("modalTitle").textContent="Customer Profile";
   $("modalBody").innerHTML=
     '<h3 style="margin:4px 0 2px">'+esc(c.name)+'</h3>'+
     '<p style="margin:0;color:var(--muted);font-size:11px">'+esc(c.area||"—")+' • '+esc(c.gov||"—")+'</p>'+
@@ -1980,11 +2443,91 @@ function openCustomerCard(index){
     '<div class="detail-item"><span>Potentiality</span><b>'+esc(c.potential||"—")+'</b></div>'+
     '<div class="detail-item"><span>Loyalty</span><b>'+esc(c.loyalty||"—")+'</b></div>'+
     '<div class="detail-item"><span>Total Visits</span><b>'+vd.length+'</b></div>'+
-    '<div class="detail-item"><span>Last Visit</span><b>'+esc(last?last.date:"—")+'</b></div>'+
+    '<div class="detail-item"><span>Last Visit</span><b>'+esc(last?formatDate(last.date):"—")+'</b></div>'+
     '<div class="detail-item"><span>Last Objective</span><b>'+esc(last?last.objective:"—")+'</b></div>'+
     '</div>'+
     (last?'<div style="background:#f7f9fc;border-radius:12px;padding:12px;margin-bottom:13px"><b style="font-size:11px">Latest Feedback</b><div style="font-size:11px;color:var(--muted);margin-top:5px">'+esc(last.comments||"No feedback recorded.")+'</div></div>':'')+
     '<div class="form-actions"><button class="secondary-btn" onclick="openCustomerCards()">← Back</button><button class="save" style="margin:0" onclick="closeModal();showVisitPageForCustomer('+JSON.stringify(c.name)+')">＋ New Visit</button></div>';
+}
+
+function customerDbValue(c,keys){
+  for(const k of keys){
+    const v=c?.[k];
+    if(v!==undefined && v!==null && String(v).trim()!=="") return String(v);
+  }
+  return "—";
+}
+function customerDatabaseData(){
+  // Same territory rule as Customer List. Admin can see all active customers.
+  return customers().filter(c=>allowedVisitAreaIds().includes(c.areaId));
+}
+function openAreaDatabase(){
+  $("modalTitle").textContent="Customer Database";
+  $("modalBody").innerHTML=
+    '<div class="customer-toolbar"><input id="customerDbSearch" style="padding-left:12px" placeholder="Search customer"></div>'+
+    '<div class="customer-db-head"><b>Customer Database</b><span id="customerDbCount">0 customers</span></div>'+
+    '<div class="customer-db-note">Select a customer to open the complete customer record. The structure follows the official customer database sheet.</div>'+
+    '<div id="customerDbResults"></div>';
+  const render=()=>{
+    const q=String($("customerDbSearch").value||"").trim().toLowerCase();
+    const cs=customerDatabaseData().filter(c=>!q ||
+      String(c.name||"").toLowerCase().includes(q) ||
+      String(c.area||"").toLowerCase().includes(q) ||
+      String(c.gov||"").toLowerCase().includes(q));
+    $("customerDbCount").textContent=cs.length+" customer"+(cs.length===1?"":"s");
+    $("customerDbResults").innerHTML=cs.length?cs.map((c,i)=>
+      '<div class="customer-db-row" onclick="openCustomerDatabaseRecord('+i+')">'+
+        '<div><b>'+esc(c.name||"Unnamed Customer")+'</b><small>'+esc(c.area||"—")+' • '+esc(c.gov||"—")+'</small></div>'+
+        '<span class="customer-db-arrow">›</span>'+
+      '</div>'
+    ).join(''):'<div class="customer-db-empty">No customers found.</div>';
+    window.__customerDbResults=cs;
+  };
+  $("customerDbSearch").addEventListener("input",render);
+  render();
+  openModalLayer("modal");
+}
+function openCustomerDatabaseRecord(index){
+  const cs=window.__customerDbResults||customerDatabaseData(), c=cs[index];
+  if(!c)return;
+  const vd=visits().filter(v=>v.customer===c.name).sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const last=vd[0]||null;
+  const responsible=customerDbValue(c,["responsible","responsiblePerson","personInCharge","manager","contactPerson"]);
+  const phone=customerDbValue(c,["phone","telephone","mobile","contactPhone"]);
+  const supervisor=customerDbValue(c,["supervisor","responsibleSupervisor","supervisorName"]);
+  const subbrik=customerDbValue(c,["subBrik","sub_brik","subBrikName","subbrick","subBrick"]);
+  const tasm=customerDbValue(c,["tasmim","tasmine","fattening","broiler","broilers"]);
+  const bayad=customerDbValue(c,["bayad","layers","layer"]);
+  const omhat=customerDbValue(c,["omhat","breeders","breeder"]);
+  $("modalTitle").textContent="Customer Database";
+  $("modalBody").innerHTML=
+    '<div class="customer-db-detail-head"><h3>'+esc(c.name||"Unnamed Customer")+'</h3><p>'+esc(c.area||"—")+' • '+esc(c.gov||"—")+'</p></div>'+
+    '<div class="customer-db-section">CUSTOMER INFORMATION</div>'+
+    '<div class="customer-db-grid">'+
+      '<div class="customer-db-item"><span>Sub brik</span><b>'+esc(subbrik)+'</b></div>'+
+      '<div class="customer-db-item"><span>Customer Type</span><b>'+esc(c.type||"—")+'</b></div>'+
+      '<div class="customer-db-item"><span>Responsible</span><b>'+esc(responsible)+'</b></div>'+
+      '<div class="customer-db-item"><span>Phone</span><b>'+esc(phone)+'</b></div>'+
+      '<div class="customer-db-item"><span>Supervisor</span><b>'+esc(supervisor)+'</b></div>'+
+      '<div class="customer-db-item"><span>Potentiality</span><b>'+esc(c.potential||"—")+'</b></div>'+
+      '<div class="customer-db-item"><span>Loyalty</span><b>'+esc(c.loyalty||"—")+'</b></div>'+
+      '<div class="customer-db-item"><span>Area</span><b>'+esc(c.area||"—")+'</b></div>'+
+    '</div>'+
+    '<div class="customer-db-section">FARM / BUSINESS DATA</div>'+
+    '<div class="customer-db-grid">'+
+      '<div class="customer-db-item"><span>تسمين</span><b>'+esc(tasm)+'</b></div>'+
+      '<div class="customer-db-item"><span>بياض</span><b>'+esc(bayad)+'</b></div>'+
+      '<div class="customer-db-item"><span>أمهات</span><b>'+esc(omhat)+'</b></div>'+
+    '</div>'+
+    '<div class="customer-db-section">ACTIVITY</div>'+
+    '<div class="customer-db-grid">'+
+      '<div class="customer-db-item"><span>Total Visits</span><b>'+vd.length+'</b></div>'+
+      '<div class="customer-db-item"><span>Last Visit</span><b>'+esc(last?formatDate(last.date):"—")+'</b></div>'+
+      '<div class="customer-db-item full"><span>Last Objective</span><b>'+esc(last?last.objective:"—")+'</b></div>'+
+      (last?'<div class="customer-db-item full"><span>Latest Feedback</span><b>'+esc(last.comments||"—")+'</b></div>':'')+
+    '</div>'+
+    '<div class="customer-db-note">Fields not yet available in the current customer master data are shown as — and can be populated later from the official database sheet.</div>'+
+    '<div class="form-actions" style="margin-top:13px"><button class="secondary-btn" onclick="openAreaDatabase()">← Back</button><button class="save" style="margin:0" onclick="closeModal();showVisitPageForCustomer('+JSON.stringify(c.name)+')">＋ New Visit</button></div>';
 }
 function showVisitPageForCustomer(name){
   showVisitPage();
@@ -1998,32 +2541,146 @@ function showVisitPageForCustomer(name){
     if(c.type)$("type").value=c.type;
   }
 }
+const ADD_CUSTOMER_LOCATIONS={
+  A01:[
+    ["البحيرة — دمنهور","البحيرة"],["البحيرة — كفر الدوار","البحيرة"],["البحيرة — أبو حمص","البحيرة"],["البحيرة — أبو المطامير","البحيرة"],["البحيرة — حوش عيسى","البحيرة"],["البحيرة — إيتاي البارود","البحيرة"],["البحيرة — كوم حمادة","البحيرة"],["البحيرة — المحمودية","البحيرة"],["البحيرة — رشيد","البحيرة"],["البحيرة — إدكو","البحيرة"],["البحيرة — الدلنجات","البحيرة"],["البحيرة — وادي النطرون","البحيرة"],["البحيرة — النوبارية","البحيرة"]
+  ],
+  A02:[
+    ["الدقهلية — المنصورة","الدقهلية"],["الدقهلية — ميت غمر","الدقهلية"],["الدقهلية — طلخا","الدقهلية"],["الدقهلية — أجا","الدقهلية"],["الدقهلية — شربين","الدقهلية"],["الدقهلية — بلقاس","الدقهلية"],["الدقهلية — دكرنس","الدقهلية"],["الدقهلية — منية النصر","الدقهلية"],["الدقهلية — المنزلة","الدقهلية"],["الدقهلية — المطرية","الدقهلية"],["الدقهلية — الجمالية","الدقهلية"],["الدقهلية — السنبلاوين","الدقهلية"],["الدقهلية — بني عبيد","الدقهلية"],["الدقهلية — نبروه","الدقهلية"],["الدقهلية — تمى الأمديد","الدقهلية"]
+  ],
+  A03:[
+    ["الغربية — طنطا","الغربية"],["الغربية — المحلة الكبرى","الغربية"],["الغربية — كفر الزيات","الغربية"],["الغربية — زفتى","الغربية"],["الغربية — سمنود","الغربية"],["الغربية — بسيون","الغربية"],["الغربية — قطور","الغربية"],["الغربية — السنطة","الغربية"]
+  ],
+  A04:[
+    ["المنوفية — شبين الكوم","المنوفية"],["المنوفية — قويسنا","المنوفية"],["المنوفية — تلا","المنوفية"],["المنوفية — بركة السبع","المنوفية"],["المنوفية — منوف","المنوفية"],["المنوفية — أشمون","المنوفية"],["المنوفية — الباجور","المنوفية"],["المنوفية — السادات","المنوفية"],
+    ["القليوبية — بنها","القليوبية"],["القليوبية — قليوب","القليوبية"],["القليوبية — شبرا الخيمة","القليوبية"],["القليوبية — طوخ","القليوبية"],["القليوبية — قها","القليوبية"],["القليوبية — الخانكة","القليوبية"],["القليوبية — كفر شكر","القليوبية"],["القليوبية — العبور","القليوبية"]
+  ],
+  A05:[
+    ["الشرقية — الزقازيق","الشرقية"],["الشرقية — بلبيس","الشرقية"],["الشرقية — منيا القمح","الشرقية"],["الشرقية — أبو كبير","الشرقية"],["الشرقية — فاقوس","الشرقية"],["الشرقية — ههيا","الشرقية"],["الشرقية — كفر صقر","الشرقية"],["الشرقية — أبو حماد","الشرقية"],["الشرقية — ديرب نجم","الشرقية"],["الشرقية — الحسينية","الشرقية"],["الشرقية — مشتول السوق","الشرقية"]
+  ],
+  A06:[
+    ["بني سويف — بني سويف","بني سويف"],["بني سويف — الواسطى","بني سويف"],["بني سويف — ناصر","بني سويف"],["بني سويف — إهناسيا","بني سويف"],["بني سويف — ببا","بني سويف"],["بني سويف — الفشن","بني سويف"],
+    ["المنيا — المنيا","المنيا"],["المنيا — سمالوط","المنيا"],["المنيا — مطاي","المنيا"],["المنيا — بني مزار","المنيا"],["المنيا — مغاغة","المنيا"],["المنيا — أبو قرقاص","المنيا"],["المنيا — ملوي","المنيا"],["المنيا — دير مواس","المنيا"],
+    ["أسيوط — أسيوط","أسيوط"],["أسيوط — ديروط","أسيوط"],["أسيوط — القوصية","أسيوط"],["أسيوط — منفلوط","أسيوط"],["أسيوط — أبنوب","أسيوط"],["أسيوط — الفتح","أسيوط"],["أسيوط — ساحل سليم","أسيوط"],["أسيوط — البداري","أسيوط"],["أسيوط — صدفا","أسيوط"],["أسيوط — الغنايم","أسيوط"],
+    ["سوهاج — سوهاج","سوهاج"],["سوهاج — أخميم","سوهاج"],["سوهاج — طهطا","سوهاج"],["سوهاج — المراغة","سوهاج"],["سوهاج — جرجا","سوهاج"],["سوهاج — البلينا","سوهاج"],["سوهاج — المنشأة","سوهاج"],["سوهاج — جهينة","سوهاج"],["سوهاج — ساقلتة","سوهاج"],
+    ["قنا — قنا","قنا"],["قنا — نجع حمادي","قنا"],["قنا — دشنا","قنا"],["قنا — قفط","قنا"],["قنا — قوص","قنا"],["قنا — نقادة","قنا"],["قنا — أبو تشت","قنا"],
+    ["الأقصر — الأقصر","الأقصر"],["الأقصر — إسنا","الأقصر"],["الأقصر — أرمنت","الأقصر"],["الأقصر — القرنة","الأقصر"],
+    ["أسوان — أسوان","أسوان"],["أسوان — كوم أمبو","أسوان"],["أسوان — إدفو","أسوان"],["أسوان — دراو","أسوان"],["أسوان — نصر النوبة","أسوان"],
+    ["الوادي الجديد — الخارجة","الوادي الجديد"],["الوادي الجديد — الداخلة","الوادي الجديد"],["الوادي الجديد — الفرافرة","الوادي الجديد"]
+  ],
+  A07:[
+    ["الفيوم — الفيوم","الفيوم"],["الفيوم — سنورس","الفيوم"],["الفيوم — طامية","الفيوم"],["الفيوم — إطسا","الفيوم"],["الفيوم — أبشواي","الفيوم"],["الفيوم — يوسف الصديق","الفيوم"]
+  ],
+  A08:[
+    ["القاهرة — مدينة نصر","القاهرة"],["القاهرة — مصر الجديدة","القاهرة"],["القاهرة — التجمع الخامس","القاهرة"],["القاهرة — المعادي","القاهرة"],["القاهرة — حلوان","القاهرة"],["القاهرة — المقطم","القاهرة"],["القاهرة — عين شمس","القاهرة"],["القاهرة — شبرا","القاهرة"],
+    ["الجيزة — الدقي","الجيزة"],["الجيزة — المهندسين","الجيزة"],["الجيزة — الهرم","الجيزة"],["الجيزة — 6 أكتوبر","الجيزة"],["الجيزة — الشيخ زايد","الجيزة"]
+  ],
+  A00:[]
+};
+function addCustomerAreaIds(){
+  const p=profile();
+  return (p.areaIds||[]).filter(id=>id!=="A00");
+}
+function fillAddCustomerLocations(){
+  const areaEl=$("newCustomerArea"), locEl=$("newCustomerGov");
+  if(!areaEl||!locEl)return;
+  const ids=addCustomerAreaIds();
+  const admin=isAdminUser();
+  areaEl.innerHTML=admin ? '<option value="">Choose Area</option>'+MASTER_DATA.areas.filter(a=>a.active&&a.id!=="A00").map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join('') : ids.map(id=>'<option value="'+esc(id)+'">'+esc(AREA_NAME_BY_ID[id]||id)+'</option>').join('');
+  areaEl.disabled=!admin && ids.length<=1;
+  if(!admin && ids.length) areaEl.value=ids[0];
+  if(admin && ids.length===1) areaEl.value=ids[0];
+  const refresh=()=>{
+    const id=areaEl.value||"";
+    const items=ADD_CUSTOMER_LOCATIONS[id]||[];
+    locEl.innerHTML='<option value="">Select Governorate / Center</option>'+items.map(x=>'<option value="'+esc(x[0])+'" data-governorate="'+esc(x[1])+'">'+esc(x[0])+'</option>').join('');
+    locEl.disabled=!id;
+  };
+  areaEl.onchange=refresh;
+  refresh();
+}
+
 function openAddCustomer(){
   $("modalTitle").textContent="Add New Customer";
   $("modalBody").innerHTML=
     '<form id="addCustomerForm">'+
     '<div class="field"><label>Customer Name *</label><input id="newCustomerName" style="padding-left:12px" required placeholder="Enter customer name"></div>'+
-    '<div class="field"><label>Governorate *</label><select id="newCustomerGov" required style="padding-left:12px"><option value="">Select Governorate</option>'+DATA.govs.map(g=>'<option>'+esc(g)+'</option>').join('')+'</select></div>'+
-    '<div class="field"><label>Area *</label><input id="newCustomerArea" style="padding-left:12px" required placeholder="Enter area"></div>'+
+    '<div class="field"><label>Area *</label><select id="newCustomerArea" required style="padding-left:12px"></select><small class="add-customer-area-note">Area is assigned from the logged-in official Outlook account.</small></div>'+
+    '<div class="field"><label>Governorate / Center *</label><select id="newCustomerGov" required style="padding-left:12px"><option value="">Select Governorate / Center</option></select></div>'+
     '<div class="field"><label>Customer Type *</label><select id="newCustomerType" required style="padding-left:12px"><option value="">Select Type</option><option>Veterinarian</option><option>Pharmacist</option><option>Farm Owner</option><option>Farm Manager</option><option>Accountant / محاسب</option><option>Engineering Office</option><option>Distributor</option><option>Other</option></select></div>'+
     '<div class="field"><label>Potentiality</label><select id="newCustomerPotential" style="padding-left:12px">'+DATA.potential.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select></div>'+
     '<div class="field"><label>Loyalty</label><select id="newCustomerLoyalty" style="padding-left:12px">'+DATA.loyalty.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select></div>'+
     '<button class="save" type="submit">＋ &nbsp; Add Customer</button>'+
     '</form>';
+  fillAddCustomerLocations();
   $("addCustomerForm").addEventListener("submit",saveNewCustomer);
   openModalLayer("modal");
 }
-function saveNewCustomer(e){
+async function saveNewCustomer(e){
   e.preventDefault();
-  const name=$("newCustomerName").value.trim(), gov=$("newCustomerGov").value, area=$("newCustomerArea").value.trim();
-  if(!name||!gov||!area){toast("Please complete required fields");return}
-  const cs=customerListData();
-  if(cs.some(c=>String(c.name).trim().toLowerCase()===name.toLowerCase())){toast("Customer already exists");return}
+  const name=$("newCustomerName").value.trim();
+  const areaId=$("newCustomerArea").value;
+  const govOption=$("newCustomerGov").selectedOptions[0];
+  const gov=govOption?.dataset?.governorate||"";
+  const location=$("newCustomerGov").value||"";
+  if(!name||!areaId||!location){toast("Please complete required fields");return}
+
   const p=profile();
-  const areaId=(p.areaIds||[]).length===1?p.areaIds[0]:""; cs.unshift({name,gov,area,areaId,type:$("newCustomerType").value,potential:$("newCustomerPotential").value,loyalty:$("newCustomerLoyalty").value,createdBy:p.rep,createdAt:today()});
-  saveCustomers(cs);refreshCustomerLists();closeModal();toast("Customer added successfully ✓");
+  if(!isAdminUser() && !(p.areaIds||[]).includes(areaId)){
+    toast("This area is outside your assigned territory");
+    return;
+  }
+
+  let all=MASTER_DATA.customers.slice();
+  try{
+    const extra=JSON.parse(localStorage.getItem("innovalExtraCustomersV17")||"[]");
+    if(Array.isArray(extra)) all=all.concat(extra);
+  }catch(err){}
+
+  if(all.some(c=>String(c.name||"").trim().toLowerCase()===name.toLowerCase())){
+    showCustomerExists(name);
+    return;
+  }
+
+  const customer={
+    customerId:"C"+Date.now(),
+    name,gov,area:location,areaId,
+    type:$("newCustomerType").value,
+    potential:$("newCustomerPotential").value,
+    loyalty:$("newCustomerLoyalty").value,
+    createdBy:p.rep,createdAt:today()
+  };
+
+  // Save locally first so the customer is created on the FIRST click.
+  // Cloud sync continues in the background and never blocks the success message.
+  saveCustomers(all.concat(customer));
+  refreshCustomerLists();
+
+  closeModal();
+  showCustomerSuccess(name,true);
+
+  try{
+    const result=await cloudSyncCustomer(customer,true);
+    if(!result?.ok){
+      $("customerSuccessInfo").textContent="Customer successfully added on this device. Cloud sync is pending.";
+    }
+  }catch(err){
+    $("customerSuccessInfo").textContent="Customer successfully added on this device. Cloud sync is pending.";
+  }
 }
-function openAreaDatabase(){openCustomerCards()}
+function showCustomerSuccess(name,cloudOk){
+  $("customerSuccessName").textContent=name||"—";
+  $("customerSuccessInfo").textContent=cloudOk ? "Customer successfully added to your Customer List." : "Customer successfully added to your Customer List. Cloud sync is still pending.";
+  $("customerSuccessModal").classList.add("open");
+  $("customerSuccessModal").setAttribute("aria-hidden","false");
+  document.documentElement.classList.add("modal-locked");
+  document.body.classList.add("modal-locked");
+}
+function closeCustomerSuccess(){
+  $("customerSuccessModal").classList.remove("open");
+  $("customerSuccessModal").setAttribute("aria-hidden","true");
+  unlockModalLayer();
+}
 function openVisits(){
   setBottomActive("bnHistory");
   const p=profile();
@@ -2106,7 +2763,8 @@ function menuHome(){closeMenu();showHome()}
 function menuNewVisit(){closeMenu();showVisitPage()}
 function menuVisits(){closeMenu();openVisits()}
 function menuExport(){closeMenu();openExport()}
-function menuCustomers(){closeMenu();openCustomerCards()}
+function menuCustomers(){closeMenu();openCustomerCards("Customer List")}
+function menuCustomerDatabase(){closeMenu();openAreaDatabase()}
 function menuAddCustomer(){closeMenu();openAddCustomer()}
 function menuDashboard(){closeMenu();openDashboard()}
 function menuAdminDataCenter(){closeMenu();openAdminDataCenter("users")}
@@ -2484,7 +3142,9 @@ function savePlannedVisit(){
   const range=weeklyCurrentRange();if(date<range.start||date>range.end){toast("Date must be inside Saturday to Friday");return}
   const p=profile();if(!isAdminUser()&&!((p.areaIds||[]).includes(areaId))){toast("Area is outside your assigned area");return}
   const rows=weeklyPlanRows();const dup=rows.some(x=>x.date===date&&x.customer===customer&&x.rep===p.rep);if(dup){toast("Customer is already planned for this day");return}
-  rows.push({id:"WP"+Date.now(),rep:p.rep,date,day:weeklyDayName(date),customer,area:AREA_NAME_BY_ID[areaId]||areaId,areaId,createdAt:today()});saveWeeklyPlanRows(rows);toast("Planned visit added ✓");renderWeeklyPlan(range);
+  rows.push({id:"WP"+Date.now(),rep:p.rep,date,day:weeklyDayName(date),customer,area:AREA_NAME_BY_ID[areaId]||areaId,areaId,createdAt:today()});saveWeeklyPlanRows(rows);
+  try{cloudSyncWeeklyRows(rows);}catch(err){}
+  toast("Planned visit added ✓");renderWeeklyPlan(range);
 }
 function openWeeklyFullView(){
   const range=weeklyCurrentRange(),rows=weeklyPlanRows().filter(x=>x.date>=range.start&&x.date<=range.end);let n=0;
@@ -2564,7 +3224,7 @@ function browserExcelDownload(blob,fileName){
 }
 // ===== Innoval App Update Checker =====
 // Web/PWA updater. Native Android uses the Android bridge for the actual APK installation.
-const APP_VERSION = "1.9.35";
+const APP_VERSION = "1.9.50";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 let innovalSwRegistration=null;
 
@@ -2680,6 +3340,8 @@ if (typeof openSettings === "function") {
   };
 }
 
+setTimeout(()=>{if(isLoggedIn())cloudSyncCurrentState().catch(()=>{});},1800);
+
 loadNotifications();
 
 // Paint the current version immediately on startup.
@@ -2701,5 +3363,357 @@ loadNotifications();
   window.addEventListener('pageshow',applyInstallationAwareDownloadVisibility);
   window.addEventListener('resize',applyInstallationAwareDownloadVisibility);
   scheduleWebUpdateChecks();
+
+/* CUSTOMER DATABASE — FINAL SAVE FIX v2. Customer-only code. */
+function dbOv(){try{return JSON.parse(localStorage.getItem('innovalCustomerOverridesV1947')||'{}')}catch(e){return {}}}
+function saveDbOv(x){localStorage.setItem('innovalCustomerOverridesV1947',JSON.stringify(x||{}))}
+function dbKey(c){return String(c&&(c.customerId||c.id||c.name)||'')}
+function numDb1947(v){const s=String(v??'').replace(/,/g,'').trim();if(s==='')return '0';const n=Number(s);return Number.isFinite(n)?n.toLocaleString('en-US'):'0'}
+function fmtDbInput(el){if(!el)return;const raw=String(el.value||'').replace(/,/g,'').replace(/[^0-9.]/g,'');el.value=raw===''?'0':Number(raw).toLocaleString('en-US')}
+function customerDetails1947(c){const ov=dbOv()[dbKey(c)]||{};return Object.assign({},c,ov)}
+function dbCustomers1947(){
+  const u=currentUserRecord();
+  let base=MASTER_DATA.customers.slice();
+  try{const extra=JSON.parse(localStorage.getItem('innovalExtraCustomersV17')||'[]');if(Array.isArray(extra))base=base.concat(extra.filter(c=>String(c?.customerScope||"both")!=="list"))}catch(e){}
+  const ov=dbOv(),seen=new Set();
+  base=base.map(c=>{const k=dbKey(c);seen.add(k);return ov[k]?Object.assign({},c,ov[k]):c}).filter(c=>c.active!==false);
+  Object.keys(ov).forEach(k=>{
+    const c=ov[k];
+    if(c&&c.active!==false&&!seen.has(k)&&c.name)base.push(Object.assign({},c));
+  });
+  if(!u||(u.areaIds||[]).includes('A00'))return base;
+  return base.filter(c=>(u.areaIds||[]).includes(c.areaId));
+}
+function customerFormFields1947(prefix){
+  return '<div class="field"><label>Customer Name *</label><input id="'+prefix+'Name" style="padding-left:12px" required></div>'+ 
+    '<div class="field"><label>Area *</label><select id="'+prefix+'Area" required style="padding-left:12px"></select><small class="add-customer-area-note">Area is automatically tied to the logged-in official Outlook account.</small></div>'+ 
+    '<div class="field"><label>Governorate / Center *</label><select id="'+prefix+'Gov" required style="padding-left:12px"></select></div>'+ 
+    '<div class="field"><label>Customer Type *</label><select id="'+prefix+'Type" required style="padding-left:12px"><option value="">Select Type</option><option>Veterinarian</option><option>Pharmacist</option><option>Farm Owner</option><option>Farm Manager</option><option>Accountant / محاسب</option><option>Engineering Office</option><option>Distributor</option><option>Other</option></select></div>'+ 
+    '<div class="field"><label>Responsible</label><input id="'+prefix+'Responsible" style="padding-left:12px" placeholder="Enter Responsible"></div>'+ 
+    '<div class="field"><label>Phone</label><input id="'+prefix+'Phone" type="tel" style="padding-left:12px" placeholder="Enter Phone"></div>'+ 
+    '<div class="field"><label>Potentiality</label><select id="'+prefix+'Potential" style="padding-left:12px">'+DATA.potential.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select></div>'+ 
+    '<div class="field"><label>تسمين</label><input id="'+prefix+'Tasmim" inputmode="decimal" style="padding-left:12px" value="0" oninput="fmtDbInput(this)"></div>'+ 
+    '<div class="field"><label>بياض</label><input id="'+prefix+'Bayad" inputmode="decimal" style="padding-left:12px" value="0" oninput="fmtDbInput(this)"></div>'+ 
+    '<div class="field"><label>أمهات</label><input id="'+prefix+'Omhat" inputmode="decimal" style="padding-left:12px" value="0" oninput="fmtDbInput(this)"></div>'+ 
+    '<div class="field"><label>Loyalty</label><select id="'+prefix+'Loyalty" style="padding-left:12px">'+DATA.loyalty.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select></div>';
+}
+function populateCustomerArea1947(prefix,originalArea){
+  const areaEl=$(prefix+'Area'),locEl=$(prefix+'Gov'),ids=addCustomerAreaIds(),admin=isAdminUser();
+  if(!areaEl||!locEl)return null;
+  areaEl.innerHTML=admin?'<option value="">Choose Area</option>'+MASTER_DATA.areas.filter(a=>a.active&&a.id!=="A00").map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join(''):ids.map(id=>'<option value="'+esc(id)+'">'+esc(AREA_NAME_BY_ID[id]||id)+'</option>').join('');
+  areaEl.disabled=!admin&&ids.length<=1;
+  if(originalArea&&(admin||ids.includes(originalArea)))areaEl.value=originalArea;else if(!admin&&ids.length)areaEl.value=ids[0];
+  const refresh=()=>{const id=areaEl.value||'',items=ADD_CUSTOMER_LOCATIONS[id]||[];locEl.innerHTML='<option value="">Select Governorate / Center</option>'+items.map(x=>'<option value="'+esc(x[0])+'" data-governorate="'+esc(x[1])+'">'+esc(x[0])+'</option>').join('');locEl.disabled=!id};
+  areaEl.onchange=refresh;refresh();return {areaEl,locEl};
+}
+function buildCustomer1947(prefix,original){
+  const p=profile(),locEl=$(prefix+'Gov'),option=locEl?.selectedOptions?.[0];
+  return {customerId:dbKey(original)||('C'+Date.now()),name:$(prefix+'Name')?.value.trim()||'',gov:option?.dataset?.governorate||original?.gov||'',area:locEl?.value||'',areaId:$(prefix+'Area')?.value||'',type:$(prefix+'Type')?.value||'Other',potential:$(prefix+'Potential')?.value||'Medium',loyalty:$(prefix+'Loyalty')?.value||'Neutral',responsible:$(prefix+'Responsible')?.value.trim()||'',phone:$(prefix+'Phone')?.value.trim()||'',supervisor:'',tasmim:numDb1947($(prefix+'Tasmim')?.value),bayad:numDb1947($(prefix+'Bayad')?.value),omhat:numDb1947($(prefix+'Omhat')?.value),active:true,createdBy:original?.createdBy||p.rep,createdAt:original?.createdAt||today(),updatedAt:new Date().toISOString()};
+}
+function showCustomerSuccess(name,cloudOk){const m=$('customerSuccessModal');if(!m)return;$('customerSuccessName').textContent=name||'—';$('customerSuccessInfo').textContent=cloudOk?'Customer successfully added to your Customer List.':'Customer successfully added to your Customer List. Cloud sync is in progress.';m.classList.add('open');m.style.display='flex';m.style.zIndex='10000';m.setAttribute('aria-hidden','false');document.documentElement.classList.add('modal-locked');document.body.classList.add('modal-locked')}
+function closeCustomerSuccess(){const m=$('customerSuccessModal');if(m){m.classList.remove('open');m.style.display='';m.style.zIndex='';m.setAttribute('aria-hidden','true')}unlockModalLayer()}
+async function saveCustomerRecord1947Base(e,mode,original){
+  if(e?.preventDefault)e.preventDefault();
+  const prefix=mode==='add'?'newCustomer':'updateCustomer',btn=mode==='add'?$('newCustomerSaveBtn'):$('saveUpdatedCustomerBtn');
+  const restore=()=>{if(btn){btn.disabled=false;btn.innerHTML=mode==='add'?'＋ &nbsp; Add Customer':'✓ &nbsp; Save Updated Data'}};
+  const name=$(prefix+'Name')?.value.trim()||'',areaId=$(prefix+'Area')?.value||'',location=$(prefix+'Gov')?.value||'';
+  if(!name||!areaId||!location){restore();toast('Please complete Customer Name, Area and Governorate / Center');return false}
+  const p=profile();if(!isAdminUser()&&!((p.areaIds||[]).includes(areaId))){restore();toast('This area is outside your assigned territory');return false}
+  const current=dbCustomers1947();if(current.some(x=>dbKey(x)!==dbKey(original)&&String(x.name||'').trim().toLowerCase()===name.toLowerCase())){restore();showCustomerExists(name);return false}
+  const customer=buildCustomer1947(prefix,original),ov=dbOv();ov[customer.customerId]=Object.assign({},ov[customer.customerId]||{},customer);saveDbOv(ov);
+  if(btn){btn.disabled=true;btn.innerHTML=mode==='add'?'✓ &nbsp; Customer Added':'✓ &nbsp; Saved Successfully'}
+  refreshCustomerLists();
+  if(mode==='add'){closeModal();showCustomerSuccess(customer.name,false)}else{toast('✓ Saved Successfully');setTimeout(()=>openAreaDatabase(),500)}
+  Promise.resolve().then(()=>cloudSyncCustomer(customer,mode==='add')).catch(()=>({ok:false})).then(core=>Promise.resolve().then(()=>syncCustomerDetails1947(customer)).catch(()=>({ok:false})).then(details=>({core,details}))).then(({core,details})=>{if(mode==='add'){const info=$('customerSuccessInfo');if(info&&core?.ok&&details?.ok)info.textContent='Customer successfully added and all data is synced to Cloud.';else if(info&&core?.ok)info.textContent='Customer successfully added. Core data is synced; detailed fields are pending Cloud sync.'}});
+  return true;
+}
+function openAddCustomerBase(){
+  $('modalTitle').textContent='Add New Customer';
+  $('modalBody').innerHTML='<form id="addCustomerForm" novalidate>'+customerFormFields1947('newCustomer')+'<button id="newCustomerSaveBtn" class="save" type="button">＋ &nbsp; Add Customer</button></form>';
+  populateCustomerArea1947('newCustomer','');$('newCustomerSaveBtn').onclick=()=>saveCustomerRecord1947(null,'add',null);openModalLayer('modal');
+}
+function updateDb1947(c){
+  if(!c)return;const original=customerDetails1947(c),modalClose=$('modal')?.querySelector('.modal-head .close');if(modalClose)modalClose.onclick=()=>openAreaDatabase();
+  $('modalTitle').textContent='Update Customer Data';
+  $('modalBody').innerHTML='<form id="updateCustomerForm" novalidate>'+customerFormFields1947('updateCustomer')+'<div class="form-actions"><button type="button" class="secondary-btn" onclick="openAreaDatabase()">← Back</button><button id="saveUpdatedCustomerBtn" class="save" type="button" style="margin:0">✓ &nbsp; Save Updated Data</button></div></form>';
+  $('updateCustomerName').value=original.name||'';$('updateCustomerType').value=original.type||'';$('updateCustomerPotential').value=original.potential||'Medium';$('updateCustomerLoyalty').value=original.loyalty||'Neutral';$('updateCustomerResponsible').value=original.responsible||'';$('updateCustomerPhone').value=original.phone||'';$('updateCustomerTasmim').value=numDb1947(original.tasmim);$('updateCustomerBayad').value=numDb1947(original.bayad);$('updateCustomerOmhat').value=numDb1947(original.omhat);
+  const loc=populateCustomerArea1947('updateCustomer',original.areaId);if(loc){const items=ADD_CUSTOMER_LOCATIONS[loc.areaEl.value]||[],exact=items.find(x=>x[0]===original.area);if(exact)loc.locEl.value=exact[0]}
+  $('saveUpdatedCustomerBtn').onclick=()=>saveCustomerRecord1947(null,'update',original);openModalLayer('modal');
+}
+async function deleteDb1947(c){if(!confirm('Delete this customer from the active Customer Database?\n\nVisit history will be kept.'))return;const ov=dbOv();ov[dbKey(c)]=Object.assign({},ov[dbKey(c)]||{}, {customerId:dbKey(c),active:false,updatedAt:new Date().toISOString()});saveDbOv(ov);try{await cloudDeleteCustomer1947(c)}catch(e){}refreshCustomerLists();openAreaDatabase()}
+function openAreaDatabase(){
+  $('modalTitle').textContent='Customer Database';const modalClose=$('modal')?.querySelector('.modal-head .close');if(modalClose)modalClose.onclick=()=>closeModal();
+  $('modalBody').innerHTML='<div class="customer-db-shell"><div class="customer-db-banner"><span class="customer-db-banner-icon">▦</span><div><b>Customer Database</b><small>Master customer data • Update quarterly when required</small></div></div><div class="customer-toolbar"><input id="customerDbSearch" style="padding-left:12px" placeholder="Search customer"></div><div class="customer-db-head"><b>Customer Database</b><span id="customerDbCount">0 customers</span></div><div id="customerDbResults"></div></div>';
+  const render=()=>{const q=String($('customerDbSearch')?.value||'').trim().toLowerCase(),cs=dbCustomers1947().filter(c=>!q||[c.name,c.area,c.gov,c.type,c.responsible,c.phone,c.potential,c.loyalty].some(v=>String(v||'').toLowerCase().includes(q)));if($('customerDbCount'))$('customerDbCount').textContent=cs.length+' customer'+(cs.length===1?'':'s');window.__customerDbResults=cs;if($('customerDbResults'))$('customerDbResults').innerHTML=cs.length?cs.map((c,i)=>'<div class="customer-db-row" onclick="openCustomerDatabaseRecord1947(window.__customerDbResults['+i+'])"><div class="customer-db-main"><b>'+esc(c.name||'Unnamed Customer')+'</b><small>'+esc(c.area||'—')+' • '+esc(c.gov||'—')+'</small></div><div class="customer-db-row-actions"><button type="button" class="customer-db-action" title="Update" onclick="event.stopPropagation();updateDb1947(window.__customerDbResults['+i+'])">✎</button><button type="button" class="customer-db-action delete" title="Delete" onclick="event.stopPropagation();deleteDb1947(window.__customerDbResults['+i+'])">×</button><span class="customer-db-arrow">›</span></div></div>').join(''):'<div class="customer-db-empty">No customers found.</div>'};
+  $('customerDbSearch').addEventListener('input',render);render();openModalLayer('modal');pullDb1947().then(()=>{if($('customerDbResults'))render()});
+}
+async function pullDb1947(){
+  try{
+    const session=await cloudSession();if(!session||!innovalSupabase)return false;
+    const {data,error}=await innovalSupabase.from('customers').select('customer_id,name,governorate,area,area_id,customer_type,potential,loyalty,active,updated_at');if(error)throw error;
+    const ov=dbOv();
+    (data||[]).forEach(c=>{if(!c.customer_id)return;const k=String(c.customer_id),local=ov[k],cloudTime=Date.parse(c.updated_at||'')||0,localTime=Date.parse(local?.updatedAt||'')||0;if(local&&localTime>cloudTime)return;ov[k]=Object.assign({},local||{}, {customerId:k,name:c.name||'',gov:c.governorate||'',area:c.area||'',areaId:c.area_id||'',type:c.customer_type||'Other',potential:c.potential||'',loyalty:c.loyalty||'Neutral',active:c.active!==false,cloudUpdatedAt:c.updated_at||''})});
+    try{const d=await innovalSupabase.from('customer_details').select('customer_id,brick,sub_brik,responsible,tasmim,bayad,omhat,phone,updated_at');if(!d.error)(d.data||[]).forEach(x=>{const k=String(x.customer_id||''),local=ov[k],cloudTime=Date.parse(x.updated_at||'')||0,localTime=Date.parse(local?.updatedAt||'')||0;if(!k||(local&&localTime>cloudTime))return;ov[k]=Object.assign({},local||{}, {customerId:k,brick:x.brick||'',subBrik:x.sub_brik||'',responsible:x.responsible||'',tasmim:numDb1947(x.tasmim),bayad:numDb1947(x.bayad),omhat:numDb1947(x.omhat),phone:x.phone||'',detailsCloudUpdatedAt:x.updated_at||''})})}catch(e){}
+    saveDbOv(ov);return true;
+  }catch(e){console.warn('Customer DB pull failed',e?.message||e);return false}
+}
+function openCustomerDatabaseRecord1947(c){
+  if(!c)return;const x=customerDetails1947(c),vd=visits().filter(v=>v.customer===x.name).sort((a,b)=>String(b.date).localeCompare(String(a.date))),last=vd[0]||null;const modalClose=$('modal')?.querySelector('.modal-head .close');if(modalClose)modalClose.onclick=()=>openAreaDatabase();$('modalTitle').textContent='Customer Database';
+  $('modalBody').innerHTML='<div class="customer-db-detail-wrap"><div class="customer-db-detail-head"><h3>'+esc(x.name||'Unnamed Customer')+'</h3><p>'+esc(x.area||'—')+' • '+esc(x.gov||'—')+'</p></div><div class="customer-db-section">CUSTOMER INFORMATION</div><div class="customer-db-grid"><div class="customer-db-item"><span>Customer Type</span><b>'+esc(x.type||'—')+'</b></div><div class="customer-db-item"><span>Area</span><b>'+esc(x.area||'—')+'</b></div><div class="customer-db-item"><span>Governorate / Center</span><b>'+esc(x.area||'—')+'</b></div><div class="customer-db-item"><span>Responsible</span><b>'+esc(x.responsible||'—')+'</b></div><div class="customer-db-item"><span>Phone</span><b>'+esc(x.phone||'—')+'</b></div><div class="customer-db-item"><span>Potentiality</span><b>'+esc(x.potential||'—')+'</b></div><div class="customer-db-item"><span>Loyalty</span><b>'+esc(x.loyalty||'—')+'</b></div></div><div class="customer-db-section">FARM / BUSINESS DATA</div><div class="customer-db-grid"><div class="customer-db-item"><span>تسمين</span><b>'+esc(numDb1947(x.tasmim))+'</b></div><div class="customer-db-item"><span>بياض</span><b>'+esc(numDb1947(x.bayad))+'</b></div><div class="customer-db-item"><span>أمهات</span><b>'+esc(numDb1947(x.omhat))+'</b></div></div><div class="customer-db-section">ACTIVITY</div><div class="customer-db-grid"><div class="customer-db-item"><span>Total Visits</span><b>'+vd.length+'</b></div><div class="customer-db-item"><span>Last Visit</span><b>'+esc(last?formatDate(last.date):'—')+'</b></div><div class="customer-db-item full"><span>Last Objective</span><b>'+esc(last?last.objective:'—')+'</b></div></div></div>';
+}
+function openCustomerCard(index){const cs=window.__customerCardResults||customerListData(),c=cs[index];if(!c)return;const x=customerDetails1947(c),vd=visits().filter(v=>v.customer===x.name).sort((a,b)=>String(b.date).localeCompare(String(a.date))),last=vd[0]||null;const modalClose=$('modal')?.querySelector('.modal-head .close');if(modalClose)modalClose.onclick=()=>openCustomerCards();$('modalTitle').textContent='Customer Profile';$('modalBody').innerHTML='<div class="customer-db-detail-wrap"><div class="customer-db-detail-head"><h3>'+esc(x.name||'Unnamed Customer')+'</h3><p>'+esc(x.area||'—')+' • '+esc(x.gov||'—')+'</p></div><div class="customer-db-grid"><div class="customer-db-item"><span>Customer Type</span><b>'+esc(x.type||'—')+'</b></div><div class="customer-db-item"><span>Area</span><b>'+esc(x.area||'—')+'</b></div><div class="customer-db-item"><span>Governorate / Center</span><b>'+esc(x.area||'—')+'</b></div><div class="customer-db-item"><span>Responsible</span><b>'+esc(x.responsible||'—')+'</b></div><div class="customer-db-item"><span>Phone</span><b>'+esc(x.phone||'—')+'</b></div><div class="customer-db-item"><span>Potentiality</span><b>'+esc(x.potential||'—')+'</b></div><div class="customer-db-item"><span>Loyalty</span><b>'+esc(x.loyalty||'—')+'</b></div><div class="customer-db-item"><span>تسمين</span><b>'+esc(numDb1947(x.tasmim))+'</b></div><div class="customer-db-item"><span>بياض</span><b>'+esc(numDb1947(x.bayad))+'</b></div><div class="customer-db-item"><span>أمهات</span><b>'+esc(numDb1947(x.omhat))+'</b></div><div class="customer-db-item"><span>Total Visits</span><b>'+vd.length+'</b></div><div class="customer-db-item"><span>Last Visit</span><b>'+esc(last?formatDate(last.date):'—')+'</b></div></div></div>';window.__dbCurrentCustomer=x}
+
+
+/* ===== CUSTOMER DESTINATION + DUPLICATE-AWARE APPROVAL FIX ===== */
+(function(){
+  const css=document.createElement('style');
+  css.textContent=`
+    .customer-destination-wrap{margin:0 0 15px;padding:12px;border:1px solid #dce6f2;border-radius:13px;background:#f7faff}
+    .customer-destination-wrap label{margin-bottom:7px;color:#153f75}
+    #newCustomerDestination{padding-left:12px;background:#fff;font-weight:800}
+    .customer-destination-hint{display:block;margin-top:5px;font-size:10px;color:#71809a;line-height:1.4}
+    .delete-request-card{border:1px solid #eadfd5;background:#fffaf6;border-radius:14px;padding:12px;margin-bottom:9px}
+    .delete-request-card b{display:block;color:#5d351e;font-size:12px}
+    .delete-request-card p{margin:5px 0;color:#6e7b8d;font-size:10px;line-height:1.45}
+    .delete-request-actions{display:flex;gap:7px;margin-top:9px}
+    .delete-request-actions button{flex:1;border:0;border-radius:9px;padding:9px;font-weight:900;cursor:pointer}
+    .delete-request-actions .approve{background:#176fcf;color:#fff}.delete-request-actions .reject{background:#f3eeee;color:#a53a3a}
+    .request-pending{display:inline-block;margin-top:5px;padding:4px 7px;border-radius:999px;background:#fff0df;color:#9a5a18;font-size:9px;font-weight:900}
+  `;
+  document.head.appendChild(css);
+})();
+
+let customerAddDestination1947='both';
+function customerAddDestinationChanged1947(){customerAddDestination1947=$('newCustomerDestination')?.value||'both'}
+function normCustomerName1947(v){return String(v||'').trim().toLowerCase()}
+function extraCustomers1947(){try{const x=JSON.parse(localStorage.getItem('innovalExtraCustomersV17')||'[]');return Array.isArray(x)?x:[]}catch(e){return []}}
+function saveExtraCustomers1947(x){localStorage.setItem('innovalExtraCustomersV17',JSON.stringify(Array.isArray(x)?x:[]))}
+function findByName1947(arr,name){const n=normCustomerName1947(name);return (arr||[]).find(c=>normCustomerName1947(c?.name)===n)||null}
+function addToCustomerList1947(customer){
+  const extras=extraCustomers1947();
+  const existing=findByName1947(customers(),customer.name);
+  if(existing)return {ok:false,already:true,customer:existing};
+  const clean=Object.assign({},customer,{customerScope:'list'});
+  const filtered=extras.filter(c=>normCustomerName1947(c?.name)!==normCustomerName1947(customer.name));
+  filtered.push(clean);saveExtraCustomers1947(filtered);return {ok:true,customer:clean};
+}
+function addToAreaDatabase1947(customer){
+  const existing=findByName1947(dbCustomers1947(),customer.name);
+  if(existing)return {ok:false,already:true,customer:existing};
+  const ov=dbOv();const k=dbKey(customer)||('C'+Date.now());const clean=Object.assign({},customer,{customerId:k,customerScope:'db'});ov[k]=Object.assign({},ov[k]||{},clean);saveDbOv(ov);return {ok:true,customer:clean};
+}
+
+function openAddCustomer(){
+  customerAddDestination1947='both';
+  $('modalTitle').textContent='Add New Customer';
+  $('modalBody').innerHTML='<form id="addCustomerForm" novalidate>'+ 
+    '<div class="customer-destination-wrap"><label>Add Customer To *</label><select id="newCustomerDestination" required style="padding-left:12px" onchange="customerAddDestinationChanged1947()">'+
+    '<option value="list">Add to Customer List</option><option value="db">Add to Area Database</option><option value="both" selected>Add to Both</option></select><small class="customer-destination-hint">Choose where this new customer should be added.</small></div>'+ 
+    customerFormFields1947('newCustomer')+'<button id="newCustomerSaveBtn" class="save" type="button">＋ &nbsp; Add Customer</button></form>';
+  populateCustomerArea1947('newCustomer','');
+  $('newCustomerSaveBtn').onclick=()=>saveCustomerRecord1947(null,'add',null);
+  openModalLayer('modal');
+}
+
+async function saveCustomerRecord1947(e,mode,original){
+  if(mode!=='add')return saveCustomerRecord1947Base(e,mode,original);
+  if(e?.preventDefault)e.preventDefault();
+  const prefix='newCustomer',btn=$('newCustomerSaveBtn');
+  const restore=()=>{if(btn){btn.disabled=false;btn.innerHTML='＋ &nbsp; Add Customer'}};
+  const name=$(prefix+'Name')?.value.trim()||'',areaId=$(prefix+'Area')?.value||'',location=$(prefix+'Gov')?.value||'';
+  if(!name||!areaId||!location){restore();toast('Please complete required fields');return false}
+  const p=profile();if(!isAdminUser()&&!((p.areaIds||[]).includes(areaId))){restore();toast('This area is outside your assigned territory');return false}
+  const destination=$('newCustomerDestination')?.value||customerAddDestination1947||'both';
+  const inList=findByName1947(customers(),name);
+  const inDb=findByName1947(dbCustomers1947(),name);
+  if(destination==='list'&&inList){restore();showCustomerExists(name);return false}
+  if(destination==='db'&&inDb){restore();showCustomerExists(name);return false}
+  if(destination==='both'&&inList&&inDb){restore();showCustomerExists(name);return false}
+
+  const typed=buildCustomer1947(prefix,null);
+  // If the customer exists in one destination only, reuse that record and fill the missing destination.
+  const customer=Object.assign({},inDb||inList||{},typed,{customerId:(inDb?.customerId||inList?.customerId||typed.customerId)});
+  customer.customerScope=destination==='list'?'list':destination==='db'?'db':'both';
+  if(btn){btn.disabled=true;btn.innerHTML='✓ &nbsp; Customer Added'}
+
+  let addedList=false,addedDb=false;
+  if(destination==='list'||destination==='both'){
+    if(!inList){
+      const r=addToCustomerList1947(customer);if(r.ok)addedList=true;
+    }
+  }
+  if(destination==='db'||destination==='both'){
+    if(!inDb){
+      const r=addToAreaDatabase1947(customer);if(r.ok){addedDb=true;customer.customerId=r.customer.customerId}
+    }
+  }
+  // If both is selected and one side already existed, make sure the existing side is preserved and the missing side is created.
+  if(destination==='both'){
+    const listNow=findByName1947(customers(),name),dbNow=findByName1947(dbCustomers1947(),name);
+    if(!listNow&&!dbNow){restore();toast('Unable to add customer');return false}
+    if(listNow&&!dbNow){const r=addToAreaDatabase1947(Object.assign({},listNow,customer));if(r.ok)addedDb=true}
+    if(dbNow&&!listNow){const r=addToCustomerList1947(Object.assign({},dbNow,customer));if(r.ok)addedList=true}
+  }
+  if(typeof refreshCustomerLists==='function')refreshCustomerLists();
+  closeModal();
+  const parts=[];if(addedList)parts.push('Customer List');if(addedDb)parts.push('Area Database');
+  const msg=parts.length?'Customer successfully added to '+parts.join(' and ')+'.':'Customer already exists in the selected destination.';
+  showCustomerSuccess(customer.name,false);const info=$('customerSuccessInfo');if(info)info.textContent=msg;
+  if(addedDb||destination==='both'){
+    const dbRecord=findByName1947(dbCustomers1947(),name)||customer;
+    Promise.resolve().then(()=>cloudSyncCustomer(dbRecord,true)).catch(()=>({ok:false})).then(core=>Promise.resolve().then(()=>syncCustomerDetails1947(dbRecord)).catch(()=>({ok:false})).then(details=>({core,details}))).then(({core,details})=>{const i=$('customerSuccessInfo');if(i&&core?.ok&&details?.ok)i.textContent=msg+' Data synced to Cloud.'});
+  }
+  return true;
+}
+
+/* ===== Delete request / Admin approval ===== */
+function deletionRequestLocalKey1947(){return 'innovalCustomerDeleteRequestsV1'}
+function deletionRequestLocal1947(){try{const x=JSON.parse(localStorage.getItem(deletionRequestLocalKey1947())||'[]');return Array.isArray(x)?x:[]}catch(e){return []}}
+function saveDeletionRequestLocal1947(x){localStorage.setItem(deletionRequestLocalKey1947(),JSON.stringify(x||[]))}
+async function submitCustomerDeleteRequest1947(c){
+  const p=profile();
+  const request={id:'DR-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),customerId:dbKey(c),customerName:c.name||'',areaId:c.areaId||'',area:c.area||'',requestedBy:p.rep||'',requestedByUserId:p.id||'',createdAt:new Date().toISOString(),status:'pending'};
+  const local=deletionRequestLocal1947();local.push(request);saveDeletionRequestLocal1947(local.slice(-100));
+  let cloudOk=false;
+  try{
+    const session=await cloudSession();
+    if(session&&innovalSupabase){const {error}=await innovalSupabase.from('customer_delete_requests').insert({request_id:request.id,customer_id:request.customerId,customer_name:request.customerName,area_id:request.areaId,area_name:request.area,requested_by_user_id:request.requestedByUserId,requested_by_name:request.requestedBy,status:'pending'});if(error)throw error;cloudOk=true}
+  }catch(e){console.warn('Customer delete request cloud sync failed:',e?.message||e)}
+  return {ok:true,cloudOk};
+}
+async function deleteDb1947(c){
+  if(!c)return;
+  if(isAdminUser()){
+    const ok=confirm('Admin approval action: delete this customer now?\n\nVisit history will be kept.');
+    if(!ok)return;
+    const ov=dbOv();ov[dbKey(c)]=Object.assign({},ov[dbKey(c)]||{}, {customerId:dbKey(c),active:false,updatedAt:new Date().toISOString()});saveDbOv(ov);
+    try{const session=await cloudSession();if(session&&innovalSupabase)await innovalSupabase.from('customers').update({active:false,updated_at:new Date().toISOString()}).eq('customer_id',dbKey(c))}catch(e){}
+    refreshCustomerLists();openAreaDatabase();toast('✓ Customer deleted by Admin');return;
+  }
+  if(!confirm('Send a request to Admin to remove this customer from your Customer List?\n\nThe customer will NOT be removed until Admin approves.'))return;
+  const r=await submitCustomerDeleteRequest1947(c);
+  toast(r.cloudOk?'✓ Deletion request sent to Admin':'✓ Request saved. It will sync to Admin when Cloud is available.');
+}
+
+async function loadCustomerDeleteRequests1947(){
+  if(!isAdminUser()||!innovalSupabase)return [];
+  try{const session=await cloudSession();if(!session)return [];const {data,error}=await innovalSupabase.from('customer_delete_requests').select('request_id,customer_id,customer_name,area_id,area_name,requested_by_user_id,requested_by_name,status,created_at').eq('status','pending').order('created_at',{ascending:false});if(error)throw error;return data||[]}catch(e){console.warn('Delete requests load failed:',e?.message||e);return []}
+}
+async function reviewCustomerDeleteRequest1947(id,approve){
+  if(!isAdminUser()||!innovalSupabase)return;
+  try{
+    const session=await cloudSession();if(!session)return;
+    const {data,error}=await innovalSupabase.from('customer_delete_requests').select('request_id,customer_id,customer_name').eq('request_id',id).maybeSingle();if(error)throw error;if(!data)return;
+    if(approve){
+      // Approval removes the customer only from the requesting colleague's Customer List.
+      // The shared Area Database/master customer remains active.
+      const requesterId=String(data.requested_by_user_id||'');
+      if(requesterId){const key='innovalCustomerListExclusionsV1_'+requesterId;let ex=[];try{ex=JSON.parse(localStorage.getItem(key)||'[]')}catch(e){}if(!ex.includes(String(data.customer_id)))ex.push(String(data.customer_id));localStorage.setItem(key,JSON.stringify(ex.slice(-1000)))}
+    }
+    const upd=await innovalSupabase.from('customer_delete_requests').update({status:approve?'approved':'rejected',reviewed_by_user_id:profile().id||null,reviewed_by_name:profile().rep||'',reviewed_at:new Date().toISOString()}).eq('request_id',id);if(upd.error)throw upd.error;
+    toast(approve?'✓ Customer deletion approved':'✓ Deletion request rejected');openNotifications();
+  }catch(e){alert('Unable to process request.\n\n'+(e?.message||e))}
+}
+
+async function openNotifications(){
+  const read=notificationReadSet();
+  let rows=innovalNotifications.slice().sort((a,b)=>String(b.date||b.createdAt||'').localeCompare(String(a.date||a.createdAt||'')));
+  if(isAdminUser()){
+    const reqs=await loadCustomerDeleteRequests1947();
+    rows=reqs.map(r=>({id:'delete-request-'+r.request_id,title:'Customer List Removal Request',message:(r.requested_by_name||'Team member')+' requested removal of '+(r.customer_name||'customer')+' from their Customer List.',date:r.created_at,target:'admin',requestId:r.request_id,deleteRequest:true})).concat(rows);
+  }
+  const body=rows.length?'<div class="notification-center">'+rows.map(n=>{const unread=!read.has(String(n.id));if(n.deleteRequest){return '<div class="notification-card '+(unread?'unread':'')+' delete-request-card"><b>🗑 '+esc(n.title)+'</b><p>'+esc(n.message)+'</p><small>'+esc(n.date||'')+'</small><div class="delete-request-actions"><button class="approve" type="button" onclick="reviewCustomerDeleteRequest1947(\''+esc(n.requestId)+'\',true)">Approve Delete</button><button class="reject" type="button" onclick="reviewCustomerDeleteRequest1947(\''+esc(n.requestId)+'\',false)">Reject</button></div></div>'}return '<div class="notification-card '+(unread?'unread':'')+'"><b>'+esc(n.title||'Innoval Notification')+'</b><p>'+esc(n.message||'')+'</p><small>'+esc(n.date||'')+(n.target?' • '+esc(n.target):'')+'</small></div>'}).join('')+'</div>':'<div class="notification-empty"><div class="empty-icon">🔔</div><b>No new notifications</b></div>';
+  $('modalTitle').textContent='Notifications';$('modalBody').innerHTML=body;openModalLayer('modal');
+  rows.forEach(n=>read.add(String(n.id)));saveNotificationRead(read);updateNotificationBadge();
+}
+
+// Hide admin-approved inactive customers from the Customer List while preserving visit history.
+(function(){
+  const __originalCustomerListData1947 = window.customerListData || customerListData;
+  window.customerListData = function(){
+    const rows = __originalCustomerListData1947();
+    const ov = dbOv();
+    const p = profile();
+    const key = 'innovalCustomerListExclusionsV1_'+String(p.id||p.rep||'guest');
+    let exclusions=[]; try{exclusions=JSON.parse(localStorage.getItem(key)||'[]')}catch(e){}
+    const excluded=new Set(exclusions.map(String));
+    return rows.filter(c=>!(ov[dbKey(c)] && ov[dbKey(c)].active===false) && !excluded.has(dbKey(c)));
+  };
+  customerListData = window.customerListData;
+})();
+
+// Cross-device delete-request notifications for Admin + requester.
+// Uses Supabase polling so the result reaches the requesting colleague on another device.
+async function loadMyCustomerDeleteDecisions1947(){
+  if(!innovalSupabase)return [];
+  try{
+    const session=await cloudSession(); if(!session)return [];
+    const me=profile(); const uid=String(me.id||''); if(!uid)return [];
+    const {data,error}=await innovalSupabase.from('customer_delete_requests')
+      .select('request_id,customer_id,customer_name,status,requested_by_user_id,requested_by_name,reviewed_by_name,reviewed_at,created_at')
+      .eq('requested_by_user_id',uid).in('status',['approved','rejected'])
+      .order('reviewed_at',{ascending:false}).limit(50);
+    if(error)throw error; return data||[];
+  }catch(e){console.warn('Delete decisions load failed:',e?.message||e);return []}
+}
+function customerDeleteDecisionLocalKey1947(){const p=profile();return 'innovalCustomerDeleteDecisionsReadV1_'+String(p.id||p.rep||'guest')}
+function customerDeleteDecisionReadSet1947(){try{return new Set(JSON.parse(localStorage.getItem(customerDeleteDecisionLocalKey1947())||'[]'))}catch(e){return new Set()}}
+function saveCustomerDeleteDecisionReadSet1947(set){localStorage.setItem(customerDeleteDecisionLocalKey1947(),JSON.stringify([...set].slice(-200)))}
+async function refreshCustomerDeleteNotifications1947(){
+  if(!innovalSupabase)return;
+  const badge=$('notificationBadge'); if(!badge)return;
+  const read=notificationReadSet();
+  let pending=0, decisions=[];
+  if(isAdminUser()){
+    const reqs=await loadCustomerDeleteRequests1947();
+    pending=reqs.filter(r=>!read.has('delete-request-'+r.request_id)).length;
+  }
+  const myDecisions=await loadMyCustomerDeleteDecisions1947();
+  const decisionRead=customerDeleteDecisionReadSet1947();
+  decisions=myDecisions.filter(r=>!decisionRead.has(String(r.request_id))).length;
+  const base=innovalNotifications.filter(n=>!read.has(String(n.id))).length;
+  const count=base+pending+decisions;
+  badge.textContent=count>99?'99+':String(count);
+  badge.classList.toggle('hidden',count===0);
+}
+
+// Apply an approved deletion locally on the requester device as soon as the decision is seen.
+async function syncMyCustomerDeleteDecisions1947(){
+  const rows=await loadMyCustomerDeleteDecisions1947(); if(!rows.length)return;
+  const read=customerDeleteDecisionReadSet1947();
+  const ov=dbOv(); let changed=false;
+  rows.forEach(r=>{
+    if(r.status==='approved'){
+      const id=String(r.customer_id);
+      ov[id]=Object.assign({},ov[id]||{},{customerId:id,active:false,updatedAt:r.reviewed_at||new Date().toISOString()});
+      changed=true;
+    }
+  });
+  if(changed){saveDbOv(ov);if(typeof refreshCustomerLists==='function')refreshCustomerLists()}
+}
+
+// Extend the existing Notifications drawer with requester-side approval/rejection results.
+const __originalOpenNotifications1947=window.openNotifications;
+window.openNotifications=async function(){
+  const read=notificationReadSet();
+  let rows=innovalNotifications.slice().sort((a,b)=>String(b.date||b.createdAt||'').localeCompare(String(a.date||a.createdAt||'')));
+  if(isAdminUser()){
+    const reqs=await loadCustomerDeleteRequests1947();
+    rows=reqs.map(r=>({id:'delete-request-'+r.request_id,title:'Customer List Removal Request',message:(r.requested_by_name||'Team member')+' requested removal of '+(r.customer_name||'customer')+' from their Customer List.',date:r.created_at,target:'admin',requestId:r.request_id,deleteRequest:true})).concat(rows);
+  }
+  const decisions=await loadMyCustomerDeleteDecisions1947();
+  const decisionRead=customerDeleteDecisionReadSet1947();
+  decisions.forEach(r=>{
+    rows.unshift({id:'delete-decision-'+r.request_id,title:r.status==='approved'?'Customer Deletion Approved':'Customer Deletion Rejected',message:r.status==='approved'?'Admin approved your request to delete '+(r.customer_name||'customer')+'. The customer has been removed from your customer views; visit history is kept.':'Admin rejected your request to delete '+(r.customer_name||'customer')+'. The customer remains active.',date:r.reviewed_at||r.created_at,target:'requester',deleteDecision:true,decisionRequestId:r.request_id});
+  });
+  const body=rows.length?'<div class="notification-center">'+rows.map(n=>{const unread=n.deleteDecision?!decisionRead.has(String(n.decisionRequestId)):!read.has(String(n.id));if(n.deleteRequest){return '<div class="notification-card '+(unread?'unread':'')+' delete-request-card"><b>🗑 '+esc(n.title)+'</b><p>'+esc(n.message)+'</p><small>'+esc(n.date||'')+'</small><div class="delete-request-actions"><button class="approve" type="button" onclick="reviewCustomerDeleteRequest1947(\''+esc(n.requestId)+'\',true)">Approve Delete</button><button class="reject" type="button" onclick="reviewCustomerDeleteRequest1947(\''+esc(n.requestId)+'\',false)">Reject</button></div></div>'}return '<div class="notification-card '+(unread?'unread':'')+'"><b>'+esc(n.title||'Innoval Notification')+'</b><p>'+esc(n.message||'')+'</p><small>'+esc(n.date||'')+(n.target?' • '+esc(n.target):'')+'</small></div>'}).join('')+'</div>':'<div class="notification-empty"><div class="empty-icon">🔔</div><b>No new notifications</b></div>';
+  $('modalTitle').textContent='Notifications';$('modalBody').innerHTML=body;openModalLayer('modal');
+  rows.forEach(n=>{if(n.deleteDecision)decisionRead.add(String(n.decisionRequestId));else read.add(String(n.id))});
+  saveNotificationRead(read);saveCustomerDeleteDecisionReadSet1947(decisionRead);updateNotificationBadge();
+};
+
+setTimeout(()=>refreshCustomerDeleteNotifications1947(),2500);
+setInterval(()=>{if(document.visibilityState==='visible'){refreshCustomerDeleteNotifications1947();syncMyCustomerDeleteDecisions1947()}},10000);
+
 </script>
 </body></html>
