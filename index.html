@@ -3812,7 +3812,7 @@ window.setAndroidFcmToken = async function(token){
       return {ok:false,error:'SUPABASE CLIENT MISSING'};
     }
 
-    const uid=String(profile().id||'').trim();
+    const uid=String(currentUserRecord()?.id||'').trim();
 
     if(!uid){
       window.__innovalFcmDiag('PROFILE USER ID EMPTY',false);
