@@ -3752,6 +3752,7 @@ setInterval(()=>{if(document.visibilityState==='visible')window.syncAndroidFcmTo
 
 </script>
 
+<script>
 /* ===== v1.9.53 Customer List Removal Request UI + FCM preparation ===== */
 
 /* ===== Native Android FCM token registration ===== */
@@ -3759,7 +3760,7 @@ async function sendInnovalPush1947(payload){
   try{
     const session=await cloudSession();
     if(!session || !session.access_token) return {ok:false,error:'No session'};
-    const res=await fetch(INNOVAL_SUPABASE_URL+'/functions/v1/send-push',{
+    const res=await fetch(INNOVAL_SUPABASE_URL+'/functions/v1/send-innoval-push',{
       method:'POST',
       headers:{'Content-Type':'application/json','apikey':INNOVAL_SUPABASE_PUBLISHABLE_KEY,'Authorization':'Bearer '+session.access_token},
       body:JSON.stringify(payload||{})
@@ -3801,6 +3802,8 @@ window.syncAndroidFcmToken = function(){
   }catch(e){}
 };
 
+</script>
+
 <style id="v1952-two-way-communications">
   .comm-shell{display:grid;gap:12px}
   .comm-hero{padding:15px;border:1px solid #dbe7f4;border-radius:16px;background:linear-gradient(145deg,#eef7ff,#fff)}
@@ -3810,6 +3813,7 @@ window.syncAndroidFcmToken = function(){
   .customer-admin-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.customer-admin-actions button{border:1px solid #dfe7f2;border-radius:10px;padding:9px;font-size:10px;font-weight:900;background:#fff;color:#183d69}.customer-admin-actions button.primary{background:#edf5ff;color:#075dcc}.customer-admin-actions button.danger{background:#fff3f3;color:#b33a3a;border-color:#f0d6d6}
   @media(max-width:520px){.comm-actions,.customer-admin-actions{grid-template-columns:1fr}}
 </style>
+
 <script>
 (function(){
   const COMM_POLL_MS=10000;
