@@ -3878,18 +3878,9 @@ async function sendInnovalPush1947(payload){
 }
 
 window.__innovalFcmDiag = function(message, ok){
-  try{
-    let box=document.getElementById('innovalFcmDiagBox');
-    if(!box){
-      box=document.createElement('div');
-      box.id='innovalFcmDiagBox';
-      box.style.cssText='position:fixed;left:10px;right:10px;bottom:74px;z-index:2147483647;padding:10px 12px;border-radius:12px;background:#fff;border:2px solid #dbe5f2;box-shadow:0 8px 28px rgba(0,0,0,.18);font:700 12px/1.4 Arial,sans-serif;color:#183d69;white-space:pre-wrap;word-break:break-word;';
-      document.body.appendChild(box);
-    }
-    box.style.borderColor=ok?'#2e9b63':'#d34b4b';
-    box.style.color=ok?'#17633f':'#9f2d2d';
-    box.textContent='FCM DIAGNOSTIC: '+String(message||'');
-  }catch(e){console.warn('FCM diagnostic UI failed',e)}
+  // Keep FCM diagnostics available for developers without showing any
+  // diagnostic banner/toast to normal app users.
+  try{ console.debug('FCM DIAGNOSTIC:', String(message||'')); }catch(e){}
 };
 
 window.setAndroidFcmToken = async function(token){
@@ -4002,6 +3993,13 @@ window.syncAndroidFcmToken = function(){
   .customer-admin-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.customer-admin-actions button{border:1px solid #dfe7f2;border-radius:10px;padding:9px;font-size:10px;font-weight:900;background:#fff;color:#183d69}.customer-admin-actions button.primary{background:#edf5ff;color:#075dcc}.customer-admin-actions button.danger{background:#fff3f3;color:#b33a3a;border-color:#f0d6d6}
   @media(max-width:520px){.comm-actions,.customer-admin-actions{grid-template-columns:1fr}}
 </style>
+
+<script>
+(function(){
+  const old=document.getElementById('innovalFcmDiagBox');
+  if(old) old.remove();
+})();
+</script>
 
 <script>
 (function(){
