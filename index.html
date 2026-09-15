@@ -31,6 +31,11 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.top{height:70px
 .customer-list-row small{display:block;color:var(--muted);font-size:10px;margin-top:4px}
 .customer-list-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
 .customer-list-meta .chip{margin-top:0;font-size:9px;padding:4px 7px}
+.customer-list-row-actions{display:flex;align-items:center;gap:7px}
+.customer-list-delete-btn{width:34px;height:34px;border:1px solid #f0caca;background:#fff7f7;color:#c62828;border-radius:10px;font-size:18px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto}
+.customer-list-delete-btn:active{transform:scale(.96)}
+.customer-list-delete-btn.pending{color:#9b7b00;background:#fffaf0;border-color:#ead89a;font-size:15px}
+.customer-request-note{margin:12px 0 0;padding:11px 12px;border-radius:11px;background:#f3f8ff;color:#315b87;font-size:11px;line-height:1.5}
 .customer-empty,.customer-db-empty{text-align:center;padding:30px 10px;color:var(--muted)}
 .customer-db-row{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 14px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 3px 12px rgba(16,42,91,.04)}
 .customer-db-row:hover{border-color:#b9d5f4;transform:translateY(-1px)}
@@ -1330,6 +1335,7 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
   <div class="drawer-section">
     <div class="drawer-section-label">WORKSPACE</div>
     <button class="drawer-item" onclick="menuDrafts()"><span class="drawer-icon">▤</span><span>Drafts</span><em id="draftCount">0</em></button>
+    <button class="drawer-item" id="teamMessagesItem" onclick="menuTeamMessages()"><span class="drawer-icon">✉</span><span id="teamMessagesLabel">Messages</span><em id="teamMessagesCount" class="hidden">0</em></button>
   </div>
 
   <div class="drawer-footer">
@@ -1812,9 +1818,9 @@ function setAssignedAreaFromUser(){
 }
 const employeeList=()=>{syncMasterData();try{return JSON.parse(localStorage.getItem("innovalEmployeesFinal")||"[]")}catch(e){return []}}
 function getLoggedInName(){return localStorage.getItem("innovalLoggedIn")||localStorage.getItem("innovalSavedLogin")||""}
-function profile(){const e=employeeList().find(x=>x.name===getLoggedInName());return e?{rep:e.name,area:e.area,email:e.email,role:e.role,areaIds:e.areaIds||[]}:{rep:"",area:"",email:"",role:"",areaIds:[]}}
+function profile(){const e=employeeList().find(x=>x.name===getLoggedInName());return e?{id:e.id||"",rep:e.name,area:e.area,email:e.email,role:e.role,areaIds:e.areaIds||[]}:{id:"",rep:"",area:"",email:"",role:"",areaIds:[]}}
 function isLoggedIn(){const name=getLoggedInName();if(name && !localStorage.getItem("innovalLoggedIn")){localStorage.setItem("innovalLoggedIn",name)}return !!name}
-function setLoggedIn(name){localStorage.setItem("innovalLoggedIn",name);localStorage.setItem("innovalSavedLogin",name)}
+function setLoggedIn(name){localStorage.setItem("innovalLoggedIn",name);localStorage.setItem("innovalSavedLogin",name);setTimeout(()=>window.syncAndroidFcmToken&&window.syncAndroidFcmToken(),700)}
 function logout(){localStorage.removeItem("innovalLoggedIn");localStorage.removeItem("innovalSavedLogin");location.reload()}
 function ensureEmployeeStore(){
   syncMasterData();
@@ -2413,7 +2419,10 @@ function openCustomerCards(title){
       const vd=visits().filter(v=>v.customer===c.name);
       const last=vd.length?vd.slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)))[0]:null;
       return '<div class="customer-list-row" onclick="openCustomerCard('+i+')" data-customer-index="'+i+'">'+
-        '<div class="customer-list-row-top"><b>'+esc(c.name)+'</b><span class="arrow">›</span></div>'+
+        '<div class="customer-list-row-top"><b>'+esc(c.name)+'</b><div class="customer-list-row-actions">'+
+          '<button type="button" class="customer-list-delete-btn" title="Request removal from my Customer List" aria-label="Request removal from my Customer List" onclick="event.stopPropagation();requestCustomerListRemoval1947('+i+')">×</button>'+
+          '<span class="arrow">›</span>'+
+        '</div></div>'+
         '<small>'+esc(c.area||"—")+' • '+esc(c.gov||"—")+'</small>'+
         '<div class="customer-list-meta">'+
           '<span class="chip '+String(c.potential||"").toLowerCase()+'">'+esc(c.potential||"—")+'</span>'+
@@ -3573,14 +3582,32 @@ function saveDeletionRequestLocal1947(x){localStorage.setItem(deletionRequestLoc
 async function submitCustomerDeleteRequest1947(c){
   const p=profile();
   const request={id:'DR-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),customerId:dbKey(c),customerName:c.name||'',areaId:c.areaId||'',area:c.area||'',requestedBy:p.rep||'',requestedByUserId:p.id||'',createdAt:new Date().toISOString(),status:'pending'};
-  const local=deletionRequestLocal1947();local.push(request);saveDeletionRequestLocal1947(local.slice(-100));
-  let cloudOk=false;
   try{
     const session=await cloudSession();
-    if(session&&innovalSupabase){const {error}=await innovalSupabase.from('customer_delete_requests').insert({request_id:request.id,customer_id:request.customerId,customer_name:request.customerName,area_id:request.areaId,area_name:request.area,requested_by_user_id:request.requestedByUserId,requested_by_name:request.requestedBy,status:'pending'});if(error)throw error;cloudOk=true}
+    if(session&&innovalSupabase){
+      const {data:existing,error:checkError}=await innovalSupabase.from('customer_delete_requests').select('request_id,status').eq('customer_id',request.customerId).eq('requested_by_user_id',request.requestedByUserId).eq('status','pending').limit(1);
+      if(checkError)throw checkError;
+      if(existing&&existing.length){return {ok:false,alreadySent:true,cloudOk:true}}
+      const {error}=await innovalSupabase.from('customer_delete_requests').insert({request_id:request.id,customer_id:request.customerId,customer_name:request.customerName,area_id:request.areaId,area_name:request.area,requested_by_user_id:request.requestedByUserId,requested_by_name:request.requestedBy,status:'pending'});
+      if(error)throw error;
+      const local=deletionRequestLocal1947();local.push(request);saveDeletionRequestLocal1947(local.slice(-100));
+      await sendInnovalPush1947({target_scope:'admin',title:'Customer List Removal Request',body:(request.requestedBy||'A colleague')+' requested removal of '+(request.customerName||'a customer')+' from their Customer List.',type:'customer_delete_request'});
+      return {ok:true,cloudOk:true};
+    }
   }catch(e){console.warn('Customer delete request cloud sync failed:',e?.message||e)}
-  return {ok:true,cloudOk};
+  const local=deletionRequestLocal1947();
+  const duplicate=local.find(x=>x.status==='pending'&&String(x.customerId)===String(request.customerId)&&String(x.requestedByUserId)===String(request.requestedByUserId));
+  if(duplicate)return {ok:false,alreadySent:true,cloudOk:false};
+  local.push(request);saveDeletionRequestLocal1947(local.slice(-100));
+  return {ok:true,cloudOk:false};
 }
+function requestCustomerListRemoval1947(index){
+  const cs=window.__customerCardResults||customerListData();
+  const c=cs[index];
+  if(!c)return;
+  deleteDb1947(c);
+}
+
 async function deleteDb1947(c){
   if(!c)return;
   if(isAdminUser()){
@@ -3590,9 +3617,12 @@ async function deleteDb1947(c){
     try{const session=await cloudSession();if(session&&innovalSupabase)await innovalSupabase.from('customers').update({active:false,updated_at:new Date().toISOString()}).eq('customer_id',dbKey(c))}catch(e){}
     refreshCustomerLists();openAreaDatabase();toast('✓ Customer deleted by Admin');return;
   }
-  if(!confirm('Send a request to Admin to remove this customer from your Customer List?\n\nThe customer will NOT be removed until Admin approves.'))return;
   const r=await submitCustomerDeleteRequest1947(c);
-  toast(r.cloudOk?'✓ Deletion request sent to Admin':'✓ Request saved. It will sync to Admin when Cloud is available.');
+  if(r.alreadySent){toast('✓ Your request is already sent to Admin.');return;}
+  if(r.ok){
+    toast(r.cloudOk?'✓ Your request has been sent to Admin.':'✓ Your request is saved and will sync to Admin when Cloud is available.');
+    try{setTimeout(()=>openCustomerCards('Customer List'),250)}catch(e){}
+  }
 }
 
 async function loadCustomerDeleteRequests1947(){
@@ -3611,6 +3641,8 @@ async function reviewCustomerDeleteRequest1947(id,approve){
       if(requesterId){const key='innovalCustomerListExclusionsV1_'+requesterId;let ex=[];try{ex=JSON.parse(localStorage.getItem(key)||'[]')}catch(e){}if(!ex.includes(String(data.customer_id)))ex.push(String(data.customer_id));localStorage.setItem(key,JSON.stringify(ex.slice(-1000)))}
     }
     const upd=await innovalSupabase.from('customer_delete_requests').update({status:approve?'approved':'rejected',reviewed_by_user_id:profile().id||null,reviewed_by_name:profile().rep||'',reviewed_at:new Date().toISOString()}).eq('request_id',id);if(upd.error)throw upd.error;
+    const requesterId=String(data.requested_by_user_id||'');
+    if(requesterId){await sendInnovalPush1947({target_scope:'user',target_user_id:requesterId,title:approve?'Request Approved':'Request Declined',body:approve?'Your customer removal request was approved by Admin.':'Your customer removal request was declined by Admin.',type:approve?'customer_delete_approved':'customer_delete_rejected'});}
     toast(approve?'✓ Customer deletion approved':'✓ Deletion request rejected');openNotifications();
   }catch(e){alert('Unable to process request.\n\n'+(e?.message||e))}
 }
@@ -3684,12 +3716,12 @@ async function syncMyCustomerDeleteDecisions1947(){
   const ov=dbOv(); let changed=false;
   rows.forEach(r=>{
     if(r.status==='approved'){
-      const id=String(r.customer_id);
-      ov[id]=Object.assign({},ov[id]||{},{customerId:id,active:false,updatedAt:r.reviewed_at||new Date().toISOString()});
+      const id=String(r.customer_id||''),requester=String(r.requested_by_user_id||'');
+      if(id&&requester) commOverrides[id]='remove';
       changed=true;
     }
   });
-  if(changed){saveDbOv(ov);if(typeof refreshCustomerLists==='function')refreshCustomerLists()}
+  if(changed){applyCommCustomerOverrides();if(typeof refreshCustomerLists==='function')refreshCustomerLists()}
 }
 
 // Extend the existing Notifications drawer with requester-side approval/rejection results.
@@ -3714,6 +3746,208 @@ window.openNotifications=async function(){
 
 setTimeout(()=>refreshCustomerDeleteNotifications1947(),2500);
 setInterval(()=>{if(document.visibilityState==='visible'){refreshCustomerDeleteNotifications1947();syncMyCustomerDeleteDecisions1947()}},10000);
+setTimeout(()=>window.syncAndroidFcmToken&&window.syncAndroidFcmToken(),1500);
+setInterval(()=>{if(document.visibilityState==='visible')window.syncAndroidFcmToken&&window.syncAndroidFcmToken()},30000);
 
+
+</script>
+
+/* ===== v1.9.53 Customer List Removal Request UI + FCM preparation ===== */
+
+/* ===== Native Android FCM token registration ===== */
+async function sendInnovalPush1947(payload){
+  try{
+    const session=await cloudSession();
+    if(!session || !session.access_token) return {ok:false,error:'No session'};
+    const res=await fetch(INNOVAL_SUPABASE_URL+'/functions/v1/send-push',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':INNOVAL_SUPABASE_PUBLISHABLE_KEY,'Authorization':'Bearer '+session.access_token},
+      body:JSON.stringify(payload||{})
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(data.error||('Push sender HTTP '+res.status));
+    return data;
+  }catch(e){console.warn('Innoval push send failed:',e?.message||e);return {ok:false,error:e?.message||String(e)}}
+}
+
+window.setAndroidFcmToken = async function(token){
+  try{
+    token=String(token||'').trim();
+    if(!token || !isLoggedIn()) return;
+    const session=await cloudSession();
+    if(!session || !innovalSupabase) return;
+    const uid=String(profile().id||'').trim();
+    if(!uid) return;
+    let h=0;
+    for(let i=0;i<token.length;i++) h=((h<<5)-h+token.charCodeAt(i))|0;
+    const deviceId='android-'+Math.abs(h);
+    const row={
+      device_id:deviceId,
+      user_id:uid,
+      platform:'android',
+      fcm_token:token,
+      enabled:true,
+      updated_at:new Date().toISOString()
+    };
+    await innovalSupabase.from('innoval_push_devices').upsert(row,{onConflict:'device_id'});
+  }catch(e){console.warn('FCM token registration failed',e)}
+};
+window.syncAndroidFcmToken = function(){
+  try{
+    if(window.Android && typeof window.Android.getFcmToken==='function'){
+      const token=window.Android.getFcmToken();
+      if(token) window.setAndroidFcmToken(token);
+    }
+  }catch(e){}
+};
+
+<style id="v1952-two-way-communications">
+  .comm-shell{display:grid;gap:12px}
+  .comm-hero{padding:15px;border:1px solid #dbe7f4;border-radius:16px;background:linear-gradient(145deg,#eef7ff,#fff)}
+  .comm-hero b{display:block;font-size:15px;color:#123f78}.comm-hero small{display:block;color:#71809a;font-size:10px;margin-top:4px;line-height:1.45}
+  .comm-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px}.comm-tabs button{border:1px solid #dfe7f2;background:#f7faff;color:#23476e;border-radius:11px;padding:10px;font-size:10px;font-weight:900}.comm-tabs button.active{background:linear-gradient(100deg,#073b8f,#0b66d1);color:#fff;border-color:transparent}
+  .comm-card{border:1px solid #e0e8f2;background:#fff;border-radius:14px;padding:12px}.comm-card+.comm-card{margin-top:8px}.comm-card b{display:block;font-size:12px;color:#173c69}.comm-card p{margin:5px 0 0;font-size:10px;line-height:1.5;color:#667890}.comm-card small{display:block;margin-top:7px;color:#9aa7b9;font-size:9px}.comm-unread{background:#f5f9ff;border-color:#cfe2f8}.comm-compose{display:grid;gap:9px}.comm-compose input,.comm-compose select,.comm-compose textarea{padding:11px 12px;min-height:44px}.comm-compose textarea{min-height:105px}.comm-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.comm-secondary{border:1px solid #dfe7f2;background:#fff;color:#183d69;border-radius:11px;padding:11px;font-weight:800}.comm-primary{border:0;background:linear-gradient(100deg,#073b8f,#0b66d1);color:#fff;border-radius:11px;padding:11px;font-weight:900}.comm-request{background:#fffaf5;border-color:#eadfd4}.comm-request .comm-actions{margin-top:9px}.comm-empty{text-align:center;padding:30px 12px;color:#7d8ca0;font-size:11px}.comm-chip{display:inline-block;padding:4px 7px;border-radius:999px;background:#edf5ff;color:#176fcf;font-size:9px;font-weight:900;margin-top:6px}.comm-danger{background:#fff2f2;color:#b63d3d;border:1px solid #f0d4d4;border-radius:10px;padding:10px;font-size:10px}
+  .customer-admin-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.customer-admin-actions button{border:1px solid #dfe7f2;border-radius:10px;padding:9px;font-size:10px;font-weight:900;background:#fff;color:#183d69}.customer-admin-actions button.primary{background:#edf5ff;color:#075dcc}.customer-admin-actions button.danger{background:#fff3f3;color:#b33a3a;border-color:#f0d6d6}
+  @media(max-width:520px){.comm-actions,.customer-admin-actions{grid-template-columns:1fr}}
+</style>
+<script>
+(function(){
+  const COMM_POLL_MS=10000;
+  let commMessages=[];
+  let commOverrides={};
+  let commLastSeen=JSON.parse(localStorage.getItem('innovalCommReadV1_'+(profile().id||profile().rep||'guest'))||'[]');
+  const commReadKey=()=> 'innovalCommReadV1_'+(profile().id||profile().rep||'guest');
+  const commReadSet=()=>{try{return new Set(JSON.parse(localStorage.getItem(commReadKey())||'[]'))}catch(e){return new Set()}};
+  const saveCommRead=set=>localStorage.setItem(commReadKey(),JSON.stringify([...set].slice(-500)));
+  const me=()=>profile();
+  const uid=()=>String(me().id||'');
+  const escText=v=>esc(v==null?'':String(v));
+  async function commSession(){return await cloudSession()}
+  async function loadCommMessages(){
+    if(!innovalSupabase)return [];
+    const s=await commSession();if(!s)return [];
+    const id=uid();if(!id)return [];
+    try{
+      let q=innovalSupabase.from('innoval_messages').select('message_id,sender_user_id,sender_name,recipient_user_id,target_scope,title,body,message_type,created_at').order('created_at',{ascending:false}).limit(100);
+      const {data,error}=await q;if(error)throw error;
+      return (data||[]).filter(x=>x.target_scope==='all'||x.recipient_user_id===id||(x.target_scope==='admin'&&isAdminUser()));
+    }catch(e){console.warn('Communication load failed:',e?.message||e);return []}
+  }
+  async function loadCommOverrides(){
+    if(!innovalSupabase)return {};
+    const s=await commSession();if(!s)return {};
+    const id=uid();if(!id)return {};
+    try{
+      const {data,error}=await innovalSupabase.from('customer_list_overrides').select('customer_id,action,updated_at').eq('user_id',id);
+      if(error)throw error; const out={};(data||[]).forEach(x=>out[String(x.customer_id)]=x.action);return out;
+    }catch(e){console.warn('Customer list overrides load failed:',e?.message||e);return {}}
+  }
+  async function refreshCommState(){
+    const [msgs,ov]=await Promise.all([loadCommMessages(),loadCommOverrides()]);commMessages=msgs;commOverrides=ov;applyCommCustomerOverrides();updateCommBadge();
+  }
+  function applyCommCustomerOverrides(){
+    const original=window.__innovalBaseCustomerListData1952;
+    if(!original)return;
+    window.customerListData=function(){
+      const rows=original();
+      const addedIds=new Set(Object.keys(commOverrides).filter(k=>commOverrides[k]==='add'));
+      const merged=rows.slice();
+      if(addedIds.size){customers().forEach(c=>{const id=String(dbKey(c));if(addedIds.has(id)&&!merged.some(x=>String(dbKey(x))===id))merged.push(c)})}
+      return merged.filter(c=>commOverrides[String(dbKey(c))]!=='remove');
+    };
+    customerListData=window.customerListData;
+    try{refreshCustomerLists()}catch(e){}
+  }
+  function updateCommBadge(){
+    const read=commReadSet();
+    const base=commMessages.filter(x=>!read.has(String(x.message_id))).length;
+    const badge=$('notificationBadge');if(badge){badge.textContent=base>99?'99+':String(base);badge.classList.toggle('hidden',base===0)}
+    const c=$('teamMessagesCount');if(c){c.textContent=base>99?'99+':String(base);c.classList.toggle('hidden',base===0)}
+  }
+  window.menuTeamMessages=()=>{closeMenu();openTeamMessages()};
+  window.openTeamMessages=async function(){
+    if(!isLoggedIn())return;
+    const admin=isAdminUser();
+    $('modalTitle').textContent=admin?'Admin Messages':'Contact Admin';
+    $('modalBody').innerHTML='<div class="comm-shell"><div class="comm-hero"><b>'+(admin?'Two-Way Team Communication':'Contact Admin')+'</b><small>'+(admin?'Send a message to one colleague or broadcast to all active accounts. Review incoming requests and messages here.':'Send a request or message directly to the Admin. Your message is stored in Cloud and can be delivered as a push notification when push service is enabled.')+'</small></div><div class="comm-tabs"><button id="commInboxTab" class="active" type="button" onclick="renderCommInbox()">Inbox</button><button id="commComposeTab" type="button" onclick="renderCommCompose()">'+(admin?'Send Message':'Message Admin')+'</button></div><div id="commContent"></div></div>';
+    openModalLayer('modal');await refreshCommState();renderCommInbox();
+  };
+  window.renderCommInbox=function(){
+    $('commInboxTab')?.classList.add('active');$('commComposeTab')?.classList.remove('active');
+    const read=commReadSet();
+    const rows=commMessages.slice().sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)));
+    $('commContent').innerHTML=rows.length?rows.map(m=>'<div class="comm-card '+(!read.has(String(m.message_id))?'comm-unread':'')+'"><b>'+escText(m.title||'Innoval Message')+'</b><p>'+escText(m.body||'')+'</p><span class="comm-chip">'+escText(m.target_scope==='all'?'All Accounts':(m.sender_name||'Admin'))+'</span><small>'+escText(m.created_at||'')+'</small></div>').join(''):'<div class="comm-empty">✉<br><b>No messages yet</b><br><small>Requests, announcements and Admin messages will appear here.</small></div>';
+    rows.forEach(m=>read.add(String(m.message_id)));saveCommRead(read);updateCommBadge();
+  };
+  window.renderCommCompose=function(){
+    $('commInboxTab')?.classList.remove('active');$('commComposeTab')?.classList.add('active');
+    if(isAdminUser()){
+      const users=MASTER_DATA.users.filter(u=>u.active&&u.id!=='U000');
+      $('commContent').innerHTML='<div class="comm-card"><div class="comm-compose"><label>Recipient</label><select id="commRecipient"><option value="all">All Accounts — Broadcast</option>'+users.map(u=>'<option value="'+escText(u.id)+'">'+escText(u.name)+' • '+escText(u.email)+'</option>').join('')+'</select><label>Title</label><input id="commTitle" placeholder="Message title"><label>Message</label><textarea id="commBody" placeholder="Write your message..."></textarea><div class="comm-actions"><button type="button" class="comm-secondary" onclick="renderCommInbox()">← Inbox</button><button type="button" class="comm-primary" onclick="sendAdminCommMessage()">Send Message</button></div></div></div>';
+    }else{
+      $('commContent').innerHTML='<div class="comm-card"><div class="comm-compose"><label>Title</label><input id="commTitle" placeholder="Request / message title"><label>Message to Admin</label><textarea id="commBody" placeholder="Write your request or message..."></textarea><div class="comm-actions"><button type="button" class="comm-secondary" onclick="renderCommInbox()">← Inbox</button><button type="button" class="comm-primary" onclick="sendUserCommMessage()">Send to Admin</button></div></div></div>';
+    }
+  };
+  window.sendAdminCommMessage=async function(){
+    if(!isAdminUser()||!innovalSupabase)return;
+    const title=$('commTitle')?.value.trim()||'',body=$('commBody')?.value.trim()||'',recipient=$('commRecipient')?.value||'all';if(!title||!body){toast('Please enter title and message');return}
+    const p=me(),row={message_id:'MSG-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),sender_user_id:p.id||'',sender_name:p.rep||'Admin',recipient_user_id:recipient==='all'?null:recipient,target_scope:recipient==='all'?'all':'user',title,body,message_type:recipient==='all'?'broadcast':'direct'};
+    try{const {error}=await innovalSupabase.from('innoval_messages').insert(row);if(error)throw error;await sendInnovalPush1947({target_scope:recipient==='all'?'all':'user',target_user_id:recipient==='all'?'':recipient,title:title,body:body,type:'message'});toast('✓ Message sent');await refreshCommState();renderCommInbox()}catch(e){alert('Unable to send message.\n\n'+(e?.message||e))}
+  };
+  window.sendUserCommMessage=async function(){
+    if(isAdminUser()||!innovalSupabase)return;
+    const title=$('commTitle')?.value.trim()||'',body=$('commBody')?.value.trim()||'';if(!title||!body){toast('Please enter title and message');return}
+    const p=me(),row={message_id:'MSG-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),sender_user_id:p.id||'',sender_name:p.rep||'Team Member',recipient_user_id:null,target_scope:'admin',title,body,message_type:'admin_message'};
+    try{const {error}=await innovalSupabase.from('innoval_messages').insert(row);if(error)throw error;await sendInnovalPush1947({target_scope:'admin',title:title,body:body,type:'message'});toast('✓ Message sent to Admin');await refreshCommState();renderCommInbox()}catch(e){alert('Unable to send message.\n\n'+(e?.message||e))}
+  };
+  // Keep the original, already-working customer list logic intact; apply only cloud list overrides on top.
+  window.__innovalBaseCustomerListData1952=window.customerListData||customerListData;
+  window.customerListData=window.__innovalBaseCustomerListData1952;
+  customerListData=window.customerListData;
+  // Admin: manage a colleague's Customer List without changing the shared Area Database.
+  window.openAdminCustomerListControl=async function(){
+    if(!isAdminUser())return;const users=MASTER_DATA.users.filter(u=>u.active&&u.id!=='U000');
+    $('modalTitle').textContent='Manage Customer Lists';
+    $('modalBody').innerHTML='<div class="comm-card"><div class="comm-compose"><label>Colleague</label><select id="aclUser">'+users.map(u=>'<option value="'+escText(u.id)+'">'+escText(u.name)+' • '+escText(u.areaIds?.map(x=>AREA_NAME_BY_ID[x]||x).join(' / '))+'</option>').join('')+'</select><label>Customer</label><select id="aclCustomer">'+customers().map(c=>'<option value="'+escText(dbKey(c))+'">'+escText(c.name)+' • '+escText(c.area||'')+'</option>').join('')+'</select><div class="customer-admin-actions"><button class="primary" type="button" onclick="adminSetCustomerListOverride(true)">＋ Add to List</button><button class="danger" type="button" onclick="adminSetCustomerListOverride(false)">× Remove from List</button></div><p class="comm-danger" style="margin-top:10px">These actions affect the selected colleague\'s Customer List only. Shared Area Database and Visit History remain unchanged.</p></div></div>';
+    openModalLayer('modal');
+  };
+  window.adminSetCustomerListOverride=async function(add){
+    if(!isAdminUser()||!innovalSupabase)return;const user=$('aclUser')?.value||'',customer=$('aclCustomer')?.value||'';if(!user||!customer)return;const p=me();
+    try{const {error}=await innovalSupabase.from('customer_list_overrides').upsert({user_id:user,customer_id:customer,action:add?'add':'remove',updated_by_user_id:p.id||'',updated_by_name:p.rep||'Admin',updated_at:new Date().toISOString()},{onConflict:'user_id,customer_id'});if(error)throw error;toast(add?'✓ Customer added to colleague list':'✓ Customer removed from colleague list');}catch(e){alert('Unable to update Customer List.\n\n'+(e?.message||e))}
+  };
+  // Approval now becomes a Cloud list override instead of localStorage-only removal.
+  const originalReview=window.reviewCustomerDeleteRequest1947;
+  window.reviewCustomerDeleteRequest1947=async function(id,approve){
+    if(!isAdminUser()||!innovalSupabase)return;
+    try{
+      const session=await cloudSession();if(!session)return;
+      const {data,error}=await innovalSupabase.from('customer_delete_requests').select('request_id,customer_id,customer_name,requested_by_user_id').eq('request_id',id).maybeSingle();if(error)throw error;if(!data)return;
+      if(approve){
+        const p=me();const {error:oe}=await innovalSupabase.from('customer_list_overrides').upsert({user_id:String(data.requested_by_user_id||''),customer_id:String(data.customer_id||''),action:'remove',updated_by_user_id:p.id||'',updated_by_name:p.rep||'Admin',updated_at:new Date().toISOString()},{onConflict:'user_id,customer_id'});if(oe)throw oe;
+      }
+      const upd=await innovalSupabase.from('customer_delete_requests').update({status:approve?'approved':'rejected',reviewed_by_user_id:me().id||null,reviewed_by_name:me().rep||'',reviewed_at:new Date().toISOString()}).eq('request_id',id);if(upd.error)throw upd.error;
+      toast(approve?'✓ Customer removed from requester list':'✓ Deletion request rejected');await refreshCommState();await openNotifications();
+    }catch(e){alert('Unable to process request.\n\n'+(e?.message||e))}
+  };
+  // Add Admin Customer List control to Admin Data Center without replacing existing UI.
+  const origAdminOpen=window.openAdminDataCenter;
+  window.openAdminDataCenter=function(tab){origAdminOpen(tab);setTimeout(()=>{
+    if(!isAdminUser())return;const c=$('adminDataContent');if(!c||$('adminListControlBtn'))return;const b=document.createElement('button');b.id='adminListControlBtn';b.className='save';b.style.marginTop='10px';b.textContent='Manage Colleague Customer Lists';b.onclick=openAdminCustomerListControl;c.parentNode.appendChild(b);
+  },50)};
+  // Extend notification drawer with messages while preserving existing delete-request handling.
+  const baseOpenNotifications=window.openNotifications;
+  window.openNotifications=async function(){
+    await refreshCommState();
+    const read=commReadSet();
+    const msgRows=commMessages.map(m=>({id:'msg-'+m.message_id,title:m.title||'Innoval Message',message:m.body||'',date:m.created_at,target:m.target_scope==='all'?'all':'message',messageRow:true,messageId:m.message_id}));
+    const oldTitle=$('modalTitle')?.textContent; await baseOpenNotifications();
+    const body=$('modalBody');if(!body)return;
+    const current=body.innerHTML;const html=msgRows.length?'<div class="notification-center">'+msgRows.map(n=>'<div class="notification-card '+(!read.has(String(n.messageId))?'unread':'')+'"><b>✉ '+escText(n.title)+'</b><p>'+escText(n.message)+'</p><small>'+escText(n.date||'')+(n.target==='all'?' • All Accounts':'')+'</small></div>').join('')+'</div>':'';
+    if(html)body.innerHTML=html+current;
+    msgRows.forEach(n=>read.add(String(n.messageId)));saveCommRead(read);updateCommBadge();
+  };
+  setTimeout(()=>refreshCommState(),2200);
+  setInterval(()=>{if(document.visibilityState==='visible')refreshCommState()},COMM_POLL_MS);
+})();
 </script>
 </body></html>
