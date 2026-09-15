@@ -3771,17 +3771,58 @@ async function sendInnovalPush1947(payload){
   }catch(e){console.warn('Innoval push send failed:',e?.message||e);return {ok:false,error:e?.message||String(e)}}
 }
 
+window.__innovalFcmDiag = function(message, ok){
+  try{
+    let box=document.getElementById('innovalFcmDiagBox');
+    if(!box){
+      box=document.createElement('div');
+      box.id='innovalFcmDiagBox';
+      box.style.cssText='position:fixed;left:10px;right:10px;bottom:74px;z-index:2147483647;padding:10px 12px;border-radius:12px;background:#fff;border:2px solid #dbe5f2;box-shadow:0 8px 28px rgba(0,0,0,.18);font:700 12px/1.4 Arial,sans-serif;color:#183d69;white-space:pre-wrap;word-break:break-word;';
+      document.body.appendChild(box);
+    }
+    box.style.borderColor=ok?'#2e9b63':'#d34b4b';
+    box.style.color=ok?'#17633f':'#9f2d2d';
+    box.textContent='FCM DIAGNOSTIC: '+String(message||'');
+  }catch(e){console.warn('FCM diagnostic UI failed',e)}
+};
+
 window.setAndroidFcmToken = async function(token){
   try{
     token=String(token||'').trim();
-    if(!token || !isLoggedIn()) return;
+
+    if(!token){
+      window.__innovalFcmDiag('TOKEN EMPTY',false);
+      return {ok:false,error:'TOKEN EMPTY'};
+    }
+
+    if(!isLoggedIn()){
+      window.__innovalFcmDiag('NOT LOGGED IN',false);
+      return {ok:false,error:'NOT LOGGED IN'};
+    }
+
     const session=await cloudSession();
-    if(!session || !innovalSupabase) return;
+
+    if(!session){
+      window.__innovalFcmDiag('SUPABASE SESSION MISSING',false);
+      return {ok:false,error:'SUPABASE SESSION MISSING'};
+    }
+
+    if(!innovalSupabase){
+      window.__innovalFcmDiag('SUPABASE CLIENT MISSING',false);
+      return {ok:false,error:'SUPABASE CLIENT MISSING'};
+    }
+
     const uid=String(profile().id||'').trim();
-    if(!uid) return;
+
+    if(!uid){
+      window.__innovalFcmDiag('PROFILE USER ID EMPTY',false);
+      return {ok:false,error:'PROFILE USER ID EMPTY'};
+    }
+
     let h=0;
     for(let i=0;i<token.length;i++) h=((h<<5)-h+token.charCodeAt(i))|0;
     const deviceId='android-'+Math.abs(h);
+
     const row={
       device_id:deviceId,
       user_id:uid,
@@ -3790,16 +3831,58 @@ window.setAndroidFcmToken = async function(token){
       enabled:true,
       updated_at:new Date().toISOString()
     };
-    await innovalSupabase.from('innoval_push_devices').upsert(row,{onConflict:'device_id'});
-  }catch(e){console.warn('FCM token registration failed',e)}
+
+    window.__innovalFcmDiag(
+      'TOKEN RECEIVED ✓\\nUser ID: '+uid+'\\nSaving to innoval_push_devices...',
+      true
+    );
+
+    const {data,error}=await innovalSupabase
+      .from('innoval_push_devices')
+      .upsert(row,{onConflict:'device_id'})
+      .select('device_id,user_id,platform,enabled,updated_at')
+      .single();
+
+    if(error){
+      const detail=[
+        'SUPABASE UPSERT FAILED',
+        'Code: '+(error.code||'n/a'),
+        'Message: '+(error.message||'n/a'),
+        'Details: '+(error.details||'n/a'),
+        'Hint: '+(error.hint||'n/a')
+      ].join('\\n');
+      window.__innovalFcmDiag(detail,false);
+      console.warn('FCM token registration failed:',error);
+      return {ok:false,error:error.message||String(error)};
+    }
+
+    window.__innovalFcmDiag(
+      'REGISTERED ✓\\nDevice: '+(data?.device_id||deviceId)+'\\nUser ID: '+(data?.user_id||uid),
+      true
+    );
+
+    console.log('FCM token registered successfully',data);
+    return {ok:true,data:data};
+  }catch(e){
+    const detail='FCM REGISTRATION EXCEPTION\\n'+(e?.message||String(e));
+    window.__innovalFcmDiag(detail,false);
+    console.warn('FCM token registration exception:',e);
+    return {ok:false,error:e?.message||String(e)};
+  }
 };
+
 window.syncAndroidFcmToken = function(){
   try{
     if(window.Android && typeof window.Android.getFcmToken==='function'){
       const token=window.Android.getFcmToken();
-      if(token) window.setAndroidFcmToken(token);
+      if(token) return window.setAndroidFcmToken(token);
+      window.__innovalFcmDiag('ANDROID BRIDGE FOUND, BUT TOKEN EMPTY',false);
+    }else{
+      window.__innovalFcmDiag('ANDROID FCM BRIDGE NOT FOUND',false);
     }
-  }catch(e){}
+  }catch(e){
+    window.__innovalFcmDiag('SYNC EXCEPTION: '+(e?.message||String(e)),false);
+  }
 };
 
 </script>
