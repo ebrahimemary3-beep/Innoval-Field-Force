@@ -1821,7 +1821,16 @@ function getLoggedInName(){return localStorage.getItem("innovalLoggedIn")||local
 function profile(){const e=employeeList().find(x=>x.name===getLoggedInName());return e?{id:e.id||"",rep:e.name,area:e.area,email:e.email,role:e.role,areaIds:e.areaIds||[]}:{id:"",rep:"",area:"",email:"",role:"",areaIds:[]}}
 function isLoggedIn(){const name=getLoggedInName();if(name && !localStorage.getItem("innovalLoggedIn")){localStorage.setItem("innovalLoggedIn",name)}return !!name}
 function setLoggedIn(name){localStorage.setItem("innovalLoggedIn",name);localStorage.setItem("innovalSavedLogin",name);setTimeout(()=>window.syncAndroidFcmToken&&window.syncAndroidFcmToken(),700)}
-function logout(){localStorage.removeItem("innovalLoggedIn");localStorage.removeItem("innovalSavedLogin");location.reload()}
+function logout(){
+  localStorage.removeItem("innovalLoggedIn");
+  localStorage.removeItem("innovalSavedLogin");
+  // Sign out of the optional cloud session in the background. Never navigate
+  // to a URL or external web page during logout.
+  try{
+    if(innovalSupabase?.auth?.signOut) innovalSupabase.auth.signOut().catch(()=>{});
+  }catch(e){}
+  location.reload();
+}
 function ensureEmployeeStore(){
   syncMasterData();
   const current=getLoggedInName();
@@ -2045,40 +2054,41 @@ $("loginForm").addEventListener("submit",async e=>{
   const emp=findEmployeeByEmail(email);
   const errEl=$("loginError");
 
-  // Authentication is authoritative in Supabase. The local employee record
-  // is used only to map the authenticated email to the app profile; its local
-  // password must never block a valid Supabase login.
+  // APP-ONLY LOGIN: the application account is validated locally so the
+  // login screen never depends on a browser redirect or a cloud-auth error.
+  // Supabase remains a background/cloud service and is NOT allowed to block
+  // entry into the application. Existing application functions are unchanged.
   if(!emp){
     errEl.textContent="This official Outlook email is not registered in Innoval.";
     errEl.style.display="block";
     return;
   }
 
+  if(String(emp.password||"")!==String(pass)){
+    errEl.textContent="Invalid official Outlook email or password.";
+    errEl.style.display="block";
+    return;
+  }
+
   errEl.style.display="none";
-  try{
-    const auth=await cloudSignIn(email,pass);
-    if(!auth.ok){
-      errEl.textContent="Cloud login failed: "+auth.error;
-      errEl.style.display="block";
+  setLoggedIn(emp.name);
+
+  // Cloud authentication/sync is deliberately non-blocking. If the cloud
+  // account is not provisioned yet, the user still enters the app normally.
+  // The existing cloud routines remain intact and will retry in the background.
+  cloudSignIn(email,pass).then(auth=>{
+    if(!auth?.ok){
+      console.warn("Innoval background cloud login warning:",auth?.error||"Cloud authentication unavailable");
       return;
     }
-
-    setLoggedIn(emp.name);
-
-    // Cloud sync must never block a successful login. Existing/local data may
-    // contain a legacy row that violates a current database constraint; the
-    // sync routine can report that condition in the console while the user
-    // still enters the application normally.
     cloudSyncCurrentState().then(sync=>{
       if(!sync?.ok) console.warn("Innoval background cloud sync warning:",sync?.error||"Unknown sync error");
     }).catch(err=>console.warn("Innoval background cloud sync error:",err));
+  }).catch(err=>console.warn("Innoval background cloud login error:",err));
 
-    location.reload();
-  }catch(err){
-    console.error("Cloud login error:",err);
-    errEl.textContent="Cloud connection error: "+(err?.message||err);
-    errEl.style.display="block";
-  }
+  // Stay inside the installed application. Reload is only a local app reload;
+  // no URL navigation or external web page is used.
+  location.reload();
 });
 
 
