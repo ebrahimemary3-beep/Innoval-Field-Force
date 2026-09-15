@@ -1847,6 +1847,19 @@ function setLoggedIn(nameOrEmployee){
   localStorage.setItem("innovalCurrentUserId",id);
   localStorage.setItem("innovalLoggedIn",name);
   localStorage.setItem("innovalSavedLogin",name);
+  // Migrate only this exact employee's legacy photo key once, then use the
+  // immutable user ID key. This preserves that employee's own photo without
+  // allowing another employee's photo to leak across accounts.
+  try{
+    const newKey="innovalProfilePhoto_uid_"+id;
+    const legacyKey="innovalProfilePhoto_"+name;
+    if(!localStorage.getItem(newKey)){
+      const legacy=localStorage.getItem(legacyKey);
+      if(legacy)localStorage.setItem(newKey,legacy);
+    }
+    localStorage.removeItem(legacyKey);
+    loadProfilePhoto();
+  }catch(e){clearProfilePhotoUI()}
   setTimeout(()=>window.syncAndroidFcmToken&&window.syncAndroidFcmToken(),700);
   return true;
 }
@@ -1870,6 +1883,7 @@ function showAppLoginScreen(){
 function logout(){
   // Local app logout is authoritative. Cloud sign-out is best-effort only.
   clearAppLoginState();
+  clearProfilePhotoUI();
   try{
     if(innovalSupabase?.auth?.signOut) innovalSupabase.auth.signOut().catch(()=>{});
   }catch(e){}
@@ -2978,13 +2992,22 @@ function closePhotoActions(){
   const el=$("photoActionsPopover");
   if(el) el.classList.remove("open");
 }
-function removeProfilePhotoInline(){
+function profilePhotoKey(){
   const p=profile();
-  localStorage.removeItem("innovalProfilePhoto_"+p.rep);
+  const id=String(p.id||"").trim();
+  return id ? "innovalProfilePhoto_uid_"+id : "";
+}
+function clearProfilePhotoUI(){
   const d=$("drawerAvatarButton");if(d)d.innerHTML="👤";
   const side=$("sideAvatar");if(side)side.innerHTML="👤";
+  const bottom=$("bottomProfileAvatar");if(bottom)bottom.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20c.7-4 3.2-6 7-6s6.3 2 7 6"></path></svg>';
   const hero=$("profileHeroAvatarImg");if(hero)hero.outerHTML='<span id="profileHeroAvatarEmpty">👤</span>';
   const heroBtn=document.querySelector(".profile-hero-avatar");if(heroBtn)heroBtn.classList.add("empty");
+}
+function removeProfilePhotoInline(){
+  const key=profilePhotoKey();
+  if(key)localStorage.removeItem(key);
+  clearProfilePhotoUI();
   closePhotoActions();closeProfileModalPhotoActions();toast("Profile photo removed ✓");
 }
 function openPhotoActions(){
@@ -3065,11 +3088,12 @@ function saveEditedProfilePhoto(){
   const cx=size/2+(photoEditor.x-stage.clientWidth/2)*scaleOut,cy=size/2+(photoEditor.y-stage.clientHeight/2)*scaleOut;
   ctx.save();ctx.beginPath();ctx.arc(size/2,size/2,size/2,0,Math.PI*2);ctx.clip();
   ctx.drawImage(img,cx-dw/2,cy-dh/2,dw,dh);ctx.restore();
-  const data=out.toDataURL("image/png"),p=profile();
-  localStorage.setItem("innovalProfilePhoto_"+p.rep,data);applyProfilePhoto(data);closePhotoEditor();toast("Profile photo updated ✓");
+  const data=out.toDataURL("image/png"),key=profilePhotoKey();
+  if(!key){toast("Please log in first");return}
+  localStorage.setItem(key,data);applyProfilePhoto(data);closePhotoEditor();toast("Profile photo updated ✓");
 }
 function applyProfilePhoto(data){
-  if(!data)return;
+  if(!data){clearProfilePhotoUI();return}
   const d=$("drawerAvatarButton");if(d)d.innerHTML='<img src="'+data+'" alt="Profile">';
   const side=$("sideAvatar");if(side)side.innerHTML='<img src="'+data+'" alt="Profile">';
   const bottom=$("bottomProfileAvatar");if(bottom)bottom.innerHTML='<img src="'+data+'" alt="Profile">';
@@ -3078,10 +3102,11 @@ function applyProfilePhoto(data){
   const heroBtn=document.querySelector(".profile-hero-avatar");if(heroBtn)heroBtn.classList.remove("empty");
 }
 function loadProfilePhoto(){
-  const p=profile();
-  if(!p.rep) return;
-  const data=localStorage.getItem("innovalProfilePhoto_"+p.rep);
-  if(data) applyProfilePhoto(data);
+  clearProfilePhotoUI();
+  const key=profilePhotoKey();
+  if(!key)return;
+  const data=localStorage.getItem(key);
+  if(data)applyProfilePhoto(data);
 }
 function togglePasswordField(id,btn){
   const input=$(id);if(!input)return;
@@ -3100,7 +3125,7 @@ function openPasswordSettings(){
     '<button class="save password-save" onclick="changePassword()">Update Password</button>';
   openModalLayer("modal");setBottomActive("bnSettings");
 }
-function profilePhotoData(){const p=profile();return p.rep?localStorage.getItem("innovalProfilePhoto_"+p.rep)||"":""}
+function profilePhotoData(){const key=profilePhotoKey();return key?localStorage.getItem(key)||"":""}
 function profileHeroAvatar(){const data=profilePhotoData();return data?'<img id="profileHeroAvatarImg" src="'+data+'" alt="Profile">':'<span id="profileHeroAvatarEmpty">👤</span>'}
 function toggleProfileModalPhotoActions(){const el=$("profileModalPhotoActions");if(el)el.classList.toggle("open")}
 function closeProfileModalPhotoActions(){const el=$("profileModalPhotoActions");if(el)el.classList.remove("open")}
