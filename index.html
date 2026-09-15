@@ -3753,7 +3753,7 @@ setInterval(()=>{if(document.visibilityState==='visible')window.syncAndroidFcmTo
 </script>
 
 <script>
-/* ===== v1.9.55 Customer List Removal Request UI + FCM preparation ===== */
+/* ===== v1.9.53 Customer List Removal Request UI + FCM preparation ===== */
 
 /* ===== Native Android FCM token registration ===== */
 async function sendInnovalPush1947(payload){
@@ -3771,32 +3771,39 @@ async function sendInnovalPush1947(payload){
   }catch(e){console.warn('Innoval push send failed:',e?.message||e);return {ok:false,error:e?.message||String(e)}}
 }
 
+window.__innovalFcmDiag = function(){};
+
 window.setAndroidFcmToken = async function(token){
   try{
     token=String(token||'').trim();
 
     if(!token){
+      window.__innovalFcmDiag('TOKEN EMPTY',false);
       return {ok:false,error:'TOKEN EMPTY'};
     }
 
     if(!isLoggedIn()){
+      window.__innovalFcmDiag('NOT LOGGED IN',false);
       return {ok:false,error:'NOT LOGGED IN'};
     }
 
     const session=await cloudSession();
 
     if(!session){
+      window.__innovalFcmDiag('SUPABASE SESSION MISSING',false);
       return {ok:false,error:'SUPABASE SESSION MISSING'};
     }
 
     if(!innovalSupabase){
+      window.__innovalFcmDiag('SUPABASE CLIENT MISSING',false);
       return {ok:false,error:'SUPABASE CLIENT MISSING'};
     }
 
     const uid=String(currentUserRecord()?.id||'').trim();
 
     if(!uid){
-      return {ok:false,error:'USER ID EMPTY'};
+      window.__innovalFcmDiag('PROFILE USER ID EMPTY',false);
+      return {ok:false,error:'PROFILE USER ID EMPTY'};
     }
 
     let h=0;
@@ -3812,6 +3819,11 @@ window.setAndroidFcmToken = async function(token){
       updated_at:new Date().toISOString()
     };
 
+    window.__innovalFcmDiag(
+      'TOKEN RECEIVED ✓\\nUser ID: '+uid+'\\nSaving to innoval_push_devices...',
+      true
+    );
+
     const {data,error}=await innovalSupabase
       .from('innoval_push_devices')
       .upsert(row,{onConflict:'device_id'})
@@ -3819,27 +3831,44 @@ window.setAndroidFcmToken = async function(token){
       .single();
 
     if(error){
+      const detail=[
+        'SUPABASE UPSERT FAILED',
+        'Code: '+(error.code||'n/a'),
+        'Message: '+(error.message||'n/a'),
+        'Details: '+(error.details||'n/a'),
+        'Hint: '+(error.hint||'n/a')
+      ].join('\\n');
+      window.__innovalFcmDiag(detail,false);
       console.warn('FCM token registration failed:',error);
       return {ok:false,error:error.message||String(error)};
     }
 
+    window.__innovalFcmDiag(
+      'REGISTERED ✓\\nDevice: '+(data?.device_id||deviceId)+'\\nUser ID: '+(data?.user_id||uid),
+      true
+    );
+
     console.log('FCM token registered successfully',data);
     return {ok:true,data:data};
   }catch(e){
+    const detail='FCM REGISTRATION EXCEPTION\\n'+(e?.message||String(e));
+    window.__innovalFcmDiag(detail,false);
     console.warn('FCM token registration exception:',e);
     return {ok:false,error:e?.message||String(e)};
   }
 };
-
 
 window.syncAndroidFcmToken = function(){
   try{
     if(window.Android && typeof window.Android.getFcmToken==='function'){
       const token=window.Android.getFcmToken();
       if(token) return window.setAndroidFcmToken(token);
+      window.__innovalFcmDiag('ANDROID BRIDGE FOUND, BUT TOKEN EMPTY',false);
     }else{
+      window.__innovalFcmDiag('ANDROID FCM BRIDGE NOT FOUND',false);
     }
   }catch(e){
+    window.__innovalFcmDiag('SYNC EXCEPTION: '+(e?.message||String(e)),false);
   }
 };
 
@@ -3864,7 +3893,7 @@ window.syncAndroidFcmToken = function(){
   const commReadKey=()=> 'innovalCommReadV1_'+(profile().id||profile().rep||'guest');
   const commReadSet=()=>{try{return new Set(JSON.parse(localStorage.getItem(commReadKey())||'[]'))}catch(e){return new Set()}};
   const saveCommRead=set=>localStorage.setItem(commReadKey(),JSON.stringify([...set].slice(-500)));
-  const me=()=>profile();
+  const me=()=>{const u=currentUserRecord();return u||profile()};
   const uid=()=>String(me().id||'');
   const escText=v=>esc(v==null?'':String(v));
   async function commSession(){return await cloudSession()}
@@ -3936,13 +3965,13 @@ window.syncAndroidFcmToken = function(){
   window.sendAdminCommMessage=async function(){
     if(!isAdminUser()||!innovalSupabase)return;
     const title=$('commTitle')?.value.trim()||'',body=$('commBody')?.value.trim()||'',recipient=$('commRecipient')?.value||'all';if(!title||!body){toast('Please enter title and message');return}
-    const p=me(),senderId=String(currentUserRecord()?.id||p.id||'').trim(),row={message_id:'MSG-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),sender_user_id:senderId,sender_name:p.rep||currentUserRecord()?.name||'Admin',recipient_user_id:recipient==='all'?null:recipient,target_scope:recipient==='all'?'all':'user',title,body,message_type:recipient==='all'?'broadcast':'direct'};
+    const p=me(),row={message_id:'MSG-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),sender_user_id:p.id||'',sender_name:p.rep||'Admin',recipient_user_id:recipient==='all'?null:recipient,target_scope:recipient==='all'?'all':'user',title,body,message_type:recipient==='all'?'broadcast':'direct'};
     try{const {error}=await innovalSupabase.from('innoval_messages').insert(row);if(error)throw error;await sendInnovalPush1947({target_scope:recipient==='all'?'all':'user',target_user_id:recipient==='all'?'':recipient,title:title,body:body,type:'message'});toast('✓ Message sent');await refreshCommState();renderCommInbox()}catch(e){alert('Unable to send message.\n\n'+(e?.message||e))}
   };
   window.sendUserCommMessage=async function(){
     if(isAdminUser()||!innovalSupabase)return;
     const title=$('commTitle')?.value.trim()||'',body=$('commBody')?.value.trim()||'';if(!title||!body){toast('Please enter title and message');return}
-    const p=me(),senderId=String(currentUserRecord()?.id||p.id||'').trim(),row={message_id:'MSG-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),sender_user_id:senderId,sender_name:p.rep||currentUserRecord()?.name||'Team Member',recipient_user_id:null,target_scope:'admin',title,body,message_type:'admin_message'};
+    const p=me(),row={message_id:'MSG-'+Date.now()+'-'+Math.random().toString(36).slice(2,7),sender_user_id:p.id||'',sender_name:p.rep||'Team Member',recipient_user_id:null,target_scope:'admin',title,body,message_type:'admin_message'};
     try{const {error}=await innovalSupabase.from('innoval_messages').insert(row);if(error)throw error;await sendInnovalPush1947({target_scope:'admin',title:title,body:body,type:'message'});toast('✓ Message sent to Admin');await refreshCommState();renderCommInbox()}catch(e){alert('Unable to send message.\n\n'+(e?.message||e))}
   };
   // Keep the original, already-working customer list logic intact; apply only cloud list overrides on top.
