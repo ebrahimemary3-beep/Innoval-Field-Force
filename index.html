@@ -2044,11 +2044,16 @@ $("loginForm").addEventListener("submit",async e=>{
   const pass=$("loginPassword").value;
   const emp=findEmployeeByEmail(email);
   const errEl=$("loginError");
-  if(!(emp&&emp.password===pass)){
-    errEl.textContent="Invalid official Outlook email or password.";
+
+  // Authentication is authoritative in Supabase. The local employee record
+  // is used only to map the authenticated email to the app profile; its local
+  // password must never block a valid Supabase login.
+  if(!emp){
+    errEl.textContent="This official Outlook email is not registered in Innoval.";
     errEl.style.display="block";
     return;
   }
+
   errEl.style.display="none";
   try{
     const auth=await cloudSignIn(email,pass);
@@ -2057,16 +2062,20 @@ $("loginForm").addEventListener("submit",async e=>{
       errEl.style.display="block";
       return;
     }
+
     setLoggedIn(emp.name);
-    const sync=await cloudSyncCurrentState();
-    if(!sync.ok){
-      errEl.textContent="Cloud sync failed: "+sync.error;
-      errEl.style.display="block";
-      return;
-    }
+
+    // Cloud sync must never block a successful login. Existing/local data may
+    // contain a legacy row that violates a current database constraint; the
+    // sync routine can report that condition in the console while the user
+    // still enters the application normally.
+    cloudSyncCurrentState().then(sync=>{
+      if(!sync?.ok) console.warn("Innoval background cloud sync warning:",sync?.error||"Unknown sync error");
+    }).catch(err=>console.warn("Innoval background cloud sync error:",err));
+
     location.reload();
   }catch(err){
-    console.error("Cloud login/sync error:",err);
+    console.error("Cloud login error:",err);
     errEl.textContent="Cloud connection error: "+(err?.message||err);
     errEl.style.display="block";
   }
