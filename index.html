@@ -1740,6 +1740,11 @@ const saveCustomers=v=>{
   localStorage.setItem("innovalExtraCustomersV17",JSON.stringify(extras));
 };
 function currentUserRecord(){
+  const userId=getLoggedInUserId();
+  if(userId){
+    const byId=MASTER_DATA.users.find(u=>String(u.id||"")===userId);
+    if(byId)return byId;
+  }
   const n=getLoggedInName();
   if(MASTER_USER_BY_NAME[n])return MASTER_USER_BY_NAME[n];
   const aliases={"Ahmed Ali Abd El-Ate":"Ahmed Aly Abdel Atty Ebeid"};
@@ -1817,19 +1822,58 @@ function setAssignedAreaFromUser(){
   }
 }
 const employeeList=()=>{syncMasterData();try{return JSON.parse(localStorage.getItem("innovalEmployeesFinal")||"[]")}catch(e){return []}}
-function getLoggedInName(){return localStorage.getItem("innovalLoggedIn")||localStorage.getItem("innovalSavedLogin")||""}
-function profile(){const e=employeeList().find(x=>x.name===getLoggedInName());return e?{id:e.id||"",rep:e.name,area:e.area,email:e.email,role:e.role,areaIds:e.areaIds||[]}:{id:"",rep:"",area:"",email:"",role:"",areaIds:[]}}
-function isLoggedIn(){const name=getLoggedInName();if(name && !localStorage.getItem("innovalLoggedIn")){localStorage.setItem("innovalLoggedIn",name)}return !!name}
-function setLoggedIn(name){localStorage.setItem("innovalLoggedIn",name);localStorage.setItem("innovalSavedLogin",name);setTimeout(()=>window.syncAndroidFcmToken&&window.syncAndroidFcmToken(),700)}
+
+// APP AUTH SESSION — userId is the source of truth; name/email are only cached
+// for compatibility with the existing application functions. This prevents a
+// previous user's name from being reused when another employee logs in.
+function getLoggedInUserId(){return String(localStorage.getItem("innovalCurrentUserId")||"").trim()}
+function getLoggedInName(){
+  const userId=getLoggedInUserId();
+  if(!userId)return "";
+  const e=employeeList().find(x=>String(x.id||x.userId||"")===userId);
+  return String(e?.name||"");
+}
+function profile(){
+  const e=currentUserRecord();
+  return e?{id:e.id||e.userId||"",rep:e.name,area:e.area,email:e.email,role:e.role,areaIds:e.areaIds||[]}:{id:"",rep:"",area:"",email:"",role:"",areaIds:[]};
+}
+function isLoggedIn(){return !!currentUserRecord()}
+function setLoggedIn(nameOrEmployee){
+  const e=typeof nameOrEmployee==='object' ? nameOrEmployee : employeeList().find(x=>String(x.name||"")===String(nameOrEmployee||""));
+  if(!e)return false;
+  const id=String(e.id||e.userId||"").trim();
+  const name=String(e.name||"").trim();
+  if(!id||!name)return false;
+  localStorage.setItem("innovalCurrentUserId",id);
+  localStorage.setItem("innovalLoggedIn",name);
+  localStorage.setItem("innovalSavedLogin",name);
+  setTimeout(()=>window.syncAndroidFcmToken&&window.syncAndroidFcmToken(),700);
+  return true;
+}
+function clearAppLoginState(){
+  ["innovalCurrentUserId","innovalLoggedIn","innovalSavedLogin"].forEach(k=>localStorage.removeItem(k));
+}
+function showAppLoginScreen(){
+  const shell=document.getElementById("appShell");
+  const login=document.getElementById("loginScreen");
+  shell?.classList.add("hidden");
+  shell?.style.setProperty("display","none","important");
+  login?.classList.remove("hidden");
+  login?.style.setProperty("display","flex","important");
+  const email=document.getElementById("loginEmail");
+  const password=document.getElementById("loginPassword");
+  if(email)email.value="";
+  if(password)password.value="";
+  const err=document.getElementById("loginError");
+  if(err){err.textContent="";err.style.display="none";}
+}
 function logout(){
-  localStorage.removeItem("innovalLoggedIn");
-  localStorage.removeItem("innovalSavedLogin");
-  // Sign out of the optional cloud session in the background. Never navigate
-  // to a URL or external web page during logout.
+  // Local app logout is authoritative. Cloud sign-out is best-effort only.
+  clearAppLoginState();
   try{
     if(innovalSupabase?.auth?.signOut) innovalSupabase.auth.signOut().catch(()=>{});
   }catch(e){}
-  location.reload();
+  showAppLoginScreen();
 }
 function ensureEmployeeStore(){
   syncMasterData();
@@ -2070,8 +2114,16 @@ $("loginForm").addEventListener("submit",async e=>{
     return;
   }
 
+  // Resolve the typed official email to the employee's unique App ID before
+  // changing session state. This is what guarantees Ahmed can never inherit
+  // Ibrahim's previous session (or any other employee's cached session).
+  clearAppLoginState();
+  if(!setLoggedIn(emp)){
+    errEl.textContent="Could not create the application session. Please contact the admin.";
+    errEl.style.display="block";
+    return;
+  }
   errEl.style.display="none";
-  setLoggedIn(emp.name);
 
   // Cloud authentication/sync is deliberately non-blocking. If the cloud
   // account is not provisioned yet, the user still enters the app normally.
@@ -2086,9 +2138,28 @@ $("loginForm").addEventListener("submit",async e=>{
     }).catch(err=>console.warn("Innoval background cloud sync error:",err));
   }).catch(err=>console.warn("Innoval background cloud login error:",err));
 
-  // Stay inside the installed application. Reload is only a local app reload;
-  // no URL navigation or external web page is used.
-  location.reload();
+  // Render the Home screen directly inside the current application context.
+  // No URL navigation, browser redirect, or page reload is used for login.
+  try{
+    const prof=profile();
+    const firstName=String(prof.rep||"").split(",")[0].trim().split(/\s+/)[0]||"User";
+    if($("repName"))$("repName").textContent=prof.rep||"";
+    if($("repArea"))$("repArea").textContent=prof.area||"";
+    if($("welcomeUser"))$("welcomeUser").textContent="Hi "+firstName;
+    if($("homeGreeting"))$("homeGreeting").textContent="Hi "+firstName+" 👋";
+    if($("drawerName"))$("drawerName").textContent=firstName;
+    if($("drawerArea"))$("drawerArea").textContent=prof.area||"";
+    update();
+    const shell=$("appShell"),login=$("loginScreen");
+    login?.classList.add("hidden");
+    login?.style.setProperty("display","none","important");
+    shell?.classList.remove("hidden");
+    shell?.style.setProperty("display","block","important");
+    try{showHome();}catch(e){}
+  }catch(err){
+    console.error("Innoval app login render error:",err);
+    showAppLoginScreen();
+  }
 });
 
 
@@ -3191,7 +3262,16 @@ function openWeeklyFullView(){
 function openModalLayer(id){const el=$(id);if(!el)return;el.classList.add("open");document.documentElement.classList.add("modal-locked");document.body.classList.add("modal-locked")}
 function unlockModalLayer(){document.documentElement.classList.remove("modal-locked");document.body.classList.remove("modal-locked")}
 
-function closeModal(){$("modal").classList.remove("open");unlockModalLayer()}function focusCustomer(){showVisitPage()}function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2200)}init();loadProfilePhoto();function openExport(){
+function closeModal(){$("modal").classList.remove("open");unlockModalLayer()}function focusCustomer(){showVisitPage()}function toast(s){$("toast").textContent=s;$("toast").classList.add("show");setTimeout(()=>$("toast").classList.remove("show"),2200)}// AUTH SESSION v2: invalidate the legacy name-only session once. From this
+// version onward the employee ID is the authoritative local app session key.
+(function resetLegacyAuthSession(){
+  const AUTH_SESSION_VERSION="2";
+  if(localStorage.getItem("innovalAuthSessionVersion")!==AUTH_SESSION_VERSION){
+    ["innovalCurrentUserId","innovalLoggedIn","innovalSavedLogin"].forEach(k=>localStorage.removeItem(k));
+    localStorage.setItem("innovalAuthSessionVersion",AUTH_SESSION_VERSION);
+  }
+})();
+init();loadProfilePhoto();function openExport(){
   const p=profile(), d=visits().filter(v=>v.rep===p.rep).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
   const dates=d.map(v=>v.date).filter(Boolean); const todayStr=today();
   const from=dates.length?dates[0]:todayStr, to=dates.length?dates[dates.length-1]:todayStr;
