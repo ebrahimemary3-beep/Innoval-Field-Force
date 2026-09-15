@@ -17,7 +17,7 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.top{height:70px
 .home-card h3{margin:0 0 5px;font-size:16px}.home-card p{margin:0;color:var(--muted);font-size:11px;line-height:1.4}
 .home-card.primary{background:linear-gradient(135deg,#075dcc,#063b91);color:#fff}.home-card.primary .home-icon{background:rgba(255,255,255,.16);color:#fff}.home-card.primary p{color:rgba(255,255,255,.82)}
 .home-wide{grid-column:1/-1}
-/* ===== v1.9.46 Customer List + Customer Database ===== */
+/* ===== v1.9.46 Customer List + Area Database ===== */
 .customer-toolbar{display:flex;gap:10px;margin-bottom:12px}
 .customer-toolbar input{flex:1}
 .customer-list-head,.customer-db-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:2px 0 10px}
@@ -433,7 +433,7 @@ html,body{min-height:100%;background:var(--bg)}
 .add-customer-area-note{display:block;margin-top:5px;font-size:10px;color:var(--muted);line-height:1.4}
 #newCustomerArea{font-weight:700;background:#f7f9fc;color:#18365f}
 #newCustomerArea:disabled{opacity:1;color:#18365f}
-/* ===== v1.9.46 Customer Database + Add Customer Success ===== */
+/* ===== v1.9.46 Area Database + Add Customer Success ===== */
 .customer-success-overlay{position:fixed;inset:0;background:rgba(6,25,60,.58);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:22px;z-index:102}
 .customer-success-overlay.open{display:flex;animation:successFade .22s ease}
 .customer-success-card{position:relative;width:min(430px,100%);background:#fff;border-radius:30px;padding:28px 22px 22px;text-align:center;box-shadow:0 28px 70px rgba(3,20,55,.28);overflow:hidden}
@@ -1237,7 +1237,7 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
     </div>
     <div class="command-actions">
       <button type="button" onclick="openCustomerCards()"><span class="command-action-icon">♙</span><span><b>Customer List</b><small>Your assigned customer list</small></span><span class="command-arrow">›</span></button>
-      <button type="button" onclick="openAreaDatabase()"><span class="command-action-icon">▦</span><span><b>Customer Database</b><small>View your area customer database</small></span><span class="command-arrow">›</span></button>
+      <button type="button" onclick="openAreaDatabase()"><span class="command-action-icon">▦</span><span><b>Area Database</b><small>View customers in your assigned area</small></span><span class="command-arrow">›</span></button>
       <button type="button" onclick="openAddCustomer()"><span class="command-action-icon">＋</span><span><b>Add New Customer</b><small>Create a new customer</small></span><span class="command-arrow">›</span></button>
     </div>
   </section>
@@ -1368,7 +1368,7 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
     <button class="drawer-item" onclick="menuVisits()"><span class="drawer-icon">▣</span><span>Visit History</span></button>
     <button class="drawer-item" onclick="menuExport()"><span class="drawer-icon">↥</span><span>Export Visit History</span></button>
     <button class="drawer-item" onclick="menuCustomers()"><span class="drawer-icon">♙</span><span>Customer List</span></button>
-    <button class="drawer-item" onclick="menuCustomerDatabase()"><span class="drawer-icon">▦</span><span>Customer Database</span></button>
+    <button class="drawer-item" onclick="menuCustomerDatabase()"><span class="drawer-icon">▦</span><span>Area Database</span></button>
     <button class="drawer-item" onclick="menuAddCustomer()"><span class="drawer-icon">⊕</span><span>Add New Customer</span></button>
     <button class="drawer-item" onclick="menuDashboard()"><span class="drawer-icon">⌁</span><span>Dashboard</span></button>
     <button class="drawer-item admin-only-item" id="adminDataCenterItem" style="display:none" onclick="menuAdminDataCenter()"><span class="drawer-icon">▦</span><span>Admin Data Center</span></button>
@@ -1395,7 +1395,7 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
     </div>
     <div class="customer-warning-kicker">INNOVAL FIELD VISIT</div>
     <h2>Customer Already Exists</h2>
-    <p id="customerExistsInfo">This customer is already registered in your customer database.</p>
+    <p id="customerExistsInfo">This customer is already registered in your area database.</p>
     <div class="customer-warning-summary">
       <div><span>Customer</span><b id="customerExistsName">—</b></div>
     </div>
@@ -1543,7 +1543,7 @@ function cloudVisitRow(v,appUserId){
     area_id:String(v.areaId||""),
     visit_type:String(v.visitType||""),
     plan_id:(String(v.planId||"").trim()||null),
-    potential:String(v.potential||""),
+    potential:(['High','Medium','Low'].includes(String(v.potential||'').trim()) ? String(v.potential||'').trim() : 'Medium'),
     loyalty:(String(v.loyalty||"").trim()||"Neutral"),
     meted:String(v.meted||""),
     job_title:String(v.jobTitle||""),
@@ -1840,8 +1840,8 @@ function refreshVisitFilters(resetCustomer=true){
 
   if(customerEl && resetCustomer){
     customerEl.value="";
-    $("potential").value="";
-    $("loyalty").value="";
+    $("potential").value="Medium";
+    $("loyalty").value="Neutral";
   }
 }
 function setAssignedAreaFromUser(){
@@ -2111,8 +2111,8 @@ function init(){
       if($("todayLabel"))$("todayLabel").textContent=new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
       if($("nextDate"))$("nextDate").min=today();
       try{refreshVisitFilters(true);}catch(e){console.error("Visit filters init:",e);}
-      try{opts("potential",DATA.potential);}catch(e){}
-      try{opts("loyalty",DATA.loyalty);}catch(e){}
+      try{opts("potential",DATA.potential); if($("potential") && !$("potential").value) $("potential").value="Medium";}catch(e){}
+      try{opts("loyalty",DATA.loyalty); if($("loyalty") && !$("loyalty").value) $("loyalty").value="Neutral";}catch(e){}
       try{opts("objective",DATA.objectives);}catch(e){}
       try{fillProductPicker();}catch(e){console.error("Product master init:",e);}
       try{setAssignedAreaFromUser();}catch(e){console.error("Assigned area init:",e);}
@@ -2403,6 +2403,10 @@ $("visitForm").addEventListener("submit",async e=>{
   const selected=selectedProducts();
   if(isProductPromotionObjective(objective) && selected.length===0){toast("Please select at least one promoted product");return;}
 
+  if($('potential') && !['High','Medium','Low'].includes(String($('potential').value||'').trim())) $('potential').value='Medium';
+
+  if($("potential") && !["High","Medium","Low"].includes(String($("potential").value||"").trim())) $("potential").value="Medium";
+
   const visitNo=String(existingCount+1);
   d.unshift({
     id:"V"+String(d.length+1).padStart(3,"0"),
@@ -2416,7 +2420,7 @@ $("visitForm").addEventListener("submit",async e=>{
     areaId:customerAreaId,
     visitType:visitType,
     planId:plannedVisit?.id||"",
-    potential:$("potential").value,
+    potential:(["High","Medium","Low"].includes(String($("potential").value||"").trim()) ? String($("potential").value||"").trim() : "Medium"),
     loyalty:$("loyalty").value,
     meted:$("meted").value,
     jobTitle:$("jobTitle").value,
@@ -2459,10 +2463,9 @@ $("visitForm").addEventListener("submit",async e=>{
   }
 
   if(!cloudResult.ok){
-    update();
-    const msg=`Visit saved on this device, but Cloud sync failed.\n\n${cloudResult.error||"Unknown Cloud error."}\n\nPlease keep this browser/app connected to the internet and try syncing again after the Cloud issue is fixed.`;
-    alert(msg);
-    return;
+    // V7 is local-first: keep the visit and let the Reliability Queue/full sync retry it.
+    // Do not interrupt the normal green success confirmation with a raw database error.
+    console.warn('Visit saved locally; Cloud sync is pending:', cloudResult.error||'Unknown Cloud error.'); try{window.innovalReliabilityV7?.queueVisit?.(d[0],cloudResult.error||'Cloud sync pending');}catch(_e){}
   }
 
   e.target.reset();
@@ -2477,7 +2480,7 @@ $("visitForm").addEventListener("submit",async e=>{
   try{setAssignedAreaFromUser();}catch(e){}
   syncProductPicker();
   update();
-  showVisitSuccess(customerName,visitDate);
+  showVisitSuccess(customerName,visitDate); if(!cloudResult.ok){$('successVisitInfo').textContent='The visit was saved successfully on this device. Cloud synchronization is in progress.';}
 });
 function update(){const p=profile(),d=visits().filter(x=>x.rep===p.rep),t=today(),m=t.slice(0,7),todayCount=d.filter(x=>x.date===t).length,monthCount=d.filter(x=>x.date.startsWith(m)).length,followup=d.filter(x=>x.nextDate&&x.nextDate>=t&&x.nextDate<=addDaysISO(t,7)).length;$("today").textContent=todayCount;$("month").textContent=monthCount;$("high").textContent=d.filter(x=>x.potential==="High").length;$("ach").textContent=d.length?Math.min(100,Math.round(monthCount/30*100))+"%":"0%";$("heroToday")&&( $("heroToday").textContent=todayCount);$("heroMonth")&&($("heroMonth").textContent=monthCount);$("heroFollowup")&&($("heroFollowup").textContent=followup)}
 function addDaysISO(iso,n){const d=new Date(iso+"T00:00:00");d.setDate(d.getDate()+n);return isoDate(d)}
@@ -2617,11 +2620,11 @@ function customerDatabaseData(){
   return customers().filter(c=>allowedVisitAreaIds().includes(c.areaId));
 }
 function openAreaDatabase(){
-  $("modalTitle").textContent="Customer Database";
+  $("modalTitle").textContent="Area Database";
   $("modalBody").innerHTML=
     '<div class="customer-toolbar"><input id="customerDbSearch" style="padding-left:12px" placeholder="Search customer"></div>'+
-    '<div class="customer-db-head"><b>Customer Database</b><span id="customerDbCount">0 customers</span></div>'+
-    '<div class="customer-db-note">Select a customer to open the complete customer record. The structure follows the official customer database sheet.</div>'+
+    '<div class="customer-db-head"><b>Area Database</b><span id="customerDbCount">0 customers</span></div>'+
+    '<div class="customer-db-note">Select a customer to open the complete customer record. The structure follows the official area database sheet.</div>'+
     '<div id="customerDbResults"></div>';
   const render=()=>{
     const q=String($("customerDbSearch").value||"").trim().toLowerCase();
@@ -2654,7 +2657,7 @@ function openCustomerDatabaseRecord(index){
   const tasm=customerDbValue(c,["tasmim","tasmine","fattening","broiler","broilers"]);
   const bayad=customerDbValue(c,["bayad","layers","layer"]);
   const omhat=customerDbValue(c,["omhat","breeders","breeder"]);
-  $("modalTitle").textContent="Customer Database";
+  $("modalTitle").textContent="Area Database";
   $("modalBody").innerHTML=
     '<div class="customer-db-detail-head"><h3>'+esc(c.name||"Unnamed Customer")+'</h3><p>'+esc(c.area||"—")+' • '+esc(c.gov||"—")+'</p></div>'+
     '<div class="customer-db-section">CUSTOMER INFORMATION</div>'+
@@ -3593,7 +3596,8 @@ function buildCustomer1947(prefix,original){
   return {customerId:dbKey(original)||('C'+Date.now()),name:$(prefix+'Name')?.value.trim()||'',gov:option?.dataset?.governorate||original?.gov||'',area:locEl?.value||'',areaId:$(prefix+'Area')?.value||'',type:$(prefix+'Type')?.value||'Other',potential:$(prefix+'Potential')?.value||'Medium',loyalty:$(prefix+'Loyalty')?.value||'Neutral',responsible:$(prefix+'Responsible')?.value.trim()||'',phone:$(prefix+'Phone')?.value.trim()||'',supervisor:'',tasmim:numDb1947($(prefix+'Tasmim')?.value),bayad:numDb1947($(prefix+'Bayad')?.value),omhat:numDb1947($(prefix+'Omhat')?.value),active:true,createdBy:original?.createdBy||p.rep,createdAt:original?.createdAt||today(),updatedAt:new Date().toISOString()};
 }
 function showCustomerSuccess(name,cloudOk){const m=$('customerSuccessModal');if(!m)return;$('customerSuccessName').textContent=name||'—';$('customerSuccessInfo').textContent=cloudOk?'Customer successfully added to your Customer List.':'Customer successfully added to your Customer List. Cloud sync is in progress.';m.classList.add('open');m.style.display='flex';m.style.zIndex='10000';m.setAttribute('aria-hidden','false');document.documentElement.classList.add('modal-locked');document.body.classList.add('modal-locked')}
-function closeCustomerSuccess(){const m=$('customerSuccessModal');if(m){m.classList.remove('open');m.style.display='';m.style.zIndex='';m.setAttribute('aria-hidden','true')}unlockModalLayer()}
+function closeCustomerSuccess(){const m=$('customerSuccessModal');if(m){m.classList.remove('open');m.style.display='';m.style.zIndex='';m.setAttribute('aria-hidden','true');const h=m.querySelector('h2');if(h)h.textContent='Customer Successfully Added'}unlockModalLayer()}
+function showCustomerUpdateSuccess1947(name,cloudOk){const m=$('customerSuccessModal');if(!m)return;const h=m.querySelector('h2');if(h)h.textContent='Data Successfully Updated';$('customerSuccessName').textContent=name||'—';$('customerSuccessInfo').textContent=cloudOk?'Customer data has been updated successfully and synced to Cloud.':'Customer data has been updated successfully. Cloud sync is in progress.';m.classList.add('open');m.style.display='flex';m.style.zIndex='10000';m.setAttribute('aria-hidden','false');document.documentElement.classList.add('modal-locked');document.body.classList.add('modal-locked')}
 async function saveCustomerRecord1947Base(e,mode,original){
   if(e?.preventDefault)e.preventDefault();
   const prefix=mode==='add'?'newCustomer':'updateCustomer',btn=mode==='add'?$('newCustomerSaveBtn'):$('saveUpdatedCustomerBtn');
@@ -3605,8 +3609,8 @@ async function saveCustomerRecord1947Base(e,mode,original){
   const customer=buildCustomer1947(prefix,original),ov=dbOv();ov[customer.customerId]=Object.assign({},ov[customer.customerId]||{},customer);saveDbOv(ov);
   if(btn){btn.disabled=true;btn.innerHTML=mode==='add'?'✓ &nbsp; Customer Added':'✓ &nbsp; Saved Successfully'}
   refreshCustomerLists();
-  if(mode==='add'){closeModal();showCustomerSuccess(customer.name,false)}else{toast('✓ Saved Successfully');setTimeout(()=>openAreaDatabase(),500)}
-  Promise.resolve().then(()=>cloudSyncCustomer(customer,mode==='add')).catch(()=>({ok:false})).then(core=>Promise.resolve().then(()=>syncCustomerDetails1947(customer)).catch(()=>({ok:false})).then(details=>({core,details}))).then(({core,details})=>{if(mode==='add'){const info=$('customerSuccessInfo');if(info&&core?.ok&&details?.ok)info.textContent='Customer successfully added and all data is synced to Cloud.';else if(info&&core?.ok)info.textContent='Customer successfully added. Core data is synced; detailed fields are pending Cloud sync.'}});
+  if(mode==='add'){closeModal();showCustomerSuccess(customer.name,false)}else{closeModal();showCustomerUpdateSuccess1947(customer.name,false)}
+  Promise.resolve().then(()=>cloudSyncCustomer(customer,mode==='add')).catch(()=>({ok:false})).then(core=>Promise.resolve().then(()=>syncCustomerDetails1947(customer)).catch(()=>({ok:false})).then(details=>({core,details}))).then(({core,details})=>{const info=$('customerSuccessInfo');if(mode==='add'){if(info&&core?.ok&&details?.ok)info.textContent='Customer successfully added and all data is synced to Cloud.';else if(info&&core?.ok)info.textContent='Customer successfully added. Core data is synced; detailed fields are pending Cloud sync.'}else if(info){info.textContent=(core?.ok&&details?.ok)?'Customer data has been updated successfully and synced to Cloud.':'Customer data has been updated successfully. Cloud sync is in progress.'}});
   return true;
 }
 function openAddCustomerBase(){
@@ -3622,10 +3626,10 @@ function updateDb1947(c){
   const loc=populateCustomerArea1947('updateCustomer',original.areaId);if(loc){const items=ADD_CUSTOMER_LOCATIONS[loc.areaEl.value]||[],exact=items.find(x=>x[0]===original.area);if(exact)loc.locEl.value=exact[0]}
   $('saveUpdatedCustomerBtn').onclick=()=>saveCustomerRecord1947(null,'update',original);openModalLayer('modal');
 }
-async function deleteDb1947(c){if(!confirm('Delete this customer from the active Customer Database?\n\nVisit history will be kept.'))return;const ov=dbOv();ov[dbKey(c)]=Object.assign({},ov[dbKey(c)]||{}, {customerId:dbKey(c),active:false,updatedAt:new Date().toISOString()});saveDbOv(ov);try{await cloudDeleteCustomer1947(c)}catch(e){}refreshCustomerLists();openAreaDatabase()}
+async function deleteDb1947(c){if(!confirm('Delete this customer from the active Area Database?\n\nVisit history will be kept.'))return;const ov=dbOv();ov[dbKey(c)]=Object.assign({},ov[dbKey(c)]||{}, {customerId:dbKey(c),active:false,updatedAt:new Date().toISOString()});saveDbOv(ov);try{await cloudDeleteCustomer1947(c)}catch(e){}refreshCustomerLists();openAreaDatabase()}
 function openAreaDatabase(){
-  $('modalTitle').textContent='Customer Database';const modalClose=$('modal')?.querySelector('.modal-head .close');if(modalClose)modalClose.onclick=()=>closeModal();
-  $('modalBody').innerHTML='<div class="customer-db-shell"><div class="customer-db-banner"><span class="customer-db-banner-icon">▦</span><div><b>Customer Database</b><small>Master customer data • Update quarterly when required</small></div></div><div class="customer-toolbar"><input id="customerDbSearch" style="padding-left:12px" placeholder="Search customer"></div><div class="customer-db-head"><b>Customer Database</b><span id="customerDbCount">0 customers</span></div><div id="customerDbResults"></div></div>';
+  $('modalTitle').textContent='Area Database';const modalClose=$('modal')?.querySelector('.modal-head .close');if(modalClose)modalClose.onclick=()=>closeModal();
+  $('modalBody').innerHTML='<div class="customer-db-shell"><div class="customer-db-banner"><span class="customer-db-banner-icon">▦</span><div><b>Area Database</b><small>Master customer data • Update quarterly when required</small></div></div><div class="customer-toolbar"><input id="customerDbSearch" style="padding-left:12px" placeholder="Search customer"></div><div class="customer-db-head"><b>Area Database</b><span id="customerDbCount">0 customers</span></div><div id="customerDbResults"></div></div>';
   const render=()=>{const q=String($('customerDbSearch')?.value||'').trim().toLowerCase(),cs=dbCustomers1947().filter(c=>!q||[c.name,c.area,c.gov,c.type,c.responsible,c.phone,c.potential,c.loyalty].some(v=>String(v||'').toLowerCase().includes(q)));if($('customerDbCount'))$('customerDbCount').textContent=cs.length+' customer'+(cs.length===1?'':'s');window.__customerDbResults=cs;if($('customerDbResults'))$('customerDbResults').innerHTML=cs.length?cs.map((c,i)=>'<div class="customer-db-row" onclick="openCustomerDatabaseRecord1947(window.__customerDbResults['+i+'])"><div class="customer-db-main"><b>'+esc(c.name||'Unnamed Customer')+'</b><small>'+esc(c.area||'—')+' • '+esc(c.gov||'—')+'</small></div><div class="customer-db-row-actions"><button type="button" class="customer-db-action" title="Update" onclick="event.stopPropagation();updateDb1947(window.__customerDbResults['+i+'])">✎</button><button type="button" class="customer-db-action delete" title="Delete" onclick="event.stopPropagation();deleteDb1947(window.__customerDbResults['+i+'])">×</button><span class="customer-db-arrow">›</span></div></div>').join(''):'<div class="customer-db-empty">No customers found.</div>'};
   $('customerDbSearch').addEventListener('input',render);render();openModalLayer('modal');pullDb1947().then(()=>{if($('customerDbResults'))render()});
 }
@@ -3640,7 +3644,7 @@ async function pullDb1947(){
   }catch(e){console.warn('Customer DB pull failed',e?.message||e);return false}
 }
 function openCustomerDatabaseRecord1947(c){
-  if(!c)return;const x=customerDetails1947(c),vd=visits().filter(v=>v.customer===x.name).sort((a,b)=>String(b.date).localeCompare(String(a.date))),last=vd[0]||null;const modalClose=$('modal')?.querySelector('.modal-head .close');if(modalClose)modalClose.onclick=()=>openAreaDatabase();$('modalTitle').textContent='Customer Database';
+  if(!c)return;const x=customerDetails1947(c),vd=visits().filter(v=>v.customer===x.name).sort((a,b)=>String(b.date).localeCompare(String(a.date))),last=vd[0]||null;const modalClose=$('modal')?.querySelector('.modal-head .close');if(modalClose)modalClose.onclick=()=>openAreaDatabase();$('modalTitle').textContent='Area Database';
   $('modalBody').innerHTML='<div class="customer-db-detail-wrap"><div class="customer-db-detail-head"><h3>'+esc(x.name||'Unnamed Customer')+'</h3><p>'+esc(x.area||'—')+' • '+esc(x.gov||'—')+'</p></div><div class="customer-db-section">CUSTOMER INFORMATION</div><div class="customer-db-grid"><div class="customer-db-item"><span>Customer Type</span><b>'+esc(x.type||'—')+'</b></div><div class="customer-db-item"><span>Area</span><b>'+esc(x.area||'—')+'</b></div><div class="customer-db-item"><span>Governorate / Center</span><b>'+esc(x.area||'—')+'</b></div><div class="customer-db-item"><span>Responsible</span><b>'+esc(x.responsible||'—')+'</b></div><div class="customer-db-item"><span>Phone</span><b>'+esc(x.phone||'—')+'</b></div><div class="customer-db-item"><span>Potentiality</span><b>'+esc(x.potential||'—')+'</b></div><div class="customer-db-item"><span>Loyalty</span><b>'+esc(x.loyalty||'—')+'</b></div></div><div class="customer-db-section">FARM / BUSINESS DATA</div><div class="customer-db-grid"><div class="customer-db-item"><span>تسمين</span><b>'+esc(numDb1947(x.tasmim))+'</b></div><div class="customer-db-item"><span>بياض</span><b>'+esc(numDb1947(x.bayad))+'</b></div><div class="customer-db-item"><span>أمهات</span><b>'+esc(numDb1947(x.omhat))+'</b></div></div><div class="customer-db-section">ACTIVITY</div><div class="customer-db-grid"><div class="customer-db-item"><span>Total Visits</span><b>'+vd.length+'</b></div><div class="customer-db-item"><span>Last Visit</span><b>'+esc(last?formatDate(last.date):'—')+'</b></div><div class="customer-db-item full"><span>Last Objective</span><b>'+esc(last?last.objective:'—')+'</b></div></div></div>';
 }
 function openCustomerCard(index){const cs=window.__customerCardResults||customerListData(),c=cs[index];if(!c)return;const x=customerDetails1947(c),vd=visits().filter(v=>v.customer===x.name).sort((a,b)=>String(b.date).localeCompare(String(a.date))),last=vd[0]||null;const modalClose=$('modal')?.querySelector('.modal-head .close');if(modalClose)modalClose.onclick=()=>openCustomerCards();$('modalTitle').textContent='Customer Profile';$('modalBody').innerHTML='<div class="customer-db-detail-wrap"><div class="customer-db-detail-head"><h3>'+esc(x.name||'Unnamed Customer')+'</h3><p>'+esc(x.area||'—')+' • '+esc(x.gov||'—')+'</p></div><div class="customer-db-grid"><div class="customer-db-item"><span>Customer Type</span><b>'+esc(x.type||'—')+'</b></div><div class="customer-db-item"><span>Area</span><b>'+esc(x.area||'—')+'</b></div><div class="customer-db-item"><span>Governorate / Center</span><b>'+esc(x.area||'—')+'</b></div><div class="customer-db-item"><span>Responsible</span><b>'+esc(x.responsible||'—')+'</b></div><div class="customer-db-item"><span>Phone</span><b>'+esc(x.phone||'—')+'</b></div><div class="customer-db-item"><span>Potentiality</span><b>'+esc(x.potential||'—')+'</b></div><div class="customer-db-item"><span>Loyalty</span><b>'+esc(x.loyalty||'—')+'</b></div><div class="customer-db-item"><span>تسمين</span><b>'+esc(numDb1947(x.tasmim))+'</b></div><div class="customer-db-item"><span>بياض</span><b>'+esc(numDb1947(x.bayad))+'</b></div><div class="customer-db-item"><span>أمهات</span><b>'+esc(numDb1947(x.omhat))+'</b></div><div class="customer-db-item"><span>Total Visits</span><b>'+vd.length+'</b></div><div class="customer-db-item"><span>Last Visit</span><b>'+esc(last?formatDate(last.date):'—')+'</b></div></div></div>';window.__dbCurrentCustomer=x}
@@ -4217,7 +4221,7 @@ window.syncAndroidFcmToken = function(){
  * Supabase key in the client.
  */
 (function InnovalReliabilityV7(){
-  const V7_VERSION='7.0.0';
+  const V7_VERSION='7.1.0';
   const QUEUE_KEY='innovalSyncQueueV7';
   const LAST_SYNC_KEY='innovalLastSuccessfulCloudSyncV7';
   const MAX_QUEUE=1000;
@@ -4420,7 +4424,7 @@ window.syncAndroidFcmToken = function(){
   }
 
   // Expose a tiny, stable API for the UI/native wrapper.
-  window.innovalReliabilityV7={version:V7_VERSION,stats,drain,fullSync,backup:()=>backupLocalData(),queueKey:QUEUE_KEY};
+  window.innovalReliabilityV7={version:V7_VERSION,stats,drain,fullSync,backup:()=>backupLocalData(),queueKey:QUEUE_KEY,queueVisit:(v,error)=>upsertQueue('visit',v?.id,v,error)};
 
   function backupLocalData(){
     const p=currentUserRecord?.()||{};
