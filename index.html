@@ -1787,16 +1787,29 @@ async function cloudSyncCustomer(customer,isNewCustomer=false){
       const {error}=await innovalSupabase.from("customers").upsert(row,{onConflict:"customer_id"});
       if(error) throw error;
     }else{
+      // UPDATE Customer must use UPDATE semantics. Do not require INSERT/UPSERT
+      // permission and never overwrite the original created_by/created_at.
       const {data:existing,error:findError}=await innovalSupabase
         .from("customers")
-        .select("customer_id,created_by")
+        .select("customer_id")
         .eq("customer_id",customerId)
         .maybeSingle();
       if(findError) throw findError;
       if(!existing) return {ok:false,error:"Customer record was not found in Cloud."};
+      const updateRow={
+        name:row.name,
+        governorate:row.governorate,
+        area:row.area,
+        area_id:row.area_id,
+        customer_type:row.customer_type,
+        potential:row.potential,
+        loyalty:row.loyalty,
+        active:row.active,
+        updated_at:row.updated_at
+      };
       const {error}=await innovalSupabase
         .from("customers")
-        .update(row)
+        .update(updateRow)
         .eq("customer_id",customerId);
       if(error) throw error;
     }
@@ -3829,7 +3842,20 @@ async function saveCustomerRecord1947Base(e,mode,original){
   if(btn){btn.disabled=true;btn.innerHTML=mode==='add'?'✓ &nbsp; Customer Added':'Save Updated Data'}
   if(typeof refreshCustomerLists==='function'){try{refreshCustomerLists()}catch(err){console.warn('Customer list refresh skipped:',err?.message||err)}}
   if(mode==='add'){closeModal();showCustomerSuccess(customer.name,false)}else{closeModal();showCustomerUpdateSuccess1947(customer.name,false)}
-  Promise.resolve().then(()=>cloudSyncCustomer(customer,mode==='add')).catch(()=>({ok:false})).then(core=>Promise.resolve().then(()=>syncCustomerDetails1947(customer)).catch(()=>({ok:false})).then(details=>({core,details}))).then(({core,details})=>{const info=$('customerSuccessInfo');if(mode==='add'){if(info&&core?.ok&&details?.ok)info.textContent='Customer successfully added and all data is synced to Cloud.';else if(info&&core?.ok)info.textContent='Customer successfully added. Core data is synced; detailed fields are pending Cloud sync.'}else if(info){info.textContent=(core?.ok&&details?.ok)?'Customer data has been updated successfully and synced to Cloud.':'Customer data has been updated successfully. Cloud sync is in progress.'}});
+  (async()=>{
+    let core={ok:false,error:'Cloud sync was not attempted.'};
+    let details={ok:false,error:'Customer details sync was not attempted.'};
+    try{core=await cloudSyncCustomer(customer,mode==='add')}catch(err){core={ok:false,error:err?.message||String(err)}}
+    try{details=await syncCustomerDetails1947(customer)}catch(err){details={ok:false,error:err?.message||String(err)}}
+    const info=$('customerSuccessInfo');
+    if(core.ok && details.ok){
+      if(info)info.textContent=mode==='add'?'Customer successfully added and all data is synced to Cloud.':'Customer data has been updated successfully and synced to Cloud ✓';
+    }else{
+      const errMsg=core.ok?(details.error||'Customer details sync failed'):(core.error||'Customer core sync failed');
+      console.warn('Customer Cloud sync incomplete:',{core,details});
+      if(info)info.textContent=mode==='add'?'Customer saved on this device. Cloud sync is pending.':'Customer updated on this device, but Cloud sync failed: '+errMsg;
+    }
+  })();
   return true;
 }
 function openAddCustomerBase(){
