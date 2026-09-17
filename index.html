@@ -379,6 +379,7 @@ html,body{min-height:100%;background:var(--bg)}
 .visit-save{display:flex;align-items:center;gap:13px;justify-content:flex-start;text-align:left;border:0;border-radius:20px;padding:16px 18px;margin:5px 0 20px;background:linear-gradient(110deg,#063b91,#0876df);box-shadow:0 14px 28px rgba(7,93,204,.24)}
 .visit-save .save-icon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.16);font-size:23px}
 .visit-save b{display:block;font-size:17px}.visit-save small{display:block;font-size:10px;opacity:.78;margin-top:2px}.visit-save .save-arrow{margin-left:auto;font-size:25px;opacity:.85}
+.visit-save:disabled{opacity:.72;cursor:wait;pointer-events:none}.visit-save:disabled .save-arrow{opacity:.45}
 .success-overlay{position:fixed;inset:0;background:rgba(6,25,60,.58);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:22px;z-index:100}
 .success-overlay.open{display:flex;animation:successFade .22s ease}
 .success-card{position:relative;width:min(430px,100%);background:#fff;border-radius:30px;padding:28px 22px 22px;text-align:center;box-shadow:0 28px 70px rgba(3,20,55,.28);overflow:hidden}
@@ -1679,7 +1680,7 @@ function cloudVisitRow(v,appUserId){
     collection:String(v.collection||""),
     feedback:String(v.feedback||""),
     updated_by:String(appUserId||""),
-    updated_at:new Date().toISOString()
+    updated_at:(v.updatedAt||new Date().toISOString())
   };
 }
 
@@ -1758,33 +1759,34 @@ async function cloudSyncWeeklyRows(rows){
 }
 
 async function cloudSyncCustomer(customer,isNewCustomer=false){
-  const session=await cloudSession();
   const p=currentUserRecord();
-  if(!session || !innovalSupabase || !p?.id || !customer?.name) return {ok:false,error:"No Supabase session or app user."};
+  if(!p?.id || !p?.email || !customer?.name) return {ok:false,error:"App user or customer is missing."};
   try{
-    const row={
-      customer_id:String(customer.customerId||("C"+Date.now())),
-      name:String(customer.name),
+    const emp=employeeList().find(x=>String(x.email||'').trim().toLowerCase()===String(p.email||'').trim().toLowerCase());
+    const password=String(emp?.password||'');
+    if(!password) return {ok:false,error:"Application password is unavailable."};
+    await ensureSupabaseClient();
+    const payload={
+      customer_id:String(customer.customerId||""),
+      name:String(customer.name||""),
       governorate:String(customer.gov||""),
       area:String(customer.area||""),
       area_id:String(customer.areaId||""),
       customer_type:String(customer.type||"Other"),
-      potential:String(customer.potential||""),
-      loyalty:(String(customer.loyalty||"").trim()||"Neutral"),
-      active:true,
-      created_by:p.id,
-      updated_at:new Date().toISOString()
+      potential:String(customer.potential||"Medium"),
+      loyalty:String(customer.loyalty||"Neutral"),
+      active:customer.active!==false,
+      responsible:String(customer.responsible||""),
+      phone:String(customer.phone||""),
+      tasmim:Number(String(customer.tasmim||'0').replace(/,/g,''))||0,
+      bayad:Number(String(customer.bayad||'0').replace(/,/g,''))||0,
+      omhat:Number(String(customer.omhat||'0').replace(/,/g,''))||0
     };
-    if(!row.customer_id) return {ok:false,error:"Customer ID is missing."};
-
-    // The visit has a hard FK to customers.customer_id. Keep the customer
-    // record available in Cloud, but NEVER touch customer_assignments here.
-    // Assignments are a separate admin/master-data concern.
-    const {error}=await innovalSupabase
-      .from("customers")
-      .upsert(row,{onConflict:"customer_id"});
+    if(!payload.customer_id) return {ok:false,error:"Customer ID is missing."};
+    const {data,error}=await innovalSupabase.rpc('save_innoval_customer',{p_email:p.email,p_password:password,p_mode:isNewCustomer?'add':'update',p_customer:payload});
     if(error) throw error;
-    return {ok:true};
+    if(!data?.ok) return {ok:false,error:String(data?.error||'Cloud customer save was rejected.')};
+    return {ok:true,data};
   }catch(error){
     const msg=error?.message || String(error);
     console.warn("Innoval customer cloud sync failed:",msg);
@@ -1804,8 +1806,11 @@ async function cloudPullMyData(){
     const local=visits();
     const map=new Map(local.map(x=>[String(x.id),x]));
     (vr||[]).forEach(v=>{
-      map.set(String(v.id),{
-        id:String(v.id),date:v.visit_date,visitNo:String(v.visit_no||""),rep:p.name,customer:v.customer_name||"",gov:v.governorate||"",area:v.area||"",areaId:v.area_id||"",visitType:v.visit_type||"",planId:v.plan_id||"",potential:v.potential||"",loyalty:v.loyalty||"",meted:v.meted||"",jobTitle:v.job_title||"",type:v.customer_type||"",objective:v.objective||"",nextDate:v.next_date||"",comments:v.comments||"",conclusion:v.conclusion||"",collection:v.collection||"",feedback:v.feedback||""
+      const key=String(v.id),localRow=map.get(key);
+      const cloudTime=Date.parse(v.updated_at||'')||0, localTime=Date.parse(localRow?.updatedAt||'')||0;
+      if(localRow && localTime>cloudTime) return;
+      map.set(key,{
+        id:key,date:v.visit_date,visitNo:String(v.visit_no||""),rep:p.name,customer:v.customer_name||"",gov:v.governorate||"",area:v.area||"",areaId:v.area_id||"",visitType:v.visit_type||"",planId:v.plan_id||"",potential:v.potential||"",loyalty:v.loyalty||"",meted:v.meted||"",jobTitle:v.job_title||"",type:v.customer_type||"",objective:v.objective||"",nextDate:v.next_date||"",comments:v.comments||"",conclusion:v.conclusion||"",collection:v.collection||"",feedback:v.feedback||"",updatedAt:v.updated_at||new Date().toISOString()
       });
     });
     saveVisits(Array.from(map.values()));
@@ -2499,6 +2504,13 @@ function closeVisitSuccess(){
 }
 $("visitForm").addEventListener("submit",async e=>{
   e.preventDefault();
+  const form=e.currentTarget;
+  if(form.dataset.submitting==="1") return;
+  form.dataset.submitting="1";
+  const submitBtn=form.querySelector('button[type="submit"]');
+  const originalBtnHTML=submitBtn?submitBtn.innerHTML:"";
+  if(submitBtn){submitBtn.disabled=true;submitBtn.innerHTML='<span class="save-icon">✓</span><span><b>Saving Visit...</b><small>Please wait</small></span><span class="save-arrow">→</span>';}
+  const unlockSubmit=()=>{form.dataset.submitting="0";if(submitBtn){submitBtn.disabled=false;submitBtn.innerHTML=originalBtnHTML;}};
 
   const p=profile();
   const d=visits();
@@ -2593,40 +2605,15 @@ $("visitForm").addEventListener("submit",async e=>{
     comments:$("comments").value,
     conclusion:$("conclusion").value,
     collection:$("collection").value,
-    feedback:$("feedback").value
+    feedback:$("feedback").value,
+    updatedAt:new Date().toISOString()
   });
 
-  // Always keep the local copy first (offline-first), then ensure the referenced
-  // customer exists in Cloud before inserting the visit (FK: visits.customer_id).
+  // ALWAYS save locally first. The success confirmation is shown immediately,
+  // while Cloud synchronization continues safely in the background. This prevents
+  // slow Cloud/FK issues from leaving the Save button active and causing duplicate visits.
+  const savedVisit=d[0];
   saveVisits(d);
-  let cloudResult={ok:false,error:"Cloud sync was not attempted."};
-  try{
-    const customerResult=await cloudSyncCustomer(customer,isNewCustomer);
-    if(!customerResult.ok){
-      cloudResult={ok:false,error:customerResult.error||"Customer could not be synchronized to Cloud."};
-    }else{
-      // If this visit came from Weekly Plan, make sure the referenced
-      // weekly_plans row exists in Cloud before inserting the visit (FK: visits.plan_id).
-      if(plannedVisit){
-        const planResult=await cloudSyncWeeklyRows([plannedVisit]);
-        if(!planResult){
-          cloudResult={ok:false,error:"The selected Weekly Plan could not be synchronized to Cloud."};
-        }else{
-          cloudResult=await cloudSyncVisit(d[0]);
-        }
-      }else{
-        cloudResult=await cloudSyncVisit(d[0]);
-      }
-    }
-  }catch(err){
-    cloudResult={ok:false,error:err?.message||String(err)};
-  }
-
-  if(!cloudResult.ok){
-    // V7 is local-first: keep the visit and let the Reliability Queue/full sync retry it.
-    // Do not interrupt the normal green success confirmation with a raw database error.
-    console.warn('Visit saved locally; Cloud sync is pending:', cloudResult.error||'Unknown Cloud error.'); try{window.innovalReliabilityV7?.queueVisit?.(d[0],cloudResult.error||'Cloud sync pending');}catch(_e){}
-  }
 
   e.target.reset();
   $("visitDate").value=today();
@@ -2640,7 +2627,38 @@ $("visitForm").addEventListener("submit",async e=>{
   try{setAssignedAreaFromUser();}catch(e){}
   syncProductPicker();
   update();
-  showVisitSuccess(customerName,visitDate); if(!cloudResult.ok){$('successVisitInfo').textContent='The visit was saved successfully on this device. Cloud synchronization is in progress.';}
+  showVisitSuccess(customerName,visitDate);
+  $('successVisitInfo').textContent='Visit successfully added to your Innoval visit history. Cloud synchronization is in progress.';
+  unlockSubmit();
+
+  // Cloud sync is deliberately non-blocking. Any failure is retained in the V8
+  // Reliability Queue for automatic retry; it can never create a second local visit.
+  Promise.resolve().then(async()=>{
+    let cloudResult={ok:false,error:"Cloud sync was not attempted."};
+    try{
+      const customerResult=await cloudSyncCustomer(customer,isNewCustomer);
+      if(!customerResult.ok){
+        cloudResult={ok:false,error:customerResult.error||"Customer could not be synchronized to Cloud."};
+      }else if(plannedVisit){
+        const planResult=await cloudSyncWeeklyRows([plannedVisit]);
+        cloudResult=planResult?await cloudSyncVisit(savedVisit):{ok:false,error:"The selected Weekly Plan could not be synchronized to Cloud."};
+      }else{
+        cloudResult=await cloudSyncVisit(savedVisit);
+      }
+    }catch(err){
+      cloudResult={ok:false,error:err?.message||String(err)};
+    }
+    const info=$('successVisitInfo');
+    if(cloudResult.ok){
+      if(info)info.textContent='Visit successfully added and synced to Cloud ✓';
+    }else{
+      console.warn('Visit saved locally; Cloud sync is pending:',cloudResult.error||'Unknown Cloud error.');
+      try{window.innovalReliabilityV7?.queueVisit?.(savedVisit,cloudResult.error||'Cloud sync pending');}catch(_e){}
+      if(info)info.textContent='Visit successfully added. Cloud synchronization is in progress and will retry automatically ✓';
+    }
+  }).catch(err=>{
+    try{window.innovalReliabilityV7?.queueVisit?.(savedVisit,err?.message||String(err));}catch(_e){}
+  });
 });
 function update(){const p=profile(),d=visits().filter(x=>x.rep===p.rep),t=today(),m=t.slice(0,7),todayCount=d.filter(x=>x.date===t).length,monthCount=d.filter(x=>x.date.startsWith(m)).length,followup=d.filter(x=>x.nextDate&&x.nextDate>=t&&x.nextDate<=addDaysISO(t,7)).length;$("today").textContent=todayCount;$("month").textContent=monthCount;$("high").textContent=d.filter(x=>x.potential==="High").length;$("ach").textContent=d.length?Math.min(100,Math.round(monthCount/30*100))+"%":"0%";$("heroToday")&&( $("heroToday").textContent=todayCount);$("heroMonth")&&($("heroMonth").textContent=monthCount);$("heroFollowup")&&($("heroFollowup").textContent=followup)}
 function addDaysISO(iso,n){const d=new Date(iso+"T00:00:00");d.setDate(d.getDate()+n);return isoDate(d)}
@@ -3295,7 +3313,12 @@ function saveEditedProfilePhoto(){
   ctx.drawImage(img,cx-dw/2,cy-dh/2,dw,dh);ctx.restore();
   const data=out.toDataURL("image/png"),key=profilePhotoKey();
   if(!key){toast("Please log in first");return}
-  localStorage.setItem(key,data);applyProfilePhoto(data);closePhotoEditor();toast("Profile photo updated ✓");
+  localStorage.setItem(key,data);
+  localStorage.setItem(key+'_updatedAt',new Date().toISOString());
+  applyProfilePhoto(data);closePhotoEditor();
+  toast("Profile photo updated ✓");
+  // Keep the device copy immediately. Cloud upload is best-effort and never blocks the user.
+  try{window.innovalReliabilityV7?.queueProfilePhoto?.(data)}catch(_e){}
 }
 function applyProfilePhoto(data){
   if(!data){clearProfilePhotoUI();return}
@@ -3386,7 +3409,29 @@ function saveProfileData(){
   const full=$("profileFullName")?.value.trim(); if(full){$("drawerName").textContent=full;$("repName").textContent=full;}
   closeModal();toast("Profile saved successfully ✓");
 }
-function changePassword(){const p=profile(),list=employeeList(),emp=list.find(x=>x.name===p.rep),old=$("oldPass").value,newp=$("newPass").value,conf=$("confirmPass").value;if(!emp||old!==emp.password){toast("Current password is incorrect");return}if(newp.length<4){toast("New password must be at least 4 characters");return}if(!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/.test(newp)){toast("New password must contain letters and numbers only");return}if(newp!==conf){toast("New passwords do not match");return}emp.password=newp;localStorage.setItem("innovalEmployeesFinal",JSON.stringify(list));closeModal();toast("Password changed successfully ✓")}
+async function changePassword(){
+  const p=profile(),list=employeeList(),emp=list.find(x=>x.name===p.rep),oldPass=String($("oldPass")?.value||""),newp=String($("newPass")?.value||""),conf=String($("confirmPass")?.value||"");
+  if(!emp||oldPass!==String(emp.password||"")){toast("Current password is incorrect");return}
+  if(newp.length<4){toast("New password must be at least 4 characters");return}
+  if(!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/.test(newp)){toast("New password must contain letters and numbers only");return}
+  if(newp!==conf){toast("New passwords do not match");return}
+  const btn=document.querySelector('.password-save');if(btn){btn.disabled=true;btn.textContent='Updating…'}
+  try{
+    const session=await cloudSession();
+    if(!session||!innovalSupabase)throw new Error('Cloud account is not connected. Please connect to the internet and try again.');
+    const {error}=await innovalSupabase.auth.updateUser({password:newp});
+    if(error)throw error;
+    emp.password=newp;
+    localStorage.setItem('innovalEmployeesFinal',JSON.stringify(list));
+    localStorage.setItem('innovalPasswordUpdatedAt_'+String(p.id||p.rep),new Date().toISOString());
+    closeModal();
+    toast('Password updated successfully ✓');
+  }catch(e){
+    console.warn('Password update failed:',e?.message||e);
+    toast('Password was not changed. Cloud update failed.');
+    if(btn){btn.disabled=false;btn.textContent='Update Password'}
+  }
+}
 
 function weeklyPlanKey(){const p=profile();return "innovalWeeklyPlan_"+(p.rep||"guest")}
 function weeklyDateStart(d){const x=new Date((d||today())+"T12:00:00");const day=x.getDay();const diff=(day+1)%7;x.setDate(x.getDate()-diff);return x}
@@ -3757,7 +3802,7 @@ function buildCustomer1947(prefix,original){
 }
 function showCustomerSuccess(name,cloudOk){const m=$('customerSuccessModal');if(!m)return;$('customerSuccessName').textContent=name||'—';$('customerSuccessInfo').textContent=cloudOk?'Customer successfully added to your Customer List.':'Customer successfully added to your Customer List. Cloud sync is in progress.';m.classList.add('open');m.style.display='flex';m.style.zIndex='10000';m.setAttribute('aria-hidden','false');document.documentElement.classList.add('modal-locked');document.body.classList.add('modal-locked')}
 function closeCustomerSuccess(){const m=$('customerSuccessModal');if(m){m.classList.remove('open');m.style.display='';m.style.zIndex='';m.setAttribute('aria-hidden','true');const h=m.querySelector('h2');if(h)h.textContent='Customer Successfully Added'}unlockModalLayer()}
-function showCustomerUpdateSuccess1947(name,cloudOk){const m=$('customerSuccessModal');if(!m)return;if(m.parentElement!==document.body)document.body.appendChild(m);const h=m.querySelector('h2');if(h)h.textContent='Data Updated Successfully';const n=$('customerSuccessName'),i=$('customerSuccessInfo');if(n)n.textContent=name||'—';if(i)i.textContent=cloudOk?'Customer data has been updated successfully and synced to Cloud.':'Customer data has been updated successfully. Cloud sync is in progress.';m.classList.add('open');m.setAttribute('aria-hidden','false');m.style.setProperty('display','flex','important');m.style.setProperty('z-index','2147483647','important');document.documentElement.classList.add('modal-locked');document.body.classList.add('modal-locked');requestAnimationFrame(()=>{m.classList.add('open');m.style.setProperty('display','flex','important');});}
+function showCustomerUpdateSuccess1947(name,cloudOk){const m=$('customerSuccessModal');if(!m)return;const h=m.querySelector('h2');if(h)h.textContent='Data Updated Successfully';$('customerSuccessName').textContent=name||'—';$('customerSuccessInfo').textContent=cloudOk?'Customer data has been updated successfully and synced to Cloud.':'Customer data has been updated successfully. Cloud sync is in progress.';m.classList.add('open');m.style.display='flex';m.style.zIndex='10000';m.setAttribute('aria-hidden','false');document.documentElement.classList.add('modal-locked');document.body.classList.add('modal-locked')}
 async function saveCustomerRecord1947Base(e,mode,original){
   if(e?.preventDefault)e.preventDefault();
   const prefix=mode==='add'?'newCustomer':'updateCustomer',btn=mode==='add'?$('newCustomerSaveBtn'):$('saveUpdatedCustomerBtn');
@@ -3767,10 +3812,23 @@ async function saveCustomerRecord1947Base(e,mode,original){
   const p=profile();if(!isAdminUser()&&!((p.areaIds||[]).includes(areaId))){restore();toast('This area is outside your assigned territory');return false}
   const current=dbCustomers1947();if(current.some(x=>dbKey(x)!==dbKey(original)&&String(x.name||'').trim().toLowerCase()===name.toLowerCase())){restore();showCustomerExists(name);return false}
   const customer=buildCustomer1947(prefix,original),ov=dbOv();ov[customer.customerId]=Object.assign({},ov[customer.customerId]||{},customer);saveDbOv(ov);
-  if(btn){btn.disabled=true;btn.innerHTML=mode==='add'?'Customer Added':'Saved Successfully'}
-  refreshCustomerLists();
+  if(btn){btn.disabled=true;btn.innerHTML=mode==='add'?'✓ &nbsp; Customer Added':'Save Updated Data'}
+  if(typeof refreshCustomerLists==='function'){try{refreshCustomerLists()}catch(err){console.warn('Customer list refresh skipped:',err?.message||err)}}
   if(mode==='add'){closeModal();showCustomerSuccess(customer.name,false)}else{closeModal();showCustomerUpdateSuccess1947(customer.name,false)}
-  Promise.resolve().then(()=>cloudSyncCustomer(customer,mode==='add')).catch(()=>({ok:false})).then(core=>Promise.resolve().then(()=>syncCustomerDetails1947(customer)).catch(()=>({ok:false})).then(details=>({core,details}))).then(({core,details})=>{const info=$('customerSuccessInfo');if(mode==='add'){if(info&&core?.ok&&details?.ok)info.textContent='Customer successfully added and all data is synced to Cloud.';else if(info&&core?.ok)info.textContent='Customer successfully added. Core data is synced; detailed fields are pending Cloud sync.'}else if(info){info.textContent=(core?.ok&&details?.ok)?'Customer data has been updated successfully and synced to Cloud.':'Customer data has been updated successfully. Cloud sync is in progress.'}});
+  (async()=>{
+    let core={ok:false,error:'Cloud sync was not attempted.'};
+    let details={ok:false,error:'Customer details sync was not attempted.'};
+    try{core=await cloudSyncCustomer(customer,mode==='add')}catch(err){core={ok:false,error:err?.message||String(err)}}
+    try{details=await syncCustomerDetails1947(customer)}catch(err){details={ok:false,error:err?.message||String(err)}}
+    const info=$('customerSuccessInfo');
+    if(core.ok && details.ok){
+      if(info)info.textContent=mode==='add'?'Customer successfully added and all data is synced to Cloud.':'Customer data has been updated successfully and synced to Cloud ✓';
+    }else{
+      const errMsg=core.ok?(details.error||'Customer details sync failed'):(core.error||'Customer core sync failed');
+      console.warn('Customer Cloud sync incomplete:',{core,details});
+      if(info)info.textContent=mode==='add'?'Customer saved on this device. Cloud sync is pending.':'Customer updated on this device, but Cloud sync failed: '+errMsg;
+    }
+  })();
   return true;
 }
 function openAddCustomerBase(){
@@ -3781,10 +3839,31 @@ function openAddCustomerBase(){
 function updateDb1947(c){
   if(!c)return;const original=customerDetails1947(c),modalClose=$('modal')?.querySelector('.modal-head .close');if(modalClose)modalClose.onclick=()=>openAreaDatabase();
   $('modalTitle').textContent='Update Customer Data';
-  $('modalBody').innerHTML='<form id="updateCustomerForm" novalidate>'+customerFormFields1947('updateCustomer')+'<div class="form-actions"><button type="button" class="secondary-btn" onclick="openAreaDatabase()">← Back</button><button id="saveUpdatedCustomerBtn" class="save" type="button" style="margin:0">✓ &nbsp; Save Updated Data</button></div></form>';
+  $('modalBody').innerHTML='<form id="updateCustomerForm" novalidate>'+customerFormFields1947('updateCustomer')+'<div class="form-actions"><button type="button" class="secondary-btn" onclick="openAreaDatabase()">← Back</button><button id="saveUpdatedCustomerBtn" class="save" type="button" style="margin:0">Save Updated Data</button></div></form>';
   $('updateCustomerName').value=original.name||'';$('updateCustomerType').value=original.type||'';$('updateCustomerPotential').value=original.potential||'Medium';$('updateCustomerLoyalty').value=original.loyalty||'Neutral';$('updateCustomerResponsible').value=original.responsible||'';$('updateCustomerPhone').value=original.phone||'';$('updateCustomerTasmim').value=numDb1947(original.tasmim);$('updateCustomerBayad').value=numDb1947(original.bayad);$('updateCustomerOmhat').value=numDb1947(original.omhat);
   const loc=populateCustomerArea1947('updateCustomer',original.areaId);if(loc){const items=ADD_CUSTOMER_LOCATIONS[loc.areaEl.value]||[],exact=items.find(x=>x[0]===original.area);if(exact)loc.locEl.value=exact[0]}
-  $('saveUpdatedCustomerBtn').onclick=()=>saveCustomerRecord1947(null,'update',original);openModalLayer('modal');
+  openModalLayer('modal');
+  const saveUpdateBtn=$('saveUpdatedCustomerBtn');
+  if(saveUpdateBtn){
+    saveUpdateBtn.disabled=false;
+    saveUpdateBtn.onclick=null;
+    saveUpdateBtn.addEventListener('click',async function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      if(saveUpdateBtn.disabled)return;
+      try{
+        saveUpdateBtn.disabled=true;
+        saveUpdateBtn.innerHTML='Saving...';
+        const ok=await saveCustomerRecord1947Base(ev,'update',original);
+        if(!ok){saveUpdateBtn.disabled=false;saveUpdateBtn.innerHTML='Save Updated Data';}
+      }catch(err){
+        console.error('Customer update failed:',err);
+        saveUpdateBtn.disabled=false;
+        saveUpdateBtn.innerHTML='Save Updated Data';
+        toast('Unable to update customer. Please try again.');
+      }
+    },{once:false});
+  }
 }
 async function deleteDb1947(c){if(!confirm('Delete this customer from the active Area Database?\n\nVisit history will be kept.'))return;const ov=dbOv();ov[dbKey(c)]=Object.assign({},ov[dbKey(c)]||{}, {customerId:dbKey(c),active:false,updatedAt:new Date().toISOString()});saveDbOv(ov);try{await cloudDeleteCustomer1947(c)}catch(e){}refreshCustomerLists();openAreaDatabase()}
 function openAreaDatabase(){
@@ -3795,14 +3874,26 @@ function openAreaDatabase(){
 }
 async function pullDb1947(){
   try{
-    const session=await cloudSession();if(!session||!innovalSupabase)return false;
-    const {data,error}=await innovalSupabase.from('customers').select('customer_id,name,governorate,area,area_id,customer_type,potential,loyalty,active,updated_at');if(error)throw error;
+    const p=currentUserRecord();
+    if(!p?.email)return false;
+    const emp=employeeList().find(x=>String(x.email||'').trim().toLowerCase()===String(p.email||'').trim().toLowerCase());
+    const password=String(emp?.password||'');
+    if(!password)return false;
+    await ensureSupabaseClient();
+    const {data,error}=await innovalSupabase.rpc('get_innoval_customers',{p_email:p.email,p_password:password});
+    if(error)throw error;
+    if(!data?.ok)throw new Error(String(data?.error||'Cloud customer read was rejected.'));
     const ov=dbOv();
-    (data||[]).forEach(c=>{if(!c.customer_id)return;const k=String(c.customer_id),local=ov[k],cloudTime=Date.parse(c.updated_at||'')||0,localTime=Date.parse(local?.updatedAt||'')||0;if(local&&localTime>cloudTime)return;ov[k]=Object.assign({},local||{}, {customerId:k,name:c.name||'',gov:c.governorate||'',area:c.area||'',areaId:c.area_id||'',type:c.customer_type||'Other',potential:c.potential||'',loyalty:c.loyalty||'Neutral',active:c.active!==false,cloudUpdatedAt:c.updated_at||''})});
-    try{const d=await innovalSupabase.from('customer_details').select('customer_id,brick,sub_brik,responsible,tasmim,bayad,omhat,phone,updated_at');if(!d.error)(d.data||[]).forEach(x=>{const k=String(x.customer_id||''),local=ov[k],cloudTime=Date.parse(x.updated_at||'')||0,localTime=Date.parse(local?.updatedAt||'')||0;if(!k||(local&&localTime>cloudTime))return;ov[k]=Object.assign({},local||{}, {customerId:k,brick:x.brick||'',subBrik:x.sub_brik||'',responsible:x.responsible||'',tasmim:numDb1947(x.tasmim),bayad:numDb1947(x.bayad),omhat:numDb1947(x.omhat),phone:x.phone||'',detailsCloudUpdatedAt:x.updated_at||''})})}catch(e){}
+    (Array.isArray(data.customers)?data.customers:[]).forEach(c=>{
+      if(!c?.customer_id)return;
+      const k=String(c.customer_id),local=ov[k],cloudTime=Date.parse(c.updated_at||'')||0,localTime=Date.parse(local?.updatedAt||'')||0;
+      if(local&&localTime>cloudTime)return;
+      ov[k]=Object.assign({},local||{}, {customerId:k,name:c.name||'',gov:c.governorate||'',area:c.area||'',areaId:c.area_id||'',type:c.customer_type||'Other',potential:c.potential||'',loyalty:c.loyalty||'Neutral',active:c.active!==false,cloudUpdatedAt:c.updated_at||'',brick:c.brick||'',subBrik:c.sub_brik||'',responsible:c.responsible||'',tasmim:numDb1947(c.tasmim),bayad:numDb1947(c.bayad),omhat:numDb1947(c.omhat),phone:c.phone||'',detailsCloudUpdatedAt:c.details_updated_at||c.updated_at||''});
+    });
     saveDbOv(ov);return true;
-  }catch(e){console.warn('Customer DB pull failed',e?.message||e);return false}
+  }catch(e){console.warn('Customer DB cloud pull failed',e?.message||e);return false}
 }
+
 function openCustomerDatabaseRecord1947(c){
   if(!c)return;const x=customerDetails1947(c),vd=visits().filter(v=>v.customer===x.name).sort((a,b)=>String(b.date).localeCompare(String(a.date))),last=vd[0]||null;const modalClose=$('modal')?.querySelector('.modal-head .close');if(modalClose)modalClose.onclick=()=>openAreaDatabase();$('modalTitle').textContent='Area Database';
   $('modalBody').innerHTML='<div class="customer-db-detail-wrap"><div class="customer-db-detail-head"><h3>'+esc(x.name||'Unnamed Customer')+'</h3><p>'+esc(x.area||'—')+' • '+esc(x.gov||'—')+'</p></div><div class="customer-db-section">CUSTOMER INFORMATION</div><div class="customer-db-grid"><div class="customer-db-item"><span>Customer Type</span><b>'+esc(x.type||'—')+'</b></div><div class="customer-db-item"><span>Area</span><b>'+esc(x.area||'—')+'</b></div><div class="customer-db-item"><span>Governorate / Center</span><b>'+esc(x.area||'—')+'</b></div><div class="customer-db-item"><span>Responsible</span><b>'+esc(x.responsible||'—')+'</b></div><div class="customer-db-item"><span>Phone</span><b>'+esc(x.phone||'—')+'</b></div><div class="customer-db-item"><span>Potentiality</span><b>'+esc(x.potential||'—')+'</b></div><div class="customer-db-item"><span>Loyalty</span><b>'+esc(x.loyalty||'—')+'</b></div></div><div class="customer-db-section">FARM / BUSINESS DATA</div><div class="customer-db-grid"><div class="customer-db-item"><span>تسمين</span><b>'+esc(numDb1947(x.tasmim))+'</b></div><div class="customer-db-item"><span>بياض</span><b>'+esc(numDb1947(x.bayad))+'</b></div><div class="customer-db-item"><span>أمهات</span><b>'+esc(numDb1947(x.omhat))+'</b></div></div><div class="customer-db-section">ACTIVITY</div><div class="customer-db-grid"><div class="customer-db-item"><span>Total Visits</span><b>'+vd.length+'</b></div><div class="customer-db-item"><span>Last Visit</span><b>'+esc(last?formatDate(last.date):'—')+'</b></div><div class="customer-db-item full"><span>Last Objective</span><b>'+esc(last?last.objective:'—')+'</b></div></div></div>';
@@ -4555,18 +4646,10 @@ window.syncAndroidFcmToken = function(){
   // Customer detail sync existed as a call-site contract in V6 but was not
   // guaranteed to be present. V7 supplies the implementation and queues failures.
   if(typeof window.syncCustomerDetails1947!=='function')window.syncCustomerDetails1947=async function(c){
-    const session=await cloudSession();
-    if(!session||!innovalSupabase||!c?.customerId)return {ok:false,error:'No active Supabase session or customer ID.'};
-    try{
-      const row={customer_id:String(c.customerId),responsible:String(c.responsible||''),phone:String(c.phone||''),tasmim:Number(String(c.tasmim||'0').replace(/,/g,''))||0,bayad:Number(String(c.bayad||'0').replace(/,/g,''))||0,omhat:Number(String(c.omhat||'0').replace(/,/g,''))||0,updated_at:now()};
-      const {error}=await innovalSupabase.from('customer_details').upsert(row,{onConflict:'customer_id'});
-      if(error)throw error;
-      markSynced('customer_details',c.customerId,currentUid());
-      return {ok:true};
-    }catch(e){
-      upsertQueue('customer_details',c.customerId,c,e?.message||e);
-      return {ok:false,error:e?.message||String(e)};
-    }
+    // Customer core + details are written atomically by save_innoval_customer.
+    // Keep this call-site contract for the existing UI without issuing a second write.
+    if(!c?.customerId)return {ok:false,error:'Customer ID is missing.'};
+    return {ok:true,atomic:true};
   };
 
   // Customer deletion was already local-first in V6. Define the missing cloud
@@ -4584,16 +4667,46 @@ window.syncAndroidFcmToken = function(){
   }
 
   // Expose a tiny, stable API for the UI/native wrapper.
-  window.innovalReliabilityV7={version:V7_VERSION,stats,drain,fullSync,backup:()=>backupLocalData(),queueKey:QUEUE_KEY,queueVisit:(v,error)=>upsertQueue('visit',v?.id,v,error)};
+  async function uploadProfilePhoto(data){
+    const p=currentUserRecord?.()||{};
+    if(!data||!p?.id)return {ok:false,error:'Profile user is missing.'};
+    try{
+      const session=await cloudSession();if(!session||!innovalSupabase)return {ok:false,error:'No active Supabase session.'};
+      const blob=await (await fetch(data)).blob();
+      const path=String(p.id)+'/profile.png';
+      const {error}=await innovalSupabase.storage.from('profile-photos').upload(path,blob,{upsert:true,contentType:'image/png',cacheControl:'31536000'});
+      if(error)throw error;
+      localStorage.setItem('innovalProfilePhotoCloudPath_'+String(p.id),path);
+      return {ok:true};
+    }catch(e){return {ok:false,error:e?.message||String(e)}}
+  }
+  async function queueProfilePhoto(data){
+    const p=currentUserRecord?.()||{}; if(!p?.id||!data)return;
+    const r=await uploadProfilePhoto(data);
+    if(!r.ok)upsertQueue('profile_photo',p.id,{data},r.error);
+    else markSynced('profile_photo',p.id,p.id);
+    if(typeof window.__innovalV7RefreshSyncCenter==='function')window.__innovalV7RefreshSyncCenter();
+  }
+  // Profile photo upload is optional: if the Storage bucket is not configured, the local copy remains safe.
+  async function directProfilePhoto(item){return uploadProfilePhoto(item?.payload?.data||'')}
+
+  // Extend queue dispatcher without changing existing record operations.
+  const __oldSyncOne=syncOne;
+  syncOne=async function(item){
+    if(item.type==='profile_photo'){const r=await directProfilePhoto(item);if(r?.ok){markSynced(item.type,item.recordId,item.userId);return true}markFailed(item,r?.error||'Profile photo sync failed');return false}
+    return __oldSyncOne(item);
+  };
+
+  window.innovalReliabilityV7={version:'8.0.0',stats,drain,fullSync,backup:()=>backupLocalData(),queueKey:QUEUE_KEY,queueVisit:(v,error)=>upsertQueue('visit',v?.id,v,error),queueProfilePhoto};
 
   function backupLocalData(){
     const p=currentUserRecord?.()||{};
     const allow=[
       'innovalVisitsFinal','innovalExtraCustomersV17','innovalCustomerOverridesV1947',
       'innovalWeeklyPlan_'+String(p.rep||'guest'),'innovalSyncQueueV7','innovalLastSuccessfulCloudSyncV7',
-      'innovalProfile_'+String(p.rep||'guest'),'innovalHomeLayout'
+      'innovalProfile_'+String(p.rep||'guest'),'innovalHomeLayout','innovalProfilePhoto_uid_'+String(p.id||''),'innovalProfilePhoto_uid_'+String(p.id||'')+'_updatedAt','innovalProfilePhotoCloudPath_'+String(p.id||''),'innovalPasswordUpdatedAt_'+String(p.id||p.rep||'')
     ];
-    const data={backupVersion:V7_VERSION,createdAt:now(),appVersion:typeof APP_VERSION!=='undefined'?APP_VERSION:'',userId:p.id||'',userName:p.name||p.rep||'',data:{}};
+    const data={backupVersion:'8.0.0',createdAt:now(),appVersion:typeof APP_VERSION!=='undefined'?APP_VERSION:'',userId:p.id||'',userName:p.name||p.rep||'',data:{}};
     allow.forEach(k=>{try{const v=localStorage.getItem(k);if(v!==null)data.data[k]=JSON.parse(v)}catch(e){}});
     // Never export local employee passwords or Supabase auth/session tokens.
     const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
