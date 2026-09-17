@@ -1739,27 +1739,45 @@ async function cloudSignIn(email, password){
   }
 }
 
+function appUserForCloudSession(session){
+  const current=currentUserRecord();
+  if(current?.id||current?.userId) return current;
+  const email=String(session?.user?.email||'').trim().toLowerCase();
+  if(!email) return null;
+  try{
+    const u=(MASTER_DATA?.users||[]).find(x=>String(x.email||'').trim().toLowerCase()===email);
+    if(u){
+      try{
+        localStorage.setItem('innovalCurrentUserId',String(u.id));
+        localStorage.setItem('innovalLoggedIn',String(u.name));
+        localStorage.setItem('innovalSavedLogin',String(u.name));
+      }catch(e){}
+      return u;
+    }
+  }catch(e){}
+  return null;
+}
+
 async function cloudSession(){
   try{
     await ensureSupabaseClient();
     const {data}=await innovalSupabase.auth.getSession();
-    if(data?.session) return data.session;
-
-    // The app keeps its own local login state. If the page was reopened from
-    // a local HTML file, the Supabase session may be gone while the app still
-    // considers the employee logged in. Restore the Cloud session silently.
+    if(data?.session){
+      appUserForCloudSession(data.session);
+      return data.session;
+    }
     const p=currentUserRecord();
     if(!p?.email) return null;
     const emp=employeeList().find(x=>String(x.email||'').trim().toLowerCase()===String(p.email||'').trim().toLowerCase());
     const password=emp?.password||'';
     if(!password) return null;
-
     const auth=await cloudSignIn(p.email,password);
     if(!auth.ok) return null;
     const restored=await innovalSupabase.auth.getSession();
+    if(restored?.data?.session) appUserForCloudSession(restored.data.session);
     return restored?.data?.session || null;
   }catch(e){
-    console.warn('Innoval cloud session restore failed:', e?.message||e);
+    console.warn('Innoval cloud session restore failed:',e?.message||e);
     return null;
   }
 }
@@ -1800,7 +1818,7 @@ async function cloudSyncVisit(v){
   if(!session || !innovalSupabase || !v) return {ok:false,error:"No Supabase session."};
   try{
     const authUserId=session?.user?.id||"";
-    const appUserId=String(currentUserRecord()?.id||"");
+    const appUserId=String((appUserForCloudSession(session)||currentUserRecord())?.id||"");
     if(!authUserId) return {ok:false,error:"Supabase Auth user ID is missing."};
     if(!appUserId) return {ok:false,error:"App user ID is missing."};
     const row=cloudVisitRow(v,appUserId);
@@ -1871,7 +1889,7 @@ async function cloudSyncWeeklyRows(rows){
 
 async function cloudSyncCustomer(customer,isNewCustomer=false){
   const session=await cloudSession();
-  const p=currentUserRecord();
+  const p=appUserForCloudSession(session)||currentUserRecord();
   if(!session || !innovalSupabase || !p?.id || !customer?.name) return {ok:false,error:"No Supabase session or app user."};
   try{
     const customerId=String(customer.customerId||"");
@@ -1989,7 +2007,7 @@ async function cloudSyncCurrentState(){
     const pullOk=await cloudPullMyData();
     if(!pullOk)return {ok:false,error:"Cloud pull failed. Check Supabase RLS policies."};
     await cloudBootstrapMasterData();
-    const p=currentUserRecord();
+    const p=appUserForCloudSession(session)||currentUserRecord();
     const localVisits=visits().filter(v=>v.rep===p?.name);
     for(const v of localVisits){
       const r=await cloudSyncVisit(v);
