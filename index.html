@@ -2437,7 +2437,7 @@ function init(){
     login?.style.setProperty("display","flex","important");
   };
 
-  setTimeout(()=>{
+  setTimeout(async()=>{
     // Normal startup: always open the account login screen in the local HTML app.
     hideInstallLanding();
     const dl=$('appDownloadEntry');
@@ -2457,6 +2457,19 @@ function init(){
       try{fillProductPicker();}catch(e){console.error("Product master init:",e);}
       try{setAssignedAreaFromUser();}catch(e){console.error("Assigned area init:",e);}
 
+      // A saved local login is not enough for Cloud operations. Before showing Home,
+      // require a real Supabase session. If none exists, return to Login so the
+      // employee authenticates against Supabase instead of entering a cloud-less state.
+      if(logged){
+        try{
+          const cloud=await cloudSession();
+          if(!cloud) logged=false;
+        }catch(e){
+          console.warn('Cloud session check on startup failed:',e?.message||e);
+          logged=false;
+        }
+      }
+
       if(logged){
         try{
           const prof=profile();
@@ -2475,13 +2488,8 @@ function init(){
       }
     }catch(err){
       console.error("Innoval startup error:",err);
-      // Never mix Login and Home. Preserve the saved-login state if it exists.
-      try{
-        if(isLoggedIn()) showOnlyHome();
-        else showOnlyLogin();
-      }catch(e){
-        showOnlyLogin();
-      }
+      // Never open Home after a startup/authentication error.
+      showOnlyLogin();
     }finally{
       hideStartupSplash();
     }
