@@ -1125,6 +1125,7 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
       <button class="login-btn" type="submit">Login</button>
       <button class="forgot-link" type="button" onclick="forgotPassword()">Forgot Password?</button>
       <div class="login-error" id="loginError">Incorrect employee name or password.</div>
+      <div style="font-size:10px;color:#718096;text-align:center;margin-top:8px">Use your official Outlook email and your Supabase account password.</div>
     </form>
     <p class="login-note">Initial password: <b>1234</b><br>You can change your password after login.</p>
   </div>
@@ -1903,13 +1904,88 @@ function findEmployeeByEmail(email){
   const key=String(email||"").trim().toLowerCase();
   return employeeList().find(x=>String(x.email||"").trim().toLowerCase()===key)||null;
 }
-function forgotPassword(){
-  const email=$("loginEmail")?.value||"";
+const INNOVAL_APP_URL = "https://ebrahimemary3-beep.github.io/Innoval-Field-Force/";
+let innovalRecoveryMode = false;
+let innovalRecoveryListenerReady = false;
+function showPasswordRecoveryModal(){
+  let m=$("passwordRecoveryModal");
+  if(!m){
+    m=document.createElement("div");
+    m.id="passwordRecoveryModal";
+    m.className="modal open";
+    m.style.zIndex="9999";
+    m.innerHTML=`<div class="modal-box" style="max-width:520px">
+      <div class="modal-head"><h3>🔐 Set New Password</h3><button class="close" type="button" id="closeRecoveryModal">×</button></div>
+      <p style="color:#64748b;font-size:12px;line-height:1.5;margin:0 0 14px">Create a new password for your Innoval Field Visit account.</p>
+      <div class="field"><label>New Password</label><input id="recoveryPassword" type="password" autocomplete="new-password" placeholder="Enter new password"></div>
+      <div class="field"><label>Confirm Password</label><input id="recoveryPassword2" type="password" autocomplete="new-password" placeholder="Confirm new password"></div>
+      <div id="recoveryError" style="display:none;color:#c62828;background:#fff1f1;border-radius:10px;padding:9px;font-size:11px;margin-bottom:10px"></div>
+      <button id="saveRecoveryPassword" class="save" type="button">Save New Password</button>
+    </div>`;
+    document.body.appendChild(m);
+    $("closeRecoveryModal").onclick=()=>{ m.remove(); innovalRecoveryMode=false; };
+    $("saveRecoveryPassword").onclick=async()=>{
+      const p1=$("recoveryPassword").value;
+      const p2=$("recoveryPassword2").value;
+      const err=$("recoveryError");
+      err.style.display="none";
+      if(p1.length<8){err.textContent="Password must be at least 8 characters.";err.style.display="block";return;}
+      if(p1!==p2){err.textContent="Passwords do not match.";err.style.display="block";return;}
+      const btn=$("saveRecoveryPassword");
+      btn.disabled=true; btn.textContent="Saving...";
+      try{
+        await ensureSupabaseClient();
+        const {error}=await innovalSupabase.auth.updateUser({password:p1});
+        if(error) throw error;
+        alert("Password updated successfully. You can now login with your new password.");
+        await innovalSupabase.auth.signOut();
+        m.remove();
+        innovalRecoveryMode=false;
+        localStorage.removeItem("innovalLoggedIn");
+        localStorage.removeItem("innovalSavedLogin");
+        location.reload();
+      }catch(e){
+        err.textContent=e?.message||String(e);
+        err.style.display="block";
+        btn.disabled=false; btn.textContent="Save New Password";
+      }
+    };
+  }else{
+    m.classList.add("open");
+  }
+}
+async function setupPasswordRecovery(){
+  if(innovalRecoveryListenerReady)return;
+  try{
+    await ensureSupabaseClient();
+    innovalSupabase.auth.onAuthStateChange((event)=>{
+      if(event==="PASSWORD_RECOVERY"){
+        innovalRecoveryMode=true;
+        setTimeout(showPasswordRecoveryModal,50);
+      }
+    });
+    innovalRecoveryListenerReady=true;
+    const hash=String(location.hash||"");
+    if(/type=recovery/i.test(hash)){
+      innovalRecoveryMode=true;
+      setTimeout(showPasswordRecoveryModal,300);
+    }
+  }catch(e){
+    console.warn("Password recovery setup failed:",e?.message||e);
+  }
+}
+async function forgotPassword(){
+  const email=$("loginEmail")?.value.trim().toLowerCase()||"";
   const u=findEmployeeByEmail(email);
-  if(!u){alert("Please enter your official Outlook email first. If your email is not registered yet, contact the admin.");return;}
-  const subject=encodeURIComponent("Innoval Field Visit - Password Reset Request");
-  const body=encodeURIComponent("Dear Innoval Team,\n\nPlease reset my Innoval Field Visit password.\n\nEmployee Name: "+u.name+"\nOfficial Email: "+u.email+"\nArea: "+(u.areaIds.includes("A00")?"All Areas":u.areaIds.map(id=>AREA_NAME_BY_ID[id]||id).join(" / "))+"\n\nThank you.");
-  window.location.href="mailto:"+u.email+"?subject="+subject+"&body="+body;
+  if(!u){alert("Please enter your official Outlook email first.");return;}
+  try{
+    await ensureSupabaseClient();
+    const {error}=await innovalSupabase.auth.resetPasswordForEmail(u.email,{redirectTo:INNOVAL_APP_URL});
+    if(error) throw error;
+    alert("Password reset email sent to "+u.email+". Open the email and tap the reset link. The app will open the New Password screen automatically.");
+  }catch(e){
+    alert("Could not send password reset email: "+(e?.message||e));
+  }
 }
 function hideStartupSplash(){
   const s=$("startupSplash");
@@ -2075,8 +2151,8 @@ $("loginForm").addEventListener("submit",async e=>{
   const pass=$("loginPassword").value;
   const emp=findEmployeeByEmail(email);
   const errEl=$("loginError");
-  if(!(emp&&emp.password===pass)){
-    errEl.textContent="Invalid official Outlook email or password.";
+  if(!emp){
+    errEl.textContent="This official email is not registered in Innoval Field Visit.";
     errEl.style.display="block";
     return;
   }
@@ -2084,16 +2160,14 @@ $("loginForm").addEventListener("submit",async e=>{
   try{
     const auth=await cloudSignIn(email,pass);
     if(!auth.ok){
-      errEl.textContent="Cloud login failed: "+auth.error;
+      errEl.textContent="Login failed: "+auth.error;
       errEl.style.display="block";
       return;
     }
     setLoggedIn(emp.name);
     const sync=await cloudSyncCurrentState();
     if(!sync.ok){
-      errEl.textContent="Cloud sync failed: "+sync.error;
-      errEl.style.display="block";
-      return;
+      console.warn("Cloud sync after login failed:",sync.error);
     }
     location.reload();
   }catch(err){
@@ -2102,6 +2176,9 @@ $("loginForm").addEventListener("submit",async e=>{
     errEl.style.display="block";
   }
 });
+
+// Password recovery must be initialized before the user opens the email link.
+setupPasswordRecovery();
 
 
 $("objective")?.addEventListener("change",()=>{
