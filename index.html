@@ -1251,6 +1251,11 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
   }
 }
 </style>
+
+<style id="v11-conclusion-voice">
+.conclusion-input-wrap{position:relative}.conclusion-input-wrap textarea{padding-right:112px;min-height:118px}.conclusion-voice-tools{position:absolute;right:10px;bottom:10px;display:flex;align-items:center;gap:6px;z-index:2}.conclusion-mic,.conclusion-lang{border:1px solid #d9e6f2;display:grid;place-items:center;cursor:pointer;box-shadow:0 5px 14px rgba(16,42,91,.10);transition:.18s ease}.conclusion-mic{width:43px;height:43px;border-radius:13px;background:linear-gradient(145deg,#0b66d1,#0876df);color:#fff;font-size:20px}.conclusion-lang{min-width:36px;height:32px;padding:0 8px;border-radius:10px;background:#f3f7fc;color:#31578e;font-size:9px;font-weight:900}.conclusion-mic:hover,.conclusion-lang:hover{transform:translateY(-1px)}.conclusion-mic:active,.conclusion-lang:active{transform:scale(.96)}.conclusion-mic.recording{background:linear-gradient(145deg,#dc3b32,#f05b50);box-shadow:0 0 0 5px rgba(220,59,50,.12),0 8px 18px rgba(220,59,50,.22);animation:conclusionMicPulse 1.15s ease-in-out infinite}.conclusion-mic:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;animation:none}.conclusion-lang.en{background:#eef8f5;color:#168867;border-color:#cfeee2}.conclusion-voice-status{margin-top:6px;color:#7a8798;font-size:9px;line-height:1.4}.conclusion-voice-status.recording{color:#c62828;font-weight:800}.conclusion-voice-status.ready{color:#168867}.conclusion-field label{display:flex;align-items:center;gap:4px}.conclusion-field label:after{content:'Required';font-size:8px;color:#dc3b32;font-weight:800}.conclusion-field textarea:invalid{border-color:#dce3ee;box-shadow:none}@keyframes conclusionMicPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@media(max-width:520px){.conclusion-input-wrap textarea{padding-right:104px}.conclusion-mic{width:41px;height:41px}.conclusion-voice-tools{right:8px;bottom:8px}}
+</style>
 </head>
 <body>
 <div class="startup-splash" id="startupSplash">
@@ -1463,7 +1468,17 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
   <div class="visit-section-head"><div class="section-art art-note">☷</div><div><span>STEP 05</span><h3>Feedback & Next Action</h3><p>Keep the visit outcome clear and actionable.</p></div></div>
   <div class="section-grid">
     <div class="field full"><label>Comments</label><textarea id="comments" placeholder="Visit comments..."></textarea></div>
-    <div class="field full"><label>Conclusion</label><textarea id="conclusion" placeholder="Visit conclusion..."></textarea></div>
+    <div class="field full conclusion-field">
+      <label>Visit Conclusion *</label>
+      <div class="conclusion-input-wrap">
+        <textarea id="conclusion" placeholder="Visit conclusion..." required></textarea>
+        <div class="conclusion-voice-tools" aria-label="Voice input controls">
+          <button type="button" class="conclusion-lang" id="conclusionLangBtn" title="Switch voice language">AR</button>
+          <button type="button" class="conclusion-mic" id="conclusionMicBtn" aria-label="Record voice for Visit Conclusion" title="Speak to type your conclusion">🎙️</button>
+        </div>
+      </div>
+      <div class="conclusion-voice-status" id="conclusionVoiceStatus" aria-live="polite">Tap the microphone to speak your conclusion.</div>
+    </div>
     <div class="field full"><label>Collection Details</label><textarea id="collection" placeholder="Collection / payment details if applicable..."></textarea></div>
     <div class="field full"><label>Customer Feedback</label><textarea id="feedback" placeholder="Customer feedback..."></textarea></div>
   </div>
@@ -1680,7 +1695,17 @@ function installAuthRecoveryHandler(){
   });
 }
 function recoveryRedirectUrl(){
-  return window.location.origin + window.location.pathname;
+  // Always use a Supabase-approved web origin. When the HTML is opened locally
+  // (file://), window.location.origin is "null" and cannot be used safely as a
+  // recovery redirect. The deployed GitHub Pages URL is the canonical app URL.
+  const deployed="https://ebrahimemary3-beep.github.io/Innoval-Field-Force/";
+  try{
+    const origin=String(window.location.origin||"");
+    if(origin && origin!=="null" && /^https?:$/i.test(window.location.protocol)){
+      return origin + window.location.pathname;
+    }
+  }catch(e){}
+  return deployed;
 }
 async function submitPasswordRecovery(){
   const p1=String(document.getElementById("recoveryPassword")?.value||"");
@@ -1728,10 +1753,18 @@ setTimeout(()=>{ensureSupabaseClient().catch(e=>console.warn("Innoval Supabase b
 async function cloudSignIn(email, password){
   try{
     await ensureSupabaseClient();
-    const {data,error}=await innovalSupabase.auth.signInWithPassword({email, password});
+    // Always start from a clean auth state when a user explicitly signs in.
+    // This prevents a previous user's persisted session from being reused.
+    try{ await innovalSupabase.auth.signOut({scope:"local"}); }catch(e){}
+    const request=innovalSupabase.auth.signInWithPassword({email, password});
+    const timeout=new Promise((_,reject)=>setTimeout(()=>reject(new Error("Cloud authentication timed out after 30 seconds. Please check your internet connection and try again.")),30000));
+    const {data,error}=await Promise.race([request,timeout]);
     if(error) throw error;
     if(!data?.session) return {ok:false,error:"Supabase login returned no active session."};
-    return {ok:true};
+    // Force-refresh the persisted session once so subsequent customer/visit
+    // sync calls see the same authenticated session immediately.
+    try{ await innovalSupabase.auth.getSession(); }catch(e){}
+    return {ok:true,session:data.session};
   }catch(error){
     const msg=error?.message || String(error);
     console.warn("Innoval cloud sign-in unavailable:", msg);
@@ -1771,6 +1804,7 @@ async function cloudSession(){
     const emp=employeeList().find(x=>String(x.email||'').trim().toLowerCase()===String(p.email||'').trim().toLowerCase());
     const password=emp?.password||'';
     if(!password) return null;
+    if(typeof navigator!=="undefined" && navigator.onLine===false) return null;
     const auth=await cloudSignIn(p.email,password);
     if(!auth.ok) return null;
     const restored=await innovalSupabase.auth.getSession();
@@ -1952,11 +1986,12 @@ async function cloudSyncCustomer(customer,isNewCustomer=false){
 
 async function cloudPullMyData(){
   const session=await cloudSession();
-  const p=currentUserRecord();
+  const p=appUserForCloudSession(session)||currentUserRecord();
   const authUserId=session?.user?.id||"";
   const appUserId=String(p?.id||"");
   if(!session || !innovalSupabase || !appUserId || !authUserId) return false;
   try{
+    // 1) Pull the current user's visits only.
     const {data:vr,error:vErr}=await innovalSupabase.from("visits").select("*").eq("user_id",appUserId);
     if(vErr) throw vErr;
     const local=visits();
@@ -1965,19 +2000,52 @@ async function cloudPullMyData(){
       const key=String(v.id),localRow=map.get(key);
       const cloudTime=Date.parse(v.updated_at||'')||0, localTime=Date.parse(localRow?.updatedAt||'')||0;
       if(localRow && localTime>cloudTime) return;
-      map.set(key,{
-        id:key,date:v.visit_date,visitNo:String(v.visit_no||""),rep:p.name,customer:v.customer_name||"",gov:v.governorate||"",area:v.area||"",areaId:v.area_id||"",visitType:v.visit_type||"",planId:v.plan_id||"",potential:v.potential||"",loyalty:v.loyalty||"",meted:v.meted||"",jobTitle:v.job_title||"",type:v.customer_type||"",objective:v.objective||"",nextDate:v.next_date||"",comments:v.comments||"",conclusion:v.conclusion||"",collection:v.collection||"",feedback:v.feedback||"",updatedAt:v.updated_at||new Date().toISOString()
-      });
+      map.set(key,{id:key,date:v.visit_date,visitNo:String(v.visit_no||""),rep:p.name,customer:v.customer_name||"",gov:v.governorate||"",area:v.area||"",areaId:v.area_id||"",visitType:v.visit_type||"",planId:v.plan_id||"",potential:v.potential||"",loyalty:v.loyalty||"",meted:v.meted||"",jobTitle:v.job_title||"",type:v.customer_type||"",objective:v.objective||"",nextDate:v.next_date||"",comments:v.comments||"",conclusion:v.conclusion||"",collection:v.collection||"",feedback:v.feedback||"",updatedAt:v.updated_at||new Date().toISOString()});
     });
     saveVisits(Array.from(map.values()));
 
+    // 2) Pull the current user's weekly plan only.
     const {data:wp,error:wErr}=await innovalSupabase.from("weekly_plans").select("*").eq("user_id",appUserId);
     if(wErr) throw wErr;
     if(Array.isArray(wp)){
-      const rows=weeklyPlanRows();
-      const wm=new Map(rows.map(x=>[String(x.id),x]));
+      const rows=weeklyPlanRows(),wm=new Map(rows.map(x=>[String(x.id),x]));
       wp.forEach(x=>wm.set(String(x.id),{id:String(x.id),rep:p.name,date:x.visit_date,day:weeklyDayName(x.visit_date),customer:x.customer_name||"",area:x.area_name||"",areaId:x.area_id||"",createdAt:String(x.created_at||"").slice(0,10)}));
       saveWeeklyPlanRows(Array.from(wm.values()));
+    }
+
+    // 3) Pull shared customer master changes for this user's territory.
+    //    These are cached separately from MASTER_DATA so the locked master file
+    //    remains immutable while users can still receive Cloud updates.
+    const areaIds=(p.areaIds||[]).filter(x=>String(x)!=="A00");
+    let cq=innovalSupabase.from("customers").select("customer_id,name,governorate,area,area_id,customer_type,potential,loyalty,active,updated_at,created_by");
+    if(areaIds.length) cq=cq.in("area_id",areaIds); // A00/admin pulls all rows.
+    const {data:cr,error:cErr}=await cq;
+    if(cErr) throw cErr;
+    if(Array.isArray(cr)){
+      const cache=(()=>{try{const x=JSON.parse(localStorage.getItem("innovalCloudCustomerCacheV1")||"[]");return Array.isArray(x)?x:[]}catch(e){return[]}})();
+      const cm=new Map(cache.map(c=>[String(c.customerId||""),c]));
+      cr.forEach(c=>cm.set(String(c.customer_id),{customerId:String(c.customer_id),name:String(c.name||""),gov:String(c.governorate||""),area:String(c.area||""),areaId:String(c.area_id||""),type:String(c.customer_type||"Other"),potential:String(c.potential||"Medium"),loyalty:String(c.loyalty||"Neutral"),active:c.active!==false,createdBy:String(c.created_by||""),updatedAt:String(c.updated_at||"")}));
+      localStorage.setItem("innovalCloudCustomerCacheV1",JSON.stringify(Array.from(cm.values()).slice(-5000)));
+    }
+
+    // 4) Pull customer details used by Area Database and merge them into the
+    //    existing local override layer. Cloud is newer only when its timestamp
+    //    is newer than the locally stored override.
+    const ids=(Array.isArray(cr)?cr:[]).map(c=>String(c.customer_id||"")).filter(Boolean);
+    if(ids.length){
+      const {data:cd,error:dErr}=await innovalSupabase.from("customer_details").select("customer_id,responsible,phone,tasmim,bayad,omhat,updated_at").in("customer_id",ids);
+      if(dErr) throw dErr;
+      if(Array.isArray(cd)){
+        let ov={};try{ov=JSON.parse(localStorage.getItem('innovalCustomerOverridesV1947')||'{}')}catch(e){ov={}}
+        cd.forEach(row=>{
+          const k=String(row.customer_id||""); if(!k)return;
+          const localRow=ov[k]||{}, cloudTime=Date.parse(row.updated_at||'')||0, localTime=Date.parse(localRow.updatedAt||'')||0;
+          if(!localRow.updatedAt || cloudTime>=localTime){
+            ov[k]=Object.assign({},localRow,{responsible:String(row.responsible||""),phone:String(row.phone||""),tasmim:String(row.tasmim??0),bayad:String(row.bayad??0),omhat:String(row.omhat??0),updatedAt:String(row.updated_at||new Date().toISOString())});
+          }
+        });
+        localStorage.setItem('innovalCustomerOverridesV1947',JSON.stringify(ov));
+      }
     }
     return true;
   }catch(error){ console.warn("Innoval cloud pull failed:",error?.message||error); return false; }
@@ -2053,11 +2121,23 @@ function syncMasterData(){
 const DATA={"customers": [{"name": "عبدالرحمن اسامه", "gov": "بني سويف", "area": "الروضه", "potential": "High", "loyalty": "Loyal"}, {"name": "عيد ابو السعود", "gov": "الفيوم", "area": "ابو السعود", "potential": "High", "loyalty": "Loyal"}, {"name": "البنك", "gov": "بني سويف", "area": "صلاح سالم", "potential": "Medium", "loyalty": "Neutral"}, {"name": "عبد الله حسين", "gov": "الفيوم", "area": "الممشي", "potential": "Medium", "loyalty": "Neutral"}, {"name": "عبد الله عبد الوهاب", "gov": "بني سويف", "area": "مقبل", "potential": "Medium", "loyalty": "Neutral"}, {"name": "ايهاب القلعاوي", "gov": "بني سويف", "area": "محي الدين", "potential": "Medium", "loyalty": "Neutral"}, {"name": "احمد عبد الباقي", "gov": "الفيوم", "area": "الحواتم", "potential": "Medium", "loyalty": "Neutral"}, {"name": "رضا عبد العليم", "gov": "الفيوم", "area": "طاميه", "potential": "Medium", "loyalty": "Neutral"}, {"name": "احمد عبد الرحمن", "gov": "الفيوم", "area": "المسله", "potential": "Medium", "loyalty": "Neutral"}, {"name": "يوسف شعبان مفتاح", "gov": "الفيوم", "area": "دله", "potential": "Medium", "loyalty": "Neutral"}, {"name": "محمود عشري", "gov": "الفيوم", "area": "باغوص", "potential": "Medium", "loyalty": "Neutral"}, {"name": "الشركه", "gov": "القاهرة", "area": "المقطم", "potential": "High", "loyalty": "Loyal"}, {"name": "محمد رمضان", "gov": "الفيوم", "area": "المسله", "potential": "Medium", "loyalty": "Neutral"}, {"name": "حسام العاصي", "gov": "الفيوم", "area": "دله", "potential": "Medium", "loyalty": "Neutral"}, {"name": "المصريه الفرنسيه", "gov": "بني سويف", "area": "المنطقه الصناعيه", "potential": "Medium", "loyalty": "Neutral"}], "govs": ["القاهرة", "الجيزة", "البحيرة", "الإسكندرية", "مطروح", "كفر الشيخ", "الغربية", "المنوفية", "القليوبية", "دمياط", "الدقهلية", "بور سعيد", "الشرقية", "الإسماعيلية", "السويس", "شمال سيناء", "جنوب سيناء", "البحر الأحمر", "الفيوم", "بني سويف", "المنيا", "أسيوط", "سوهاج", "قنا", "الأقصر", "أسوان", "الوادي الجديد"], "potential": ["High", "Medium", "Low"], "loyalty": ["Loyal", "Neutral", "UnLoyal"], "objectives": ["Sales Call (Product Promotion)", "Sales Order", "Promotion + Order", "Collection - Cash", "Collection - Credit", "Collection Follow up", "Technical Service / Problem Solving", "Marketing activity", "Public Relations / Personal requests"], "products": ["Product A", "Product B", "Product C", "Product D"], "employees":[{"name":"Ahmed Aly Abdel Atty Ebeid","area":"BEHERA","password":"1234"},{"name":"Mohamed, Saad Abdel Wahed Saad","area":"BEHERA","password":"1234"},{"name":"Ibram Adel","area":"CAIRO","password":"1234"},{"name":"Mohamed Sayed Ahmed Aboshanab","area":"cairo","password":"1234"},{"name":"Abdelrahman Ragaei Mahrous","area":"CAIRO","password":"1234"},{"name":"Ahmed, Osama Hamdy El Bendary","area":"DAKAHLIA","password":"1234"},{"name":"Mahmoud Nasr Ibrahim","area":"DAKAHLIA","password":"1234"},{"name":"Mostafa Ahmed Mostafa Ramadan","area":"DAKAHLIA","password":"1234"},{"name":"Mohamed Abdel Aziz Rashed","area":"DAKAHLIA","password":"1234"},{"name":"Ahmed , Abdel Naser Mohamed Sayed","area":"Fayoum","password":"1234"},{"name":"Moemen, Mohamed Ali Abdel Gawad","area":"GHARBIA","password":"1234"},{"name":"Amr Ibrahim Mady","area":"GHARBIA","password":"1234"},{"name":"Mohamed, El Saied Awad","area":"MENOFIA","password":"1234"},{"name":"Belal Mohamed Sayed Mohamed Marzok","area":"National","password":"1234"},{"name":"Ibrahim, Mohamed Abdel Latif El Emary","area":"National","password":"1234"},{"name":"Mohamed, Ibrahim Mahmoud Ali El Zayat","area":"National","password":"1234"},{"name":"Mohamed Mostafa AbouEl Yazied","area":"National","password":"1234"},{"name":"Ibrahim, Mousa Ahmed Mousa","area":"SHARKIA","password":"1234"},{"name":"Islam, Mohamady El Sayed Mansour","area":"SHARKIA","password":"1234"},{"name":"Mohamed Gomaa Ibrahim Gomaa","area":"SHARKIA","password":"1234"},{"name":"Ahmed Atef Farghaly Akl","area":"UE","password":"1234"},{"name":"Mostafa, Ahmed Abdel Radi","area":"UE","password":"1234"},{"name":"Mohamed Ashraf Gaber","area":"UE","password":"1234"},{"name":"Hossam Bashier","area":"UE","password":"1234"}]};const $=id=>document.getElementById(id);const today=()=>new Date().toISOString().slice(0,10);const visits=()=>JSON.parse(localStorage.getItem("innovalVisitsFinal")||"[]");const saveVisits=v=>localStorage.setItem("innovalVisitsFinal",JSON.stringify(v));
 const customers=()=>{
   const u=currentUserRecord();
-  let base=MASTER_DATA.customers.slice();
+  const byId=new Map();
+  (MASTER_DATA.customers||[]).forEach(c=>byId.set(String(c.customerId||c.id||c.name),Object.assign({},c)));
+  try{
+    const cache=JSON.parse(localStorage.getItem("innovalCloudCustomerCacheV1")||"[]");
+    if(Array.isArray(cache)) cache.forEach(c=>{
+      const k=String(c.customerId||c.id||c.name||"");
+      if(k) byId.set(k,Object.assign({},byId.get(k)||{},c));
+    });
+  }catch(e){}
   try{
     const extra=JSON.parse(localStorage.getItem("innovalExtraCustomersV17")||"[]");
-    if(Array.isArray(extra))base=base.concat(extra.filter(c=>String(c?.customerScope||"both")!=="db"));
+    if(Array.isArray(extra)) extra.filter(c=>String(c?.customerScope||"both")!=="db").forEach(c=>{
+      const k=String(c.customerId||c.id||c.name||"");
+      if(k) byId.set(k,Object.assign({},byId.get(k)||{},c));
+    });
   }catch(e){}
+  const base=Array.from(byId.values()).filter(c=>c.active!==false);
   if(!u || (u.areaIds||[]).includes("A00")) return base;
   return base.filter(c=>(u.areaIds||[]).includes(c.areaId));
 };
@@ -2289,8 +2369,32 @@ async function forgotPassword(){
   if(errEl)errEl.style.display="none";
   try{
     await ensureSupabaseClient();
-    const {error}=await innovalSupabase.auth.resetPasswordForEmail(email,{redirectTo:recoveryRedirectUrl()});
-    if(error)throw error;
+    const redirectTo=recoveryRedirectUrl();
+    // Use the Auth REST endpoint directly for the recovery email. This avoids
+    // an SDK request hanging indefinitely on some WebView/network stacks and
+    // gives us an explicit abort timeout plus the real HTTP error if Supabase
+    // responds with one.
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),30000);
+    let response;
+    try{
+      response=await fetch(INNOVAL_SUPABASE_URL+"/auth/v1/recover",{
+        method:"POST",
+        headers:{"Content-Type":"application/json","apikey":INNOVAL_SUPABASE_PUBLISHABLE_KEY},
+        body:JSON.stringify({email,redirect_to:redirectTo}),
+        signal:controller.signal
+      });
+    }catch(fetchErr){
+      if(fetchErr?.name==="AbortError") throw new Error("Password reset request timed out after 30 seconds. Please check your internet connection and try again.");
+      throw fetchErr;
+    }finally{ clearTimeout(timer); }
+    const raw=await response.text();
+    let data={};
+    try{data=raw?JSON.parse(raw):{};}catch(e){}
+    if(!response.ok){
+      const detail=data?.msg||data?.message||data?.error_description||data?.error||("Password reset request failed (HTTP "+response.status+").");
+      throw new Error(String(detail));
+    }
     if(errEl){
       errEl.textContent="Password reset link sent to your official Outlook email. Open the link to set a new password.";
       errEl.style.display="block";
@@ -2506,12 +2610,27 @@ $("loginForm").addEventListener("submit",async e=>{
   // Supabase Auth is the authoritative password source. Local password data
   // is only an offline fallback and is refreshed after a successful Cloud login.
   let cloudAuth=null;
+  const browserOffline=(typeof navigator!=="undefined" && navigator.onLine===false);
   try{cloudAuth=await cloudSignIn(email,pass);}catch(e){cloudAuth={ok:false,error:e?.message||String(e)}}
 
-  if(!cloudAuth?.ok && String(emp.password||"")!==String(pass)){
-    errEl.textContent=cloudAuth?.error?.toLowerCase?.().includes("invalid login credentials")
+  // ONLINE: Supabase Auth is mandatory. Never let a local-only login look
+  // successful when the Cloud session was not created; otherwise later
+  // customer/visit updates would be saved only on the device and disappear
+  // when the user changes browser/device.
+  if(!browserOffline && !cloudAuth?.ok){
+    const msg=String(cloudAuth?.error||"");
+    errEl.textContent=msg.toLowerCase().includes("invalid login credentials")
       ? "Invalid official Outlook email or password."
-      : "Invalid official Outlook email or password. Please check your internet connection and try again.";
+      : msg || "Cloud login failed. Please check your internet connection and try again.";
+    errEl.style.display="block";
+    return;
+  }
+
+  // OFFLINE: allow the existing local credential fallback only when the
+  // browser explicitly reports no network. The record remains local/pending
+  // and will sync automatically after connectivity returns.
+  if(browserOffline && !cloudAuth?.ok && String(emp.password||"")!==String(pass)){
+    errEl.textContent="Offline login failed. Please check your saved password or reconnect to the internet.";
     errEl.style.display="block";
     return;
   }
@@ -3756,48 +3875,95 @@ function updateExportCount(){
 }
 function xmlEsc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;')}
 function xcell(v,style){return '<Cell'+(style?' ss:StyleID="'+style+'"':'')+'><Data ss:Type="String">'+xmlEsc(v)+'</Data></Cell>'}
+function exportDateText(v){
+  const s=String(v||'');
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const [y,m,d]=s.split('-');
+  return d+'/'+m+'/'+y;
+}
+function exportRepCode(rep){
+  const p=profile();
+  return String(p.id||'').trim();
+}
 function hrSheetRows(list){
- const headers=['Date of Visit','Visit #','Governorate','Area','Customer Name','Potentiality','Loyalty','Meted Person','Job Title','Visit Objective','Product 1','Product 2','Product 3','Comments','Conclusion','Collection Details','Feedback'];
- let out='<Row ss:AutoFitHeight="0">'+headers.map(h=>xcell(h,'Header')).join('')+'</Row>';
- const byDate={}; list.forEach(v=>(byDate[v.date]??=[]).push(v));
- Object.keys(byDate).sort().forEach(dt=>{
-   const arr=byDate[dt].sort((a,b)=>Number(a.visitNo||999)-Number(b.visitNo||999));
-   arr.forEach((v,i)=>{const vals=[i===0?dt:'',v.visitNo||'',v.gov||'',v.area||'',v.customer||'',v.potential||'',v.loyalty||'',v.meted||'',v.jobTitle||'',v.objective||'',v.p1||'',v.p2||'',v.p3||'',v.comments||'',v.conclusion||'',v.collection||'',v.feedback||''];out+='<Row>'+vals.map(x=>xcell(x,'Body')).join('')+'</Row>'})
- });
- return out;
+  const headers=[
+    'Visit Date','Colleague Name','Employee Code','Region / Area','Governorate / Center',
+    'Customer ID','Customer Name','Visit Type','Potentiality','Loyalty','Meted Person','Job Title',
+    'Visit Objective','Product 1','Product 2','Product 3','Next Visit Date','Visit Comments',
+    'Visit Conclusion','Collection Details','Customer Feedback'
+  ];
+  let out='<Row ss:AutoFitHeight="0">'+headers.map(h=>xcell(h,'Header')).join('')+'</Row>';
+  const repName=String(profile().rep||'').trim();
+  const repCode=exportRepCode(repName);
+  const byDate={};
+  list.forEach(v=>(byDate[v.date]??=[]).push(v));
+  Object.keys(byDate).sort().forEach(dt=>{
+    const arr=byDate[dt].sort((a,b)=>Number(a.visitNo||999)-Number(b.visitNo||999));
+    arr.forEach(v=>{
+      const vals=[
+        exportDateText(v.date),
+        repName,
+        repCode,
+        v.area||'',
+        v.gov||'',
+        v.customerId||'',
+        v.customer||'',
+        v.visitType||'',
+        v.potential||'',
+        v.loyalty||'',
+        v.meted||'',
+        v.jobTitle||'',
+        v.objective||'',
+        v.p1||'',
+        v.p2||'',
+        v.p3||'',
+        exportDateText(v.nextDate||''),
+        v.comments||'',
+        v.conclusion||'',
+        v.collection||'',
+        v.feedback||''
+      ];
+      out+='<Row>'+vals.map(x=>xcell(x,'Body')).join('')+'</Row>';
+    });
+  });
+  return out;
 }
 function exportHRExcel(){
- const f=$("exportFrom").value,t=$("exportTo").value,p=profile();
- if(!f||!t||f>t){toast('Please select a valid date range');return}
- const list=visits().filter(v=>v.rep===p.rep&&v.date>=f&&v.date<=t);
- if(!list.length){toast('No visits found in selected range');return}
- const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
- const byMonth={};list.forEach(v=>{const m=String(v.date).slice(0,7);(byMonth[m]??=[]).push(v)});
- let sheets='';
- Object.keys(byMonth).sort().forEach(key=>{const idx=Math.max(0,Number(key.slice(5,7))-1);sheets+='<Worksheet ss:Name="'+months[idx]+'"><Table ss:ExpandedColumnCount="17" ss:ExpandedRowCount="'+(byMonth[key].length+1)+'">'+hrSheetRows(byMonth[key])+'</Table></Worksheet>'});
- const wb='<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Styles><Style ss:ID="Header"><Font ss:Bold="1"/><Interior ss:Color="#D9EAF7" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center"/></Style><Style ss:ID="Body"><Alignment ss:Vertical="Top" ss:WrapText="1"/></Style></Styles>'+sheets+'</Workbook>';
- const fileName='2026_Field_Visit_Report_'+f+'_to_'+t+'.xls';
- const blob=new Blob([wb],{type:'application/vnd.ms-excel;charset=utf-8'});
- // Android WebView bridge (used by the APK) gets the file directly; Chrome falls back to a normal browser download.
- if(window.Android && typeof window.Android.downloadExcel==='function'){
-   const reader=new FileReader();
-   reader.onloadend=()=>{
-     try{window.Android.downloadExcel(fileName, String(reader.result).split(',')[1]);toast('Excel saved to device ✓')}
-     catch(e){browserExcelDownload(blob,fileName)}
-   };
-   reader.readAsDataURL(blob);
-   return;
- }
- browserExcelDownload(blob,fileName);
+  const f=$("exportFrom").value,t=$("exportTo").value,p=profile();
+  if(!f||!t||f>t){toast('Please select a valid date range');return}
+  const list=visits().filter(v=>v.rep===p.rep&&v.date>=f&&v.date<=t);
+  if(!list.length){toast('No visits found in selected range');return}
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const byMonth={};list.forEach(v=>{const m=String(v.date).slice(0,7);(byMonth[m]??=[]).push(v)});
+  let sheets='';
+  Object.keys(byMonth).sort().forEach(key=>{
+    const idx=Math.max(0,Number(key.slice(5,7))-1);
+    const monthRows=byMonth[key];
+    sheets+='<Worksheet ss:Name="'+months[idx]+'"><Table ss:ExpandedColumnCount="21" ss:ExpandedRowCount="'+(monthRows.length+1)+'">'+hrSheetRows(monthRows)+'</Table></Worksheet>';
+  });
+  const wb='<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Styles>'+
+    '<Style ss:ID="Header"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#063B91" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/></Style>'+
+    '<Style ss:ID="Body"><Alignment ss:Vertical="Top" ss:WrapText="1"/></Style></Styles>'+sheets+'</Workbook>';
+  const fileName='2026_Field_Visit_Report_'+f+'_to_'+t+'.xls';
+  const blob=new Blob([wb],{type:'application/vnd.ms-excel;charset=utf-8'});
+  if(window.Android && typeof window.Android.downloadExcel==='function'){
+    const reader=new FileReader();
+    reader.onloadend=()=>{
+      try{window.Android.downloadExcel(fileName,String(reader.result).split(',')[1]);toast('Excel saved to device ✓')}
+      catch(e){browserExcelDownload(blob,fileName)}
+    };
+    reader.readAsDataURL(blob);
+    return;
+  }
+  browserExcelDownload(blob,fileName);
 }
 function browserExcelDownload(blob,fileName){
- const url=URL.createObjectURL(blob);
- const a=document.createElement('a');
- a.href=url; a.download=fileName; a.rel='noopener'; a.style.display='none';
- document.body.appendChild(a);
- a.click();
- setTimeout(()=>{try{URL.revokeObjectURL(url);a.remove()}catch(e){}},8000);
- toast('Excel download started ✓');
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=fileName;a.rel='noopener';a.style.display='none';
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{try{URL.revokeObjectURL(url);a.remove()}catch(e){}},8000);
+  toast('Excel download started ✓');
 }
 // ===== Innoval App Update Checker =====
 // Web/PWA updater. Native Android uses the Android bridge for the actual APK installation.
@@ -4647,7 +4813,7 @@ window.syncAndroidFcmToken = function(){
  * Supabase key in the client.
  */
 (function InnovalReliabilityV7(){
-  const V7_VERSION='7.1.0';
+  const V7_VERSION='8.1.0';
   const QUEUE_KEY='innovalSyncQueueV7';
   const LAST_SYNC_KEY='innovalLastSuccessfulCloudSyncV7';
   const MAX_QUEUE=1000;
@@ -4749,6 +4915,15 @@ window.syncAndroidFcmToken = function(){
       const localVs=visits().filter(v=>v.rep===p?.name);
       const localWp=weeklyPlanRows();
       let failed=0;
+      // Push locally-created customers owned by this user. Existing shared master
+      // customers are pulled above; only extras are pushed here.
+      try{
+        const extras=JSON.parse(localStorage.getItem('innovalExtraCustomersV17')||'[]');
+        for(const c of (Array.isArray(extras)?extras:[])){
+          if(String(c.createdBy||c.created_by||p?.id||'')!==String(p?.id||'')) continue;
+          try{const r=await directCustomer(c,true);if(r?.ok)markSynced('customer',c.customerId,p?.id);else{upsertQueue('customer',c.customerId,c,r?.error);failed++}}catch(e){upsertQueue('customer',c.customerId,c,e?.message||e);failed++}
+        }
+      }catch(e){}
       for(const v of localVs){
         try{const r=await directVisit(v);if(r?.ok)markSynced('visit',v.id,p?.id);else{upsertQueue('visit',v.id,v,r?.error);failed++}}catch(e){upsertQueue('visit',v.id,v,e?.message||e);failed++}
       }
@@ -4883,19 +5058,18 @@ window.syncAndroidFcmToken = function(){
   window.innovalReliabilityV7={version:'8.0.0',stats,drain,fullSync,backup:()=>backupLocalData(),queueKey:QUEUE_KEY,queueVisit:(v,error)=>upsertQueue('visit',v?.id,v,error),queueProfilePhoto};
 
   function backupLocalData(){
-    const p=currentUserRecord?.()||{};
-    const allow=[
-      'innovalVisitsFinal','innovalExtraCustomersV17','innovalCustomerOverridesV1947',
-      'innovalWeeklyPlan_'+String(p.rep||'guest'),'innovalSyncQueueV7','innovalLastSuccessfulCloudSyncV7',
-      'innovalProfile_'+String(p.rep||'guest'),'innovalHomeLayout','innovalProfilePhoto_uid_'+String(p.id||''),'innovalProfilePhoto_uid_'+String(p.id||'')+'_updatedAt','innovalProfilePhotoCloudPath_'+String(p.id||''),'innovalPasswordUpdatedAt_'+String(p.id||p.rep||'')
-    ];
-    const data={backupVersion:'8.0.0',createdAt:now(),appVersion:typeof APP_VERSION!=='undefined'?APP_VERSION:'',userId:p.id||'',userName:p.name||p.rep||'',data:{}};
-    allow.forEach(k=>{try{const v=localStorage.getItem(k);if(v!==null)data.data[k]=JSON.parse(v)}catch(e){}});
-    // Never export local employee passwords or Supabase auth/session tokens.
+    const p=currentUserRecord?.()||{}, uid=String(p.id||'');
+    const allVisits=visits().filter(v=>!uid || String(v.userId||v.repId||'')===uid || String(v.rep||'')===String(p.name||''));
+    const allWeekly=weeklyPlanRows().filter(x=>String(x.rep||'')===String(p.name||''));
+    const extras=(()=>{try{return JSON.parse(localStorage.getItem('innovalExtraCustomersV17')||'[]')}catch(e){return[]}})();
+    const overrides=(()=>{try{return JSON.parse(localStorage.getItem('innovalCustomerOverridesV1947')||'{}')}catch(e){return{}}})();
+    const queue=(()=>{try{return JSON.parse(localStorage.getItem('innovalSyncQueueV7')||'[]').filter(x=>String(x.userId)===uid)}catch(e){return[]}})();
+    const data={backupVersion:'8.1.0',createdAt:now(),appVersion:typeof APP_VERSION!=='undefined'?APP_VERSION:'',userId:uid,userName:p.name||p.rep||'',data:{
+      visits:allVisits,weeklyPlan:allWeekly,extraCustomers:extras,customerOverrides:overrides,cloudCustomerCache:JSON.parse(localStorage.getItem('innovalCloudCustomerCacheV1')||'[]'),syncQueue:queue,lastSuccessfulCloudSync:localStorage.getItem(LAST_SYNC_KEY)||''
+    }};
     const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Innoval-Local-Backup-'+new Date().toISOString().slice(0,10)+'-'+String(p.id||'user')+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
-    toast('Local backup created ✓');
-    return true;
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Innoval-User-Backup-'+new Date().toISOString().slice(0,10)+'-'+uid+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+    toast('User backup created ✓'); return true;
   }
   window.innovalCreateLocalBackup=backupLocalData;
 
@@ -4941,4 +5115,200 @@ window.syncAndroidFcmToken = function(){
 })();
 </script>
 
+<!-- Flow safeguards: additive layer; the application's existing functions remain intact. -->
+<script>
+(()=>{
+  'use strict';
+
+  /* Product master correction supplied for product-promotion visits. */
+  const correctPromotionProducts=()=>{
+    if(!Array.isArray(window.MASTER_DATA?.products)) return;
+    const byId=Object.fromEntries(MASTER_DATA.products.map(product=>[product.id,product]));
+    if(byId.P001) byId.P001.name='Innovax ND-IBD 2000';
+    if(byId.P002) byId.P002.name='Innovax ND-IBD 4000';
+    if(typeof fillProductPicker==='function') fillProductPicker();
+  };
+
+  /* A planned visit is valid only for the selected date AND the selected area. */
+  const refreshPlannedCustomersForVisit=()=>{
+    const visitType=document.getElementById('visitType')?.value;
+    const select=document.getElementById('plannedVisitCustomer');
+    if(visitType!=='Planned' || !select || typeof plannedRowsForCurrentUser!=='function') return;
+    const date=document.getElementById('visitDate')?.value || (typeof today==='function'?today():'');
+    const areaId=document.getElementById('area')?.value || '';
+    const selected=select.value;
+    const rows=plannedRowsForCurrentUser().filter(row=>
+      row.date===date && (!areaId || areaId==='A00' || String(row.areaId||'')===String(areaId))
+    );
+    select.innerHTML='<option value="">Select customer from the selected date and area plan</option>'+rows.map(row=>
+      '<option value="'+esc(row.id)+'" data-customer="'+esc(row.customer||'')+'" data-area-id="'+esc(row.areaId||'')+'">'+esc(row.customer||'')+' • '+esc(row.area||'')+'</option>'
+    ).join('');
+    if(rows.some(row=>String(row.id)===String(selected))) select.value=selected;
+    if(rows.length===1) select.value=rows[0].id;
+    const note=select.closest('.field')?.querySelector('.assigned-area-note');
+    if(note) note.textContent=rows.length ? 'Only customers planned for the selected date and area are shown.' : 'No planned customers match this date and area.';
+  };
+
+  /* New Customer from a Not Planned visit opens the full Add New Customer page. */
+  const openNewCustomerFromVisit=()=>{
+    const type=document.getElementById('visitType')?.value;
+    const mode=document.getElementById('notPlannedMode')?.value;
+    if(type!=='Not Planned' || mode!=='New Customer' || typeof openAddCustomer!=='function') return;
+    const context={
+      visitDate:document.getElementById('visitDate')?.value||'',
+      areaId:document.getElementById('area')?.value||''
+    };
+    sessionStorage.setItem('innovalNewCustomerFromVisit',JSON.stringify(context));
+    openAddCustomer();
+    setTimeout(()=>{
+      const area=document.getElementById('newCustomerArea');
+      if(area && context.areaId && Array.from(area.options).some(option=>option.value===context.areaId)) area.value=context.areaId;
+    },0);
+  };
+
+  /* Do not label an unfinished cloud operation as a cloud success. */
+  const originalCustomerUpdateSuccess=window.showCustomerUpdateSuccess1947;
+  if(typeof originalCustomerUpdateSuccess==='function'){
+    window.showCustomerUpdateSuccess1947=(name,cloudOk)=>{
+      originalCustomerUpdateSuccess(name,cloudOk);
+      const heading=document.querySelector('#customerSuccessModal h2');
+      const info=document.getElementById('customerSuccessInfo');
+      if(heading) heading.textContent='Customer Update Saved';
+      if(info) info.textContent='Customer data is saved on this device. Cloud synchronization is being verified.';
+    };
+  }
+
+  document.getElementById('visitDate')?.addEventListener('change',refreshPlannedCustomersForVisit);
+  document.getElementById('area')?.addEventListener('change',refreshPlannedCustomersForVisit);
+  document.getElementById('visitType')?.addEventListener('change',()=>setTimeout(refreshPlannedCustomersForVisit,0));
+  document.getElementById('notPlannedMode')?.addEventListener('change',openNewCustomerFromVisit);
+
+  correctPromotionProducts();
+  setTimeout(()=>{correctPromotionProducts();refreshPlannedCustomersForVisit();},0);
+})();
+</script>
+
+
+<script id="v11-conclusion-voice-js">
+(function(){
+  let conclusionRecognition=null;
+  let conclusionRecording=false;
+  let conclusionVoiceBase="";
+  let conclusionVoiceLang="ar-EG";
+
+  function conclusionVoiceElements(){
+    return {
+      textarea:document.getElementById("conclusion"),
+      mic:document.getElementById("conclusionMicBtn"),
+      lang:document.getElementById("conclusionLangBtn"),
+      status:document.getElementById("conclusionVoiceStatus")
+    };
+  }
+
+  function setConclusionVoiceStatus(message,mode){
+    const el=conclusionVoiceElements().status;
+    if(!el)return;
+    el.textContent=message;
+    el.classList.remove("recording","ready");
+    if(mode)el.classList.add(mode);
+  }
+
+  function stopConclusionVoice(){
+    if(conclusionRecognition){
+      try{conclusionRecognition.stop();}catch(e){}
+    }
+  }
+
+  function initConclusionVoice(){
+    const els=conclusionVoiceElements();
+    if(!els.mic||!els.textarea)return;
+
+    const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SpeechRecognition){
+      els.mic.disabled=true;
+      els.mic.title="Voice-to-text is not supported on this device/browser";
+      setConclusionVoiceStatus("Voice-to-text is not available on this device. You can type the conclusion normally.");
+      return;
+    }
+
+    conclusionRecognition=new SpeechRecognition();
+    conclusionRecognition.continuous=true;
+    conclusionRecognition.interimResults=true;
+    conclusionRecognition.maxAlternatives=1;
+    conclusionRecognition.lang=conclusionVoiceLang;
+
+    conclusionRecognition.onstart=function(){
+      conclusionRecording=true;
+      els.mic.classList.add("recording");
+      els.mic.textContent="⏹";
+      els.mic.title="Stop recording";
+      setConclusionVoiceStatus("Recording... speak naturally, then tap the microphone to stop.","recording");
+    };
+
+    conclusionRecognition.onresult=function(event){
+      let finalText="";
+      let interimText="";
+      for(let i=event.resultIndex;i<event.results.length;i++){
+        const text=String(event.results[i][0]?.transcript||"").trim();
+        if(event.results[i].isFinal)finalText+=(finalText?" ":"")+text;
+        else interimText+=(interimText?" ":"")+text;
+      }
+      const base=String(conclusionVoiceBase||"").trim();
+      const finalCombined=[base,finalText].filter(Boolean).join(base&&finalText?" ":"");
+      els.textarea.value=[finalCombined,interimText].filter(Boolean).join(finalCombined&&interimText?" ":"");
+      els.textarea.dispatchEvent(new Event("input",{bubbles:true}));
+    };
+
+    conclusionRecognition.onerror=function(event){
+      const code=event?.error||"unknown";
+      if(code==="not-allowed"||code==="service-not-allowed")
+        setConclusionVoiceStatus("Microphone permission was denied. Allow microphone access and try again.");
+      else if(code==="no-speech")
+        setConclusionVoiceStatus("No speech detected. Tap the microphone and try again.");
+      else if(code==="network")
+        setConclusionVoiceStatus("Speech recognition needs an internet connection on this device.");
+      else
+        setConclusionVoiceStatus("Voice recognition stopped. You can try again or type the conclusion.");
+    };
+
+    conclusionRecognition.onend=function(){
+      conclusionRecording=false;
+      els.mic.classList.remove("recording");
+      els.mic.textContent="🎙️";
+      els.mic.title="Speak to type your conclusion";
+      if(!els.status?.classList.contains("recording"))
+        setConclusionVoiceStatus("Voice input ready. You can edit the text before saving.","ready");
+    };
+
+    els.mic.addEventListener("click",function(){
+      if(conclusionRecording){
+        stopConclusionVoice();
+        return;
+      }
+      conclusionVoiceBase=String(els.textarea.value||"").trim();
+      conclusionRecognition.lang=conclusionVoiceLang;
+      try{conclusionRecognition.start();}
+      catch(e){setConclusionVoiceStatus("Voice recognition is already starting. Please try again in a moment.");}
+    });
+
+    if(els.lang){
+      els.lang.addEventListener("click",function(){
+        if(conclusionRecording)stopConclusionVoice();
+        conclusionVoiceLang=conclusionVoiceLang==="ar-EG"?"en-US":"ar-EG";
+        els.lang.textContent=conclusionVoiceLang==="ar-EG"?"AR":"EN";
+        els.lang.classList.toggle("en",conclusionVoiceLang==="en-US");
+        setConclusionVoiceStatus(conclusionVoiceLang==="ar-EG"?"Voice language: Arabic (Egypt).":"Voice language: English (US).","ready");
+      });
+    }
+
+    const form=document.getElementById("visitForm");
+    if(form){
+      form.addEventListener("submit",function(){stopConclusionVoice();},true);
+    }
+  }
+
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initConclusionVoice);
+  else initConclusionVoice();
+})();
+</script>
 </body></html>
