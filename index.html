@@ -4113,4 +4113,17 @@ window.syncAndroidFcmToken = function(){
   setInterval(()=>{if(document.visibilityState==='visible')refreshCommState()},COMM_POLL_MS);
 })();
 </script>
+<script>
+/* ===== Startup Splash Safety Fallback ===== */
+/* Never allow the splash screen to block the app if any async startup task hangs. */
+(function(){
+  function hideInnovalSplash(){
+    var el=document.getElementById("startupSplash");
+    if(el) el.classList.add("hide");
+  }
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", function(){ setTimeout(hideInnovalSplash, 900); });
+  else setTimeout(hideInnovalSplash, 900);
+  setTimeout(hideInnovalSplash, 2500);
+})();
+</script>
 </body></html>
