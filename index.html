@@ -1256,6 +1256,12 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
 .conclusion-input-wrap{position:relative}.conclusion-input-wrap textarea{padding-right:112px;min-height:118px}.conclusion-voice-tools{position:absolute;right:10px;bottom:10px;display:flex;align-items:center;gap:6px;z-index:2}.conclusion-mic,.conclusion-lang{border:1px solid #d9e6f2;display:grid;place-items:center;cursor:pointer;box-shadow:0 5px 14px rgba(16,42,91,.10);transition:.18s ease}.conclusion-mic{width:43px;height:43px;border-radius:13px;background:linear-gradient(145deg,#0b66d1,#0876df);color:#fff;font-size:20px}.conclusion-lang{min-width:36px;height:32px;padding:0 8px;border-radius:10px;background:#f3f7fc;color:#31578e;font-size:9px;font-weight:900}.conclusion-mic:hover,.conclusion-lang:hover{transform:translateY(-1px)}.conclusion-mic:active,.conclusion-lang:active{transform:scale(.96)}.conclusion-mic.recording{background:linear-gradient(145deg,#dc3b32,#f05b50);box-shadow:0 0 0 5px rgba(220,59,50,.12),0 8px 18px rgba(220,59,50,.22);animation:conclusionMicPulse 1.15s ease-in-out infinite}.conclusion-mic:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;animation:none}.conclusion-lang.en{background:#eef8f5;color:#168867;border-color:#cfeee2}.conclusion-voice-status{margin-top:6px;color:#7a8798;font-size:9px;line-height:1.4}.conclusion-voice-status.recording{color:#c62828;font-weight:800}.conclusion-voice-status.ready{color:#168867}.conclusion-field label{display:flex;align-items:center;gap:4px}.conclusion-field label:after{content:'Required';font-size:8px;color:#dc3b32;font-weight:800}.conclusion-field textarea:invalid{border-color:#dce3ee;box-shadow:none}@keyframes conclusionMicPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
 @media(max-width:520px){.conclusion-input-wrap textarea{padding-right:104px}.conclusion-mic{width:41px;height:41px}.conclusion-voice-tools{right:8px;bottom:8px}}
 </style>
+
+<style id="v9-add-customer-button-fix">
+/* V9: Add Customer action stays at the natural end of the form; never overlays fields. */
+#newCustomerSaveBtn{position:static!important;bottom:auto!important;z-index:auto!important;margin-top:12px!important;}
+@media(max-width:850px){#newCustomerSaveBtn{position:static!important;bottom:auto!important;margin-top:12px!important;min-height:52px;}}
+</style>
 </head>
 <body>
 <div class="startup-splash" id="startupSplash">
