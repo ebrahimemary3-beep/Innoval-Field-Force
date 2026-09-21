@@ -1123,7 +1123,8 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
       <div class="login-field"><label>Official Outlook Email</label><input id="loginEmail" type="email" inputmode="email" autocomplete="username" placeholder="name@ift-online.com" required></div>
       <div class="login-field"><label>Password</label><input id="loginPassword" type="password" inputmode="text" autocomplete="current-password" placeholder="Enter password" required></div>
       <button class="login-btn" type="submit">Login</button>
-      <button class="forgot-link" type="button" onclick="window.forgotPassword()">Forgot Password?</button>
+      <button class="forgot-link" id="forgotPasswordBtn" type="button" onclick="window.forgotPassword()">Forgot Password?</button>
+      <div id="forgotPasswordStatus" style="display:none;text-align:center;margin-top:9px;padding:9px 11px;border-radius:10px;font-size:11px;line-height:1.45"></div>
       <div class="login-error" id="loginError">Incorrect employee name or password.</div>
       <div style="font-size:10px;color:#718096;text-align:center;margin-top:8px">Use your official Outlook email and your Supabase account password.</div>
     </form>
@@ -1975,30 +1976,44 @@ async function setupPasswordRecovery(){
   }
 }
 window.forgotPassword = async function(){
+  const btn=$("forgotPasswordBtn");
+  const status=$("forgotPasswordStatus");
+  const setStatus=(message,kind="info")=>{
+    if(!status)return;
+    status.style.display="block";
+    status.style.background=kind==="ok"?"#ecfdf5":kind==="error"?"#fff1f1":"#eef6ff";
+    status.style.color=kind==="ok"?"#087a55":kind==="error"?"#b42318":"#24598a";
+    status.textContent=message;
+  };
   let email=$("loginEmail")?.value.trim().toLowerCase()||"";
   if(!email || !email.includes("@")){
     email=(window.prompt("Enter your official Outlook email:", "")||"").trim().toLowerCase();
+    if(email && $("loginEmail")) $("loginEmail").value=email;
   }
-  if(!email){ return; }
-  const u=findEmployeeByEmail(email);
-  if(!u){
-    alert("This email is not registered in Innoval Field Visit. Please use your official Outlook email.");
+  if(!email){
+    setStatus("Please enter your official Outlook email first.","error");
     return;
   }
+  const u=findEmployeeByEmail(email);
+  if(!u){
+    setStatus("This email is not registered in Innoval Field Visit. Please use your official Outlook email.","error");
+    return;
+  }
+  if(btn){btn.disabled=true;btn.textContent="Sending reset email…";}
+  setStatus("Sending password reset email… Please wait.","info");
   try{
     await ensureSupabaseClient();
     const {error}=await innovalSupabase.auth.resetPasswordForEmail(u.email,{redirectTo:INNOVAL_APP_URL});
     if(error) throw error;
-    alert("Password reset email sent to " + u.email + ".\n\nOpen the email and press Reset Password. The app will then show New Password and Confirm New Password.");
+    setStatus("✓ Reset email sent successfully. Check your Outlook inbox and click Reset Password.","ok");
   }catch(e){
-    alert("Could not send password reset email: " + (e?.message||e));
+    const msg=e?.message||String(e);
+    console.error("Innoval password reset failed:",e);
+    setStatus("Password reset could not be sent: "+msg,"error");
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent="Forgot Password?";}
   }
-};
-function hideStartupSplash(){
-  const s=$("startupSplash");
-  if(s)s.classList.add("hide");
-}
-// Hard fail-safe: a slow/blocked CDN must never leave the app frozen on the splash screen.
+};// Hard fail-safe: a slow/blocked CDN must never leave the app frozen on the splash screen.
 setTimeout(()=>{try{hideStartupSplash();}catch(e){}},2200);
 window.addEventListener('load',()=>setTimeout(()=>{try{hideStartupSplash();}catch(e){}},250));
 function isIOSDevice(){return /iPad|iPhone|iPod/.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&navigator.maxTouchPoints>1)}
