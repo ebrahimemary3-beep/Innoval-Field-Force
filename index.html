@@ -1123,7 +1123,7 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
       <div class="login-field"><label>Official Outlook Email</label><input id="loginEmail" type="email" inputmode="email" autocomplete="username" placeholder="name@ift-online.com" required></div>
       <div class="login-field"><label>Password</label><input id="loginPassword" type="password" inputmode="text" autocomplete="current-password" placeholder="Enter password" required></div>
       <button class="login-btn" type="submit">Login</button>
-      <button class="forgot-link" type="button" onclick="forgotPassword()">Forgot Password?</button>
+      <button class="forgot-link" type="button" onclick="window.forgotPassword()">Forgot Password?</button>
       <div class="login-error" id="loginError">Incorrect employee name or password.</div>
       <div style="font-size:10px;color:#718096;text-align:center;margin-top:8px">Use your official Outlook email and your Supabase account password.</div>
     </form>
@@ -1974,19 +1974,26 @@ async function setupPasswordRecovery(){
     console.warn("Password recovery setup failed:",e?.message||e);
   }
 }
-async function forgotPassword(){
-  const email=$("loginEmail")?.value.trim().toLowerCase()||"";
+window.forgotPassword = async function(){
+  let email=$("loginEmail")?.value.trim().toLowerCase()||"";
+  if(!email || !email.includes("@")){
+    email=(window.prompt("Enter your official Outlook email:", "")||"").trim().toLowerCase();
+  }
+  if(!email){ return; }
   const u=findEmployeeByEmail(email);
-  if(!u){alert("Please enter your official Outlook email first.");return;}
+  if(!u){
+    alert("This email is not registered in Innoval Field Visit. Please use your official Outlook email.");
+    return;
+  }
   try{
     await ensureSupabaseClient();
     const {error}=await innovalSupabase.auth.resetPasswordForEmail(u.email,{redirectTo:INNOVAL_APP_URL});
     if(error) throw error;
-    alert("Password reset email sent to "+u.email+". Open the email and tap the reset link. The app will open the New Password screen automatically.");
+    alert("Password reset email sent to " + u.email + ".\n\nOpen the email and press Reset Password. The app will then show New Password and Confirm New Password.");
   }catch(e){
-    alert("Could not send password reset email: "+(e?.message||e));
+    alert("Could not send password reset email: " + (e?.message||e));
   }
-}
+};
 function hideStartupSplash(){
   const s=$("startupSplash");
   if(s)s.classList.add("hide");
