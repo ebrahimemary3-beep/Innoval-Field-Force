@@ -1576,6 +1576,20 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
     <button type="button" class="customer-success-primary" onclick="closeCustomerSuccess()">OK</button>
   </div>
 </div>
+<!-- Password Update Success Overlay -->
+<div class="customer-success-overlay" id="passwordSuccessModal" aria-hidden="true" style="z-index:10050">
+  <div class="customer-success-card">
+    <button class="customer-success-close" type="button" onclick="closePasswordUpdateSuccess()">✕</button>
+    <div class="customer-success-orbit">
+      <div class="customer-success-check">✓</div>
+      <span class="orbit-dot dot1"></span><span class="orbit-dot dot2"></span><span class="orbit-dot dot3"></span>
+    </div>
+    <div class="customer-success-kicker">INNOVAL FIELD VISIT</div>
+    <h2>Password Updated Successfully</h2>
+    <p>Your new password has been updated successfully and synced with your cloud account.</p>
+    <button type="button" class="customer-success-primary" onclick="closePasswordUpdateSuccess()">OK</button>
+  </div>
+</div>
 <!-- Visit Success Overlay -->
 <div class="success-overlay" id="visitSuccess" aria-hidden="true">
   <div class="success-card">
@@ -3650,7 +3664,7 @@ function togglePasswordField(id,btn){
 function openPasswordSettings(){
   $("modalTitle").textContent="Change Password";
   $("modalBody").innerHTML=
-    '<div class="password-page-intro"><div class="password-title">🔐 Account Security</div><p>Update your password securely. Enter your current password, then choose and confirm your new password.</p></div>'+
+    '<div class="password-page-intro"><div class="password-title">🔐 Account Security</div><p>Update your password securely. Use any password format you prefer, then confirm your new password.</p></div>'+
     '<div class="password-fields-card">'+
       '<div class="field"><label>Current Password</label><span class="password-icon">🔑</span><input id="oldPass" type="password" autocomplete="current-password" placeholder="Enter current password"><button class="password-toggle" type="button" onclick="togglePasswordField(\'oldPass\',this)" aria-label="Show password">◉</button></div>'+
       '<div class="field"><label>New Password</label><span class="password-icon">🛡️</span><input id="newPass" type="password" autocomplete="new-password" placeholder="Enter new password"><button class="password-toggle" type="button" onclick="togglePasswordField(\'newPass\',this)" aria-label="Show password">◉</button></div>'+
@@ -3718,8 +3732,9 @@ function saveProfileData(){
 async function changePassword(){
   const p=profile(),list=employeeList(),emp=list.find(x=>x.name===p.rep),oldPass=String($("oldPass")?.value||""),newp=String($("newPass")?.value||""),conf=String($("confirmPass")?.value||"");
   if(!emp||oldPass!==String(emp.password||"")){toast("Current password is incorrect");return}
-  if(newp.length<4){toast("New password must be at least 4 characters");return}
-  if(!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/.test(newp)){toast("New password must contain letters and numbers only");return}
+  /* Flexible password format: letters, numbers, symbols and spaces are allowed.
+     Supabase still enforces its server-side minimum password length. */
+  if(newp.length<6){toast("New password must be at least 6 characters");return}
   if(newp!==conf){toast("New passwords do not match");return}
   const btn=document.querySelector('.password-save');if(btn){btn.disabled=true;btn.textContent='Updating…'}
   try{
@@ -3727,16 +3742,34 @@ async function changePassword(){
     if(!session||!innovalSupabase)throw new Error('Cloud account is not connected. Please connect to the internet and try again.');
     const {error}=await innovalSupabase.auth.updateUser({password:newp});
     if(error)throw error;
+    /* Keep the local app credential synchronized after the cloud update is confirmed. */
     emp.password=newp;
     localStorage.setItem('innovalEmployeesFinal',JSON.stringify(list));
     localStorage.setItem('innovalPasswordUpdatedAt_'+String(p.id||p.rep),new Date().toISOString());
     closeModal();
-    toast('Password updated successfully ✓');
+    showPasswordUpdateSuccess();
   }catch(e){
     console.warn('Password update failed:',e?.message||e);
     toast('Password was not changed. Cloud update failed.');
     if(btn){btn.disabled=false;btn.textContent='Update Password'}
   }
+}
+
+function showPasswordUpdateSuccess(){
+  const m=$('passwordSuccessModal');
+  if(!m)return;
+  m.classList.add('open');
+  m.setAttribute('aria-hidden','false');
+  document.documentElement.classList.add('modal-locked');
+  document.body.classList.add('modal-locked');
+}
+function closePasswordUpdateSuccess(){
+  const m=$('passwordSuccessModal');
+  if(m){
+    m.classList.remove('open');
+    m.setAttribute('aria-hidden','true');
+  }
+  unlockModalLayer();
 }
 
 function weeklyPlanKey(){const p=profile();return "innovalWeeklyPlan_"+(p.rep||"guest")}
