@@ -4040,7 +4040,7 @@ function browserExcelDownload(blob,fileName){
 }
 // ===== Innoval App Update Checker =====
 // Web/PWA updater. Native Android uses the Android bridge for the actual APK installation.
-const APP_VERSION = "1.9.52";
+const APP_VERSION = "1.9.53";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 let innovalSwRegistration=null;
 
@@ -4166,12 +4166,15 @@ loadNotifications();
   if (current) current.textContent = APP_VERSION;
 })();
 
-  // Service worker registration for iOS / PWA updates.
-  if(!window.Android && 'serviceWorker' in navigator){
+  // V12: keep the existing Service Worker / update flow, but also allow
+  // registration inside Android WebView when the WebView exposes Service Worker.
+  // This is additive: if the native wrapper does not support it, the existing
+  // Android flow remains untouched.
+  if('serviceWorker' in navigator){
     window.addEventListener('load',()=>{
       navigator.serviceWorker.register('./sw.js').then(reg=>{
         innovalSwRegistration=reg;
-        reg.update().catch(()=>{});
+        try{ reg.update().catch(()=>{}); }catch(e){}
       }).catch(()=>{});
     });
   }
@@ -5603,4 +5606,105 @@ window.syncAndroidFcmToken = function(){
   setInterval(()=>{if(document.visibilityState==='visible')render();},5000);
 })();
 </script>
+
+
+<!-- V12 ADDITIVE RELIABILITY LAYER: offline launch + microphone permission UX.
+     Existing V10/V11 flows are intentionally left in place. -->
+<style id="v12-offline-mic-css">
+.v12-offline-banner{position:fixed;left:14px;right:14px;top:calc(74px + env(safe-area-inset-top));z-index:9000;display:none;align-items:center;gap:10px;padding:11px 13px;border:1px solid #f0d7b9;border-radius:14px;background:#fff8ef;color:#80521e;box-shadow:0 8px 24px rgba(50,60,80,.12);font-size:11px;font-weight:700}
+.v12-offline-banner.show{display:flex}.v12-offline-banner .v12-offline-icon{font-size:18px}.v12-offline-banner small{display:block;margin-top:2px;color:#92765b;font-weight:500;font-size:9px;line-height:1.35}
+.v12-mic-help{margin-top:7px;padding:9px 10px;border:1px solid #dbe7f4;border-radius:11px;background:#f7fbff;color:#5d7189;font-size:9px;line-height:1.45}
+.v12-mic-help b{color:#17477e}.v12-mic-help button{margin-top:7px;border:0;border-radius:9px;padding:7px 10px;background:#0b66d1;color:#fff;font-size:9px;font-weight:800;cursor:pointer}
+</style>
+<div id="v12OfflineBanner" class="v12-offline-banner" role="status" aria-live="polite">
+  <div class="v12-offline-icon">📴</div><div><b>Offline Mode</b><small>No Internet connection. Your saved data remains available locally and new changes will be queued for Cloud synchronization.</small></div>
+</div>
+<script id="v12-offline-mic-js">
+(function(){
+  'use strict';
+  const CACHE_KEY='innoval-v12-shell-cache-v1';
+  const $=id=>document.getElementById(id);
+
+  function setOfflineBanner(){
+    const el=$('v12OfflineBanner');
+    if(!el)return;
+    el.classList.toggle('show',navigator.onLine===false);
+  }
+
+  // Cache the currently loaded HTML document after a successful online load.
+  // This does not replace the existing Service Worker; it simply gives the
+  // browser/WebView a warm cache entry for the application shell.
+  async function warmShellCache(){
+    if(navigator.onLine===false || !('caches' in window))return;
+    try{
+      const cache=await caches.open(CACHE_KEY);
+      const url=location.href.split('#')[0];
+      await cache.add(url);
+    }catch(e){/* best effort only */}
+  }
+
+  async function requestNativeMicPermission(){
+    try{
+      if(window.Android && typeof window.Android.requestMicrophonePermission==='function'){
+        const r=window.Android.requestMicrophonePermission();
+        if(r && typeof r.then==='function')return !!(await r);
+        return r===false?false:true;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  async function requestBrowserMicPermission(){
+    try{
+      if(!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia!=='function')return null;
+      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+      stream.getTracks().forEach(t=>{try{t.stop()}catch(e){}});
+      return true;
+    }catch(e){
+      return false;
+    }
+  }
+
+  window.innovalV12RequestMicrophone=async function(){
+    const nativeResult=await requestNativeMicPermission();
+    if(nativeResult!==null)return nativeResult;
+    return await requestBrowserMicPermission();
+  };
+
+  // Patch the existing V11 voice permission helper without replacing its
+  // speech-recognition flow. The original button remains the source of truth.
+  function enhanceMic(){
+    const mic=$('conclusionMicBtn'), status=$('conclusionVoiceStatus');
+    if(!mic || mic.dataset.v12PermissionUx==='1')return;
+    mic.dataset.v12PermissionUx='1';
+    const wrap=mic.closest('.conclusion-input-wrap')?.parentElement || mic.parentElement?.parentElement;
+    if(wrap && !wrap.querySelector('.v12-mic-help')){
+      const help=document.createElement('div');
+      help.className='v12-mic-help';
+      help.innerHTML='<b>🎙️ Microphone access</b><br>For voice-to-text, Innoval needs microphone permission on this phone. Tap the microphone and choose <b>Allow</b> when Android asks.'+
+        '<br><button type="button" id="v12MicPermissionBtn">Allow Microphone Access</button>';
+      wrap.appendChild(help);
+      help.querySelector('#v12MicPermissionBtn')?.addEventListener('click',async()=>{
+        const ok=await window.innovalV12RequestMicrophone();
+        if(status)status.textContent=ok?'Microphone access granted. Tap 🎙️ to start voice input.':'Microphone permission is still required. Please choose Allow for Innoval.';
+      });
+    }
+  }
+
+  function boot(){
+    setOfflineBanner();
+    warmShellCache();
+    enhanceMic();
+  }
+  window.addEventListener('online',()=>{setOfflineBanner();warmShellCache();});
+  window.addEventListener('offline',setOfflineBanner);
+  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){setOfflineBanner();enhanceMic();}});
+  const mo=new MutationObserver(enhanceMic);
+  if(document.body)mo.observe(document.body,{childList:true,subtree:true});
+  setTimeout(boot,600);
+})();
+</script>
+
+<!-- V12 notes: no existing navigation, login, visit save, customer, sync, update,
+     notification, export, or password handlers are replaced by this layer. -->
 </body></html>
