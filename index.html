@@ -1295,13 +1295,18 @@ img,svg,video,canvas{max-width:100%;height:auto}
 .home-card{width:100%;overflow:hidden}
 .home-copy{min-width:0}
 .home-copy h3,.home-copy p{overflow-wrap:anywhere;word-break:break-word}
-.voice-input-wrap{position:relative;width:100%}
-.voice-input-wrap textarea{padding-right:132px;min-height:120px}
-.voice-input-btn{position:absolute;right:10px;bottom:10px;border:0;border-radius:12px;padding:9px 12px;background:#eef5ff;color:#1769aa;display:flex;align-items:center;gap:7px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.voice-input-btn.is-listening{background:#eafaf0;color:#16834b;box-shadow:0 0 0 2px rgba(22,131,75,.12)}
-.voice-input-icon{font-size:18px;line-height:1}
-.voice-input-label{font-size:11px}
-.voice-input-status{display:block;margin-top:6px;color:var(--muted);font-size:10px}
+.conclusion-input-wrap{position:relative;width:100%}
+.conclusion-input-wrap textarea{padding-right:96px;min-height:120px}
+.conclusion-voice-tools{position:absolute;right:10px;bottom:10px;display:flex;align-items:center;gap:8px;z-index:2}
+.conclusion-lang,.conclusion-mic{border:1px solid #dbe7f4;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.06);display:flex;align-items:center;justify-content:center}
+.conclusion-lang{width:36px;height:36px;border-radius:11px;background:#f7fbff;color:#175487;font-size:11px;font-weight:800}
+.conclusion-lang.en{color:#fff;background:#1769aa}
+.conclusion-mic{width:42px;height:42px;border-radius:12px;background:#0d70dc;color:#fff;font-size:20px}
+.conclusion-mic.recording{background:#16834b;box-shadow:0 0 0 3px rgba(22,131,75,.14)}
+.conclusion-mic:disabled,.conclusion-lang:disabled{opacity:.55;cursor:not-allowed}
+.conclusion-voice-status{display:block;margin-top:6px;color:var(--muted);font-size:10px}
+.conclusion-voice-status.recording{color:#16834b;font-weight:700}
+.conclusion-voice-status.ready{color:#16834b}
 @media (max-width:850px){
   html,body{width:100%;max-width:100%;overflow-x:hidden}
   #mainShell{width:100%;max-width:none;min-height:calc(100dvh - 62px)}
@@ -1312,8 +1317,8 @@ img,svg,video,canvas{max-width:100%;height:auto}
   .home-card{min-height:0!important}
   .bottom{left:0;right:0;width:100%;max-width:none;padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom);height:calc(68px + env(safe-area-inset-bottom))}
   .bottom button{min-width:0;width:100%}
-  .voice-input-wrap textarea{padding-right:12px;padding-bottom:62px}
-  .voice-input-btn{left:10px;right:10px;justify-content:center;bottom:10px}
+  .conclusion-input-wrap textarea{padding-right:12px;padding-bottom:62px}
+  .conclusion-voice-tools{right:10px;bottom:10px}
 }
 @media (min-width:851px) and (max-width:1199px){
   #mainShell{width:100%;max-width:1450px}
@@ -1325,7 +1330,40 @@ img,svg,video,canvas{max-width:100%;height:auto}
   .home-screen{width:100%;max-width:1180px}
 }
 @supports (height:100dvh){.login-screen{min-height:100dvh}}
-</style><meta name="innoval-build" content="V31-SENDTO-ESC-FIX"></head>
+</style><meta name="innoval-build" content="V31-SENDTO-ESC-FIX">
+<style id="v33-universal-responsive">
+html,body{width:100%;max-width:100%;min-width:0;overflow-x:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+*,*::before,*::after{box-sizing:border-box;max-width:100%}
+img,svg,video,canvas{max-width:100%;height:auto}
+input,select,textarea,button{max-width:100%;font:inherit}
+.shell,.content,.home-screen,.home-grid,.card,.modal-box,.visit-section,.section-grid{min-width:0;width:100%}
+.content{padding-left:max(11px,env(safe-area-inset-left));padding-right:max(11px,env(safe-area-inset-right));padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+@media (max-width:850px){
+  .shell{width:100%;max-width:100%;min-height:100dvh}
+  .content{width:100%;max-width:100%;padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right));}
+  .card,.modal-box{width:100%;max-width:100%}
+  .grid,.section-grid{grid-template-columns:1fr!important}
+  .field,.full{min-width:0;grid-column:auto!important}
+  .modal{padding-left:0;padding-right:0}
+  .modal-box{max-height:92dvh;overflow-x:hidden}
+  .voice-input-wrap{width:100%;min-width:0}
+  .voice-input-btn{min-height:48px;touch-action:manipulation}
+}
+@media (min-width:851px){
+  .content{width:100%}
+  .card,.welcome{max-width:min(1080px,100%)}
+}
+@media (max-width:430px){
+  .content{padding-left:8px;padding-right:8px}
+  .card-head,.form{padding-left:13px;padding-right:13px}
+  input,select,textarea{font-size:16px}
+}
+@media (max-width:360px){
+  .content{padding-left:6px;padding-right:6px}
+  .card-head,.form{padding-left:10px;padding-right:10px}
+}
+</style>
+</head>
 <body>
 <div class="startup-splash" id="startupSplash">
   <div class="splash-inner">
@@ -1542,15 +1580,16 @@ img,svg,video,canvas{max-width:100%;height:auto}
 <div class="visit-section vs-slate">
   <div class="visit-section-head"><div class="section-art art-note">☷</div><div><span>STEP 05</span><h3>Visit Conclusion</h3><p>Capture the key outcome of the visit.</p></div></div>
   <div class="section-grid">
-    <div class="field full">
+    <div class="field full conclusion-field">
       <label>Visit Conclusion *</label>
-      <div class="voice-input-wrap">
-        <textarea id="conclusion" required placeholder="Write or dictate the key outcome of the visit..."></textarea>
-        <button id="voiceConclusionBtn" class="voice-input-btn" type="button" onclick="toggleVisitConclusionVoice()" aria-label="Voice input for Visit Conclusion" title="Tap once to start, tap again to stop">
-          <span class="voice-input-icon">🎙️</span><span class="voice-input-label">Voice Input</span>
-        </button>
+      <div class="conclusion-input-wrap">
+        <textarea id="conclusion" placeholder="Visit conclusion..." required></textarea>
+        <div class="conclusion-voice-tools" aria-label="Voice input controls">
+          <button type="button" class="conclusion-lang" id="conclusionLangBtn" title="Switch voice language">AR</button>
+          <button type="button" class="conclusion-mic" id="conclusionMicBtn" aria-label="Record voice for Visit Conclusion" title="Speak to type your conclusion">🎙️</button>
+        </div>
       </div>
-      <small id="voiceConclusionStatus" class="voice-input-status">Tap the microphone once to start listening.</small>
+      <div class="conclusion-voice-status" id="conclusionVoiceStatus" aria-live="polite">Tap the microphone to speak your conclusion.</div>
     </div>
   </div>
 </div>
@@ -2780,134 +2819,244 @@ function closeVisitSuccess(){
 
 
 (function(){
-  let visitConclusionRecognition=null;
-  let visitConclusionListening=false;
-  let visitConclusionPendingPermission=false;
-  let visitConclusionBaseText="";
+  // V37 OLD-STYLE VOICE UI + ADAPTIVE ENGINE
+  // Android: native SpeechRecognizer through the Android bridge.
+  // iPhone/iPad/desktop: Web Speech API when supported.
+  let nativeListening=false;
+  let browserRecognition=null;
+  let browserListening=false;
+  let baseText="";
+  let voiceLang="ar-EG";
 
-  function conclusionEl(){return document.getElementById("conclusion")}
-  function voiceBtn(){return document.getElementById("voiceConclusionBtn")}
-  function voiceStatus(){return document.getElementById("voiceConclusionStatus")}
+  const field=()=>document.getElementById("conclusion");
+  const mic=()=>document.getElementById("conclusionMicBtn");
+  const langBtn=()=>document.getElementById("conclusionLangBtn");
+  const status=()=>document.getElementById("conclusionVoiceStatus");
+  const nativeAvailable=()=>!!(
+    window.Android &&
+    typeof window.Android.startNativeSpeechRecognition==="function" &&
+    typeof window.Android.stopNativeSpeechRecognition==="function"
+  );
+  const BrowserRecognition=()=>window.SpeechRecognition||window.webkitSpeechRecognition||null;
 
-  function setVoiceUI(listening,message){
-    visitConclusionListening=!!listening;
-    const b=voiceBtn(), st=voiceStatus();
-    if(b){
-      b.classList.toggle("is-listening",!!listening);
-      const label=b.querySelector(".voice-input-label");
-      if(label) label.textContent=listening ? "Stop Listening" : "Voice Input";
-      const icon=b.querySelector(".voice-input-icon");
-      if(icon) icon.textContent=listening ? "⏹️" : "🎙️";
+  function setStatus(message,mode){
+    const el=status();
+    if(!el)return;
+    el.textContent=message;
+    el.classList.remove("recording","ready");
+    if(mode)el.classList.add(mode);
+  }
+
+  function setMic(listening){
+    const b=mic();
+    if(!b)return;
+    b.classList.toggle("recording",!!listening);
+    b.textContent=listening?"⏹":"🎙️";
+    b.title=listening?"Stop recording":"Speak to type your conclusion";
+  }
+
+  function appendText(text){
+    const clean=String(text||"").trim();
+    if(!clean)return;
+    const f=field();
+    if(!f)return;
+    const combined=[baseText,clean].filter(Boolean).join(baseText&&clean?" ":"");
+    f.value=combined;
+    f.dispatchEvent(new Event("input",{bubbles:true}));
+    baseText=f.value.trim();
+  }
+
+  // ===== Android native callbacks =====
+  window.onNativeSpeechStarted=function(){
+    nativeListening=true;
+    setMic(true);
+    setStatus("Listening… tap the microphone again to stop.","recording");
+  };
+
+  window.onNativeSpeechResult=function(text,isFinal){
+    if(!nativeListening && !String(text||"").trim())return;
+    appendText(text);
+    if(isFinal){
+      const f=field();
+      baseText=String(f?.value||"").trim();
     }
-    if(st) st.textContent=message || (listening ? "Listening… tap again to stop." : "Tap the microphone once to start listening.");
+  };
+
+  window.onNativeSpeechStopped=function(){
+    nativeListening=false;
+    setMic(false);
+    setStatus("Voice input ready. You can edit the text before saving.","ready");
+  };
+
+  window.onNativeSpeechError=function(error){
+    nativeListening=false;
+    setMic(false);
+    const e=String(error||"");
+    if(e==="not-allowed"){
+      setStatus("Microphone permission was denied. Allow microphone access and try again.");
+    }else if(e==="unavailable"){
+      setStatus("Voice recognition service is not available on this device.");
+    }else if(e==="error:7"){
+      setStatus("No speech detected. Tap the microphone and try again.");
+    }else{
+      setStatus("Voice recognition stopped. Tap the microphone to try again.");
+    }
+  };
+
+  // ===== Browser / iOS fallback =====
+  function stopBrowser(){
+    if(browserRecognition){
+      try{browserRecognition.stop();}catch(e){
+        try{browserRecognition.abort();}catch(_){}
+      }
+    }
+    browserListening=false;
+    browserRecognition=null;
+    setMic(false);
+    setStatus("Voice input ready. You can edit the text before saving.","ready");
   }
 
-  function recognitionCtor(){
-    return window.SpeechRecognition || window.webkitSpeechRecognition || null;
-  }
-
-  function startRecognitionNow(){
-    const Ctor=recognitionCtor();
+  function startBrowser(){
+    const Ctor=BrowserRecognition();
     if(!Ctor){
-      setVoiceUI(false,"Voice input is not supported on this device.");
+      setMic(false);
+      setStatus("Voice-to-text is not supported on this device/browser. You can type the conclusion normally.");
       return;
     }
-    const field=conclusionEl();
-    if(!field) return;
 
-    if(visitConclusionRecognition){
-      try{visitConclusionRecognition.stop()}catch(e){}
-      visitConclusionRecognition=null;
-    }
+    const f=field();
+    if(!f)return;
 
+    try{browserRecognition?.abort();}catch(e){}
     const r=new Ctor();
-    visitConclusionRecognition=r;
+    browserRecognition=r;
+    browserListening=false;
+    baseText=String(f.value||"").trim();
+
     r.continuous=true;
     r.interimResults=true;
-    r.lang="ar-EG";
-    visitConclusionBaseText=String(field.value||"").trim();
+    r.maxAlternatives=1;
+    r.lang=voiceLang;
 
-    r.onstart=function(){
-      setVoiceUI(true,"Listening… tap again to stop.");
+    r.onstart=()=>{
+      browserListening=true;
+      setMic(true);
+      setStatus("Listening… tap the microphone again to stop.","recording");
     };
-    r.onresult=function(event){
-      let finalText="", interimText="";
-      for(let i=event.resultIndex;i<event.results.length;i++){
-        const text=event.results[i][0]?.transcript||"";
-        if(event.results[i].isFinal) finalText+=text+" ";
-        else interimText+=text;
+
+    r.onresult=(ev)=>{
+      let finals="";
+      let interim="";
+      for(let i=ev.resultIndex;i<ev.results.length;i++){
+        const t=String(ev.results[i][0]?.transcript||"").trim();
+        if(ev.results[i].isFinal)finals+=(finals?" ":"")+t;
+        else interim+=(interim?" ":"")+t;
       }
-      const base=visitConclusionBaseText;
-      const finalPart=finalText.trim();
-      const combined=[base,finalPart].filter(Boolean).join(base && finalPart ? " " : "");
-      field.value=interimText ? (combined + (combined ? " " : "") + interimText).trim() : combined;
-      field.dispatchEvent(new Event("input",{bubbles:true}));
+      const out=[baseText,finals].filter(Boolean).join(baseText&&finals?" ":"");
+      f.value=[out,interim].filter(Boolean).join(out&&interim?" ":"");
+      f.dispatchEvent(new Event("input",{bubbles:true}));
+      if(finals)baseText=out.trim();
     };
-    r.onerror=function(event){
-      if(event?.error==="aborted") return;
-      setVoiceUI(false,event?.error==="not-allowed" ? "Microphone permission is required." : "Voice input stopped.");
+
+    r.onerror=(ev)=>{
+      const code=ev?.error||"unknown";
+      browserListening=false;
+      browserRecognition=null;
+      setMic(false);
+      if(code==="not-allowed"||code==="service-not-allowed"){
+        setStatus("Microphone permission was denied. Allow microphone access and try again.");
+      }else if(code==="network"){
+        setStatus("Speech recognition needs an internet connection on this device.");
+      }else if(code==="no-speech"){
+        setStatus("No speech detected. Tap the microphone and try again.");
+      }else{
+        setStatus("Voice recognition stopped. Tap the microphone to try again.");
+      }
     };
-    r.onend=function(){
-      visitConclusionRecognition=null;
-      if(visitConclusionListening) setVoiceUI(false,"Voice input stopped. Tap again to start.");
+
+    r.onend=()=>{
+      browserListening=false;
+      browserRecognition=null;
+      setMic(false);
+      setStatus("Voice input ready. You can edit the text before saving.","ready");
     };
-    try{r.start()}catch(e){
-      visitConclusionRecognition=null;
-      setVoiceUI(false,"Voice input could not start.");
+
+    try{
+      r.start();
+    }catch(e){
+      browserListening=false;
+      browserRecognition=null;
+      setMic(false);
+      setStatus("Voice recognition could not start. Tap the microphone again.");
     }
   }
 
   window.toggleVisitConclusionVoice=function(){
-    if(visitConclusionListening){
-      if(visitConclusionRecognition){
-        try{visitConclusionRecognition.stop()}catch(e){}
-      }else{
-        setVoiceUI(false);
+    const f=field();
+    if(!f)return;
+
+    if(nativeAvailable()){
+      if(nativeListening){
+        try{window.Android.stopNativeSpeechRecognition();}catch(e){}
+        return;
+      }
+      baseText=String(f.value||"").trim();
+      try{
+        window.Android.startNativeSpeechRecognition(voiceLang);
+      }catch(e){
+        window.onNativeSpeechError("start");
       }
       return;
     }
 
-    const Ctor=recognitionCtor();
-    if(!Ctor){
-      setVoiceUI(false,"Voice input is not supported on this device.");
+    if(browserListening){
+      stopBrowser();
       return;
     }
 
-    // Android wrapper: request system microphone permission first.
-    // No in-app permission card/message is shown.
-    if(window.Android && typeof window.Android.requestMicrophonePermission==="function"){
-      try{
-        const granted=window.Android.requestMicrophonePermission();
-        if(granted===true){ startRecognitionNow(); }
-        else{
-          visitConclusionPendingPermission=true;
-          setVoiceUI(false,"Microphone permission is required to use Voice Input.");
-        }
-        return;
-      }catch(e){}
-    }
-
-    startRecognitionNow();
-  };
-
-  // Called by MainActivity after the Android system permission dialog.
-  window.onNativeMicrophonePermission=function(granted){
-    if(granted && visitConclusionPendingPermission){
-      visitConclusionPendingPermission=false;
-      startRecognitionNow();
-    }else{
-      visitConclusionPendingPermission=false;
-      if(!granted) setVoiceUI(false,"Microphone permission is required to use Voice Input.");
-    }
+    startBrowser();
   };
 
   window.stopVisitConclusionVoice=function(){
-    visitConclusionPendingPermission=false;
-    if(visitConclusionRecognition){
-      try{visitConclusionRecognition.stop()}catch(e){}
+    if(nativeAvailable()){
+      try{window.Android.stopNativeSpeechRecognition();}catch(e){}
     }
-    setVoiceUI(false);
+    if(browserRecognition){
+      try{browserRecognition.stop();}catch(e){}
+    }
+    nativeListening=false;
+    browserListening=false;
+    browserRecognition=null;
+    setMic(false);
   };
+
+  const lb=langBtn();
+  if(lb){
+    lb.addEventListener("click",function(ev){
+      ev.preventDefault();
+      if(nativeListening){
+        try{window.Android.stopNativeSpeechRecognition();}catch(e){}
+      }
+      if(browserListening)stopBrowser();
+      voiceLang=voiceLang==="ar-EG"?"en-US":"ar-EG";
+      lb.textContent=voiceLang==="ar-EG"?"AR":"EN";
+      lb.classList.toggle("en",voiceLang==="en-US");
+      setStatus(
+        voiceLang==="ar-EG"?"Voice language: Arabic (Egypt).":"Voice language: English (US).",
+        "ready"
+      );
+    },true);
+  }
+
+  const form=document.getElementById("visitForm");
+  if(form){
+    form.addEventListener("submit",function(){
+      window.stopVisitConclusionVoice();
+    },true);
+  }
+
+  setMic(false);
+  setStatus("Tap the microphone to speak your conclusion.");
 })();
 
 $("visitForm").addEventListener("submit",async e=>{
@@ -4199,6 +4348,14 @@ function buildDailyReportExcel(fromStr,toStr){
   const blob=buildXlsxBlob([{name:'Visits Report',rows:rowsFromVisits(list)}]);
   return {blob,fileName:'Innoval_Daily_Visits_Report_'+fromStr+'_to_'+toStr+'.xlsx',list};
 }
+window.onNativeDailyReportOpened=function(){
+  toast('Outlook opened ✓');
+  closeDailyReport();
+};
+window.onNativeDailyReportError=function(message){
+  toast(String(message||'Unable to open Outlook'));
+};
+
 async function sendDailyVisitsReport(){
   if(dailyReportLoading)return;
   const managers=selectedDailyManagers();
@@ -4210,18 +4367,14 @@ async function sendDailyVisitsReport(){
   if(!report){toast('No visits found in selected range');return;}
   const recipients=managers.map(x=>x.email).filter(Boolean);
   if(!recipients.length){toast('Selected managers do not have valid email addresses');return;}
-  const periodLabel=fromStr===toStr?fromStr:(fromStr+' to '+toStr);
-  const bodyPeriod=fromStr===toStr?('for '+fromStr):('for the period from '+fromStr+' to '+toStr);
-  const subject='Innoval Daily Visits Report — '+periodLabel;
-  const body='Dear Manager,\n\nPlease find attached the Innoval Daily Visits Report '+bodyPeriod+'.\n\nRegards,\n'+profile().rep;
+  const subject='Innoval Daily Visits Report — '+fromStr+' to '+toStr;
+  const body='Dear Manager,\n\nPlease find attached the Innoval Daily Visits Report for '+fromStr+' to '+toStr+'.\n\nRegards,\n'+profile().rep;
   const reader=new FileReader();
   reader.onloadend=()=>{
     const base64=String(reader.result||'').split(',')[1]||'';
     try{
       if(window.Android && typeof window.Android.sendDailyVisitsReport==='function'){
-        window.Android.openOutlookDailyReport(recipients.join(';'),subject,body,report.fileName,base64);
-        toast('Daily report sent ✓');
-        closeDailyReport();
+        window.Android.sendDailyVisitsReport(recipients.join(';'),subject,body,report.fileName,base64);
         return;
       }
       toast('Microsoft 365 direct sending is not connected yet');
@@ -4281,8 +4434,8 @@ async function sendWeeklyPlanReport(){
     const base64=String(reader.result||'').split(',')[1]||'';
     try{
       if(window.Android && typeof window.Android.sendDailyVisitsReport==='function'){
-        window.Android.openOutlookDailyReport(recipients.join(';'),subject,body,report.fileName,base64);
-        toast('Weekly plan sent ✓'); closeWeeklyReport(); return;
+        window.Android.sendDailyVisitsReport(recipients.join(';'),subject,body,report.fileName,base64);
+        return;
       }
       toast('Microsoft 365 direct sending is not connected yet');
     }catch(e){console.error(e);toast('Weekly plan could not be sent');}
