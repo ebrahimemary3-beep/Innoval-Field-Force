@@ -164,13 +164,13 @@ button,input,select,textarea{font:inherit}button{cursor:pointer}.top{height:70px
 .login-screen{min-height:100vh;background:linear-gradient(145deg,#031f54 0%,#063b91 55%,#0b78d0 100%);display:flex;align-items:center;justify-content:center;padding:22px}.login-card{width:min(460px,100%);background:#fff;border-radius:24px;padding:30px 26px;box-shadow:0 22px 60px rgba(0,0,0,.22)}.login-brand{display:block;width:205px;max-width:72%;margin:0 auto 8px}.login-tag{width:max-content;max-width:100%;margin:0 auto 25px;padding:7px 15px;border-radius:30px;background:linear-gradient(90deg,#1297df,#0863c6);color:#fff;font-size:11px;font-weight:900}.login-title{text-align:center;font-size:23px;margin:0 0 5px}.login-sub{text-align:center;color:var(--muted);font-size:12px;margin:0 0 22px}.login-field{margin-bottom:14px}.login-field label{font-size:12px}.login-field select,.login-field input{padding-left:13px}.login-email-hint{font-size:10px;color:#8b96a8;margin-top:5px}.login-btn{width:100%;border:0;border-radius:13px;background:linear-gradient(100deg,var(--navy),var(--blue));color:#fff;padding:14px;font-size:16px;font-weight:900;margin-top:4px}.login-error{display:none;background:#fff1f0;color:var(--red);border:1px solid #ffd4d0;border-radius:10px;padding:10px;font-size:11px;margin:12px 0 0;text-align:center}.login-note{text-align:center;color:#8b96a8;font-size:10px;line-height:1.5;margin:17px 0 0}.hidden{display:none!important}.logout-btn{border:0;background:#fff1f0;color:var(--red);padding:11px;border-radius:10px;font-weight:900;width:100%;margin-top:9px}.setting-action{display:flex;align-items:center;gap:11px;padding:12px 8px;border:1px solid var(--line);border-radius:13px;margin:9px 0;background:#fff;cursor:pointer}.setting-action .drawer-icon{flex:0 0 38px}.setting-action b{display:block;font-size:12px;color:var(--ink)}.setting-action small{display:block;font-size:10px;color:var(--muted);margin-top:3px}
 .settings-note{font-size:11px;color:var(--muted);line-height:1.5;margin:0 0 13px}.password-row{position:relative}.password-row button{position:absolute;right:9px;top:8px;border:0;background:#eef3f8;border-radius:8px;padding:7px;font-size:11px}
 
-.startup-splash{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#031f54 0%,#063b91 55%,#0b78d0 100%);opacity:1;visibility:visible;will-change:opacity;transition:opacity .6s cubic-bezier(.22,.61,.36,1),visibility .6s ease}
+.startup-splash{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#031f54 0%,#063b91 55%,#0b78d0 100%);transition:opacity .45s ease,visibility .45s ease}
 .startup-splash.hide{opacity:0;visibility:hidden;pointer-events:none}
-.splash-inner{text-align:center;transform:translateY(6px);animation:splashRise .7s ease-out forwards;will-change:transform}
-.splash-logo{display:block;width:min(235px,62vw);height:auto;margin:0 auto;filter:drop-shadow(0 14px 28px rgba(0,0,0,.25));animation:splashLogo .9s cubic-bezier(.22,.61,.36,1) forwards;will-change:transform,opacity}
+.splash-inner{text-align:center;transform:translateY(8px);animation:splashRise .8s ease-out forwards}
+.splash-logo{display:block;width:min(235px,62vw);height:auto;margin:0 auto;filter:drop-shadow(0 14px 28px rgba(0,0,0,.25));animation:splashLogo 1.15s cubic-bezier(.2,.75,.25,1) forwards}
 .splash-line{width:0;height:3px;margin:17px auto 0;border-radius:9px;background:#fff;opacity:.9;animation:splashLine .8s .45s ease-out forwards}
 .splash-text{margin:13px 0 0;color:#fff;font-size:13px;font-weight:800;letter-spacing:.5px;opacity:0;animation:splashText .55s .55s ease-out forwards}
-@keyframes splashLogo{0%{opacity:0;transform:scale(.88)}55%{opacity:1;transform:scale(1.025)}100%{opacity:1;transform:scale(1)}}
+@keyframes splashLogo{0%{opacity:0;transform:scale(.62) rotate(-5deg);filter:blur(5px)}35%{opacity:1;transform:scale(1.08) rotate(1deg);filter:blur(0)}65%{transform:scale(.97)}100%{opacity:1;transform:scale(1) rotate(0);filter:blur(0)}}
 @keyframes splashRise{to{transform:translateY(0)}}
 @keyframes splashLine{to{width:92px}}
 @keyframes splashText{to{opacity:1}}
@@ -462,6 +462,8 @@ html,body{min-height:100%;background:var(--bg)}
 .customer-success-summary{display:grid;grid-template-columns:1fr;gap:9px;text-align:left;margin:0 0 17px}.customer-success-summary>div{background:#f6f9fc;border:1px solid #e5ebf2;border-radius:14px;padding:10px 11px}.customer-success-summary span{display:block;font-size:9px;color:#7a8798;margin-bottom:4px}.customer-success-summary b{display:block;font-size:11px;color:#18365f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .customer-success-primary{width:100%;border:0;border-radius:14px;padding:12px 9px;font-weight:700;font-size:11px;background:linear-gradient(110deg,#063b91,#0876df);color:#fff}
 @media(max-width:520px){.customer-success-card{padding:25px 17px 18px}}
+
+.sendto-label{font-weight:800;color:#153b6b;margin:10px 0 6px;font-size:13px}.manager-selected-label{font-weight:800}
 </style>
 <style id="v140-professional-overrides">
 /* ===== v1.4.0 Enterprise Home ===== */
@@ -592,7 +594,7 @@ body{background:linear-gradient(180deg,#f4f7fc 0%,#eef4fb 100%)}
 
 <style id="v8-weekly-plan-ui">
 .weekly-plan-card{border:2px solid rgba(23,111,208,.16)!important}
-.weekly-plan-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 14px}.weekly-kpi{background:#f6f9fd;border:1px solid #e2e9f2;border-radius:12px;padding:10px 8px;text-align:center}.weekly-kpi strong{display:block;font-size:20px;color:#0b66d1}.weekly-kpi span{display:block;font-size:9px;color:#71809a;margin-top:3px}.weekly-progress{height:8px;border-radius:99px;background:#e8eef6;overflow:hidden;margin:7px 0 14px}.weekly-progress span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#16b886,#0b66d1)}.weekly-day{border:1px solid #e2e8f1;border-radius:14px;margin-bottom:10px;overflow:hidden;background:#fff}.weekly-day-head{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;background:#f7faff}.weekly-day-head b{font-size:12px;color:#18365f}.weekly-day-head span{font-size:10px;color:#71809a}.weekly-plan-row{display:flex;align-items:center;gap:9px;padding:10px 12px;border-top:1px solid #edf1f6}.weekly-plan-num{width:25px;height:25px;border-radius:9px;background:#edf5ff;color:#0b66d1;display:grid;place-items:center;font-size:10px;font-weight:900;flex:0 0 25px}.weekly-plan-info{min-width:0;flex:1}.weekly-plan-info b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.weekly-plan-info small{display:block;font-size:9px;color:#71809a;margin-top:3px}.weekly-status{font-size:9px;font-weight:900;padding:5px 7px;border-radius:999px;background:#fff5df;color:#b77900}.weekly-status.done{background:#eaf9f3;color:#15966e}.weekly-empty{padding:13px;color:#9aa7b9;font-size:10px;text-align:center}.weekly-add{width:100%;border:0;border-top:1px dashed #dbe4ef;background:#fbfdff;color:#0b66d1;padding:10px;font-size:10px;font-weight:900}.weekly-form-card{background:#f7faff;border:1px solid #e1e9f3;border-radius:14px;padding:13px}.weekly-form-card .field{margin-bottom:11px}.weekly-form-card label{font-size:10px}.weekly-day-readonly{background:#f1f5f9!important;color:#71809a!important}.weekly-new-customer{display:none;margin-top:8px}.weekly-new-customer.open{display:block}.weekly-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.weekly-secondary{border:1px solid #dfe6ef;background:#fff;color:#18365f;border-radius:12px;padding:12px;font-weight:800}.weekly-primary{border:0;background:linear-gradient(110deg,#063b91,#0876df);color:#fff;border-radius:12px;padding:12px;font-weight:900}.weekly-customer-select{width:100%;box-sizing:border-box;background:linear-gradient(110deg,#063b91,#0876df)!important;color:#fff!important;border:1px solid #0b66d1!important;border-radius:12px!important;padding:12px 14px!important;font-weight:800!important;min-height:48px}.weekly-customer-select option{background:#fff;color:#18365f}.weekly-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.weekly-toolbar button{border:1px solid #dfe6ef;background:#fff;color:#18365f;border-radius:11px;padding:10px;font-size:10px;font-weight:800}.weekly-week-label{font-size:10px;color:#71809a;margin-top:4px}.weekly-full-list{margin-top:8px}.weekly-full-day-title{padding:10px 2px 6px;font-size:11px;font-weight:900;color:#18365f}.weekly-full-row{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;padding:10px;border:1px solid #e4eaf2;border-radius:11px;margin-bottom:7px;background:#fff}.weekly-full-row .num{font-size:10px;font-weight:900;color:#0b66d1}.weekly-full-row b{font-size:11px}.weekly-full-row small{display:block;color:#71809a;font-size:9px;margin-top:3px}.weekly-full-row .state{font-size:9px;font-weight:900;color:#b77900}.weekly-full-row .state.done{color:#15966e}@media(max-width:650px){.weekly-plan-summary{grid-template-columns:repeat(3,1fr)}.weekly-actions{grid-template-columns:1fr 1fr}}
+.weekly-plan-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 14px}.weekly-kpi{background:#f6f9fd;border:1px solid #e2e9f2;border-radius:12px;padding:10px 8px;text-align:center}.weekly-kpi strong{display:block;font-size:20px;color:#0b66d1}.weekly-kpi span{display:block;font-size:9px;color:#71809a;margin-top:3px}.weekly-progress{height:8px;border-radius:99px;background:#e8eef6;overflow:hidden;margin:7px 0 14px}.weekly-progress span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#16b886,#0b66d1)}.weekly-day{border:1px solid #e2e8f1;border-radius:14px;margin-bottom:10px;overflow:hidden;background:#fff}.weekly-day-head{display:flex;align-items:center;justify-content:space-between;padding:11px 12px;background:#f7faff}.weekly-day-head b{font-size:12px;color:#18365f}.weekly-day-head span{font-size:10px;color:#71809a}.weekly-plan-row{display:flex;align-items:center;gap:9px;padding:10px 12px;border-top:1px solid #edf1f6}.weekly-plan-num{width:25px;height:25px;border-radius:9px;background:#edf5ff;color:#0b66d1;display:grid;place-items:center;font-size:10px;font-weight:900;flex:0 0 25px}.weekly-plan-info{min-width:0;flex:1}.weekly-plan-info b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.weekly-plan-info small{display:block;font-size:9px;color:#71809a;margin-top:3px}.weekly-status{font-size:9px;font-weight:900;padding:5px 7px;border-radius:999px;background:#fff5df;color:#b77900}.weekly-status.done{background:#eaf9f3;color:#15966e}.weekly-empty{padding:13px;color:#9aa7b9;font-size:10px;text-align:center}.weekly-add{width:100%;border:0;border-top:1px dashed #dbe4ef;background:#fbfdff;color:#0b66d1;padding:10px;font-size:10px;font-weight:900}.weekly-form-card{background:#f7faff;border:1px solid #e1e9f3;border-radius:14px;padding:13px}.weekly-form-card .field{margin-bottom:11px}.weekly-form-card label{font-size:10px}.weekly-day-readonly{background:#f1f5f9!important;color:#71809a!important}.weekly-new-customer{display:none;margin-top:8px}.weekly-new-customer.open{display:block}.weekly-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.weekly-secondary{border:1px solid #dfe6ef;background:#fff;color:#18365f;border-radius:12px;padding:12px;font-weight:800}.weekly-primary{border:0;background:linear-gradient(110deg,#063b91,#0876df);color:#fff;border-radius:12px;padding:12px;font-weight:900}.weekly-customer-select{width:100%;box-sizing:border-box;background:linear-gradient(110deg,#063b91,#0876df)!important;color:#fff!important;border:1px solid #0b66d1!important;border-radius:12px!important;padding:12px 14px!important;font-weight:800!important;min-height:48px}.weekly-customer-select option{background:#fff;color:#18365f}.weekly-toolbar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.weekly-toolbar-3{grid-template-columns:1fr 1fr 1fr}.weekly-toolbar button{border:1px solid #dfe6ef;background:#fff;color:#18365f;border-radius:11px;padding:10px;font-size:10px;font-weight:800}.weekly-week-label{font-size:10px;color:#71809a;margin-top:4px}.weekly-full-list{margin-top:8px}.weekly-full-day-title{padding:10px 2px 6px;font-size:11px;font-weight:900;color:#18365f}.weekly-full-row{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;padding:10px;border:1px solid #e4eaf2;border-radius:11px;margin-bottom:7px;background:#fff}.weekly-full-row .num{font-size:10px;font-weight:900;color:#0b66d1}.weekly-full-row b{font-size:11px}.weekly-full-row small{display:block;color:#71809a;font-size:9px;margin-top:3px}.weekly-full-row .state{font-size:9px;font-weight:900;color:#b77900}.weekly-full-row .state.done{color:#15966e}@media(max-width:650px){.weekly-plan-summary{grid-template-columns:repeat(3,1fr)}.weekly-actions{grid-template-columns:1fr 1fr}}
 </style>
 
 <style id="v6-inline-profile-photo-actions">
@@ -1005,6 +1007,35 @@ html.modal-locked,body.modal-locked{overscroll-behavior:none;touch-action:none;o
 .export-command .wide-command-icon{background:#fff0d3;color:#c97c0c}
 .home-command-wide h3{margin:0 0 5px;font-size:19px;font-weight:900;color:#5544bd}
 .export-command h3{color:#c97c0c}
+.daily-report-command{background:linear-gradient(145deg,#eefaf6,#fff)}
+.daily-report-command .wide-command-icon{background:#dff7ee;color:#0b9b73}
+.daily-report-command h3{color:#078b68}
+.daily-report-modal .modal-box{max-width:760px}
+.manager-list{display:grid;gap:8px;margin-top:10px;max-height:48vh;overflow:auto;padding:2px}
+.manager-option{display:flex;align-items:center;gap:10px;padding:12px 13px;border:1px solid #dbe6f1;border-radius:12px;background:#fbfdff;cursor:pointer}
+.manager-option:hover{background:#f4fbf8;border-color:#bfe6d8}
+.manager-option input{width:18px;height:18px;accent-color:#0b9b73}
+.manager-option .manager-copy{min-width:0;display:grid;gap:2px}
+.manager-option b{font-size:13px;color:#163a64}
+.manager-option small{font-size:10px;color:#73839a;overflow-wrap:anywhere}
+.manager-dropdown{position:relative;width:100%;margin:10px 0 4px}
+.manager-dropdown summary{list-style:none;cursor:pointer;border:1px solid #d5e2ef;border-radius:12px;background:#fff;padding:12px 14px;font-weight:800;color:#163a64;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.manager-dropdown summary::-webkit-details-marker{display:none}
+.manager-dropdown summary:after{content:'▾';font-size:15px;color:#1769aa}
+.manager-dropdown[open] summary:after{content:'▴'}
+.manager-dropdown-panel{position:relative;margin-top:6px;border:1px solid #d5e2ef;border-radius:12px;background:#fff;box-shadow:0 10px 30px rgba(22,58,100,.10);padding:8px;max-height:260px;overflow:auto;z-index:20;display:grid;gap:7px}
+.manager-dropdown-panel .manager-option{margin:0}
+.manager-selected-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.daily-report-toolbar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0}
+.daily-report-toolbar .mini-btn{border:1px solid #dbe6f1;background:#fff;border-radius:9px;padding:7px 10px;font-weight:800;color:#1769aa;cursor:pointer}
+.daily-report-count{font-size:11px;font-weight:800;color:#5f7187}
+.daily-report-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+.daily-report-primary{border:0;border-radius:12px;padding:12px;background:#0b9b73;color:#fff;font-weight:800;cursor:pointer}
+.daily-report-secondary{border:1px solid #dbe6f1;border-radius:12px;padding:12px;background:#fff;color:#334d69;font-weight:800;cursor:pointer}
+.daily-report-note{margin-top:10px;color:#73839a;font-size:10px;line-height:1.55}
+@media(max-width:600px){.daily-report-actions{grid-template-columns:1fr}.manager-list{max-height:42vh}}
+
 .home-command-wide p{margin:0;color:#71809a;font-size:10px;line-height:1.45;max-width:520px}
 .wide-command-arrow{margin-left:auto;font-size:28px;color:#778aa4}
 .page-with-close{display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -1251,24 +1282,50 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
   }
 }
 </style>
-
-<style id="v11-conclusion-voice">
-.conclusion-input-wrap{position:relative}.conclusion-input-wrap textarea{padding-right:112px;min-height:118px}.conclusion-voice-tools{position:absolute;right:10px;bottom:10px;display:flex;align-items:center;gap:6px;z-index:2}.conclusion-mic,.conclusion-lang{border:1px solid #d9e6f2;display:grid;place-items:center;cursor:pointer;box-shadow:0 5px 14px rgba(16,42,91,.10);transition:.18s ease}.conclusion-mic{width:43px;height:43px;border-radius:13px;background:linear-gradient(145deg,#0b66d1,#0876df);color:#fff;font-size:20px}.conclusion-lang{min-width:36px;height:32px;padding:0 8px;border-radius:10px;background:#f3f7fc;color:#31578e;font-size:9px;font-weight:900}.conclusion-mic:hover,.conclusion-lang:hover{transform:translateY(-1px)}.conclusion-mic:active,.conclusion-lang:active{transform:scale(.96)}.conclusion-mic.recording{background:linear-gradient(145deg,#dc3b32,#f05b50);box-shadow:0 0 0 5px rgba(220,59,50,.12),0 8px 18px rgba(220,59,50,.22);animation:conclusionMicPulse 1.15s ease-in-out infinite}.conclusion-mic:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;animation:none}.conclusion-lang.en{background:#eef8f5;color:#168867;border-color:#cfeee2}.conclusion-voice-status{margin-top:6px;color:#7a8798;font-size:9px;line-height:1.4}.conclusion-voice-status.recording{color:#c62828;font-weight:800}.conclusion-voice-status.ready{color:#168867}.conclusion-field label{display:flex;align-items:center;gap:4px}.conclusion-field label:after{content:'Required';font-size:8px;color:#dc3b32;font-weight:800}.conclusion-field textarea:invalid{border-color:#dce3ee;box-shadow:none}@keyframes conclusionMicPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
-@media(max-width:520px){.conclusion-input-wrap textarea{padding-right:104px}.conclusion-mic{width:41px;height:41px}.conclusion-voice-tools{right:8px;bottom:8px}}
-</style>
-
-<style id="v9-add-customer-button-fix">
-/* V9: Add Customer action stays at the natural end of the form; never overlays fields. */
-#newCustomerSaveBtn{position:static!important;bottom:auto!important;z-index:auto!important;margin-top:12px!important;}
-@media(max-width:850px){#newCustomerSaveBtn{position:static!important;bottom:auto!important;margin-top:12px!important;min-height:52px;}}
-</style>
-
-<style id="v11-offline-sync-home-css">
-.home-sync-status-card{margin:12px 0 16px;padding:14px 15px;border:1px solid #d8e5f3;border-radius:18px;background:linear-gradient(145deg,#f7fbff,#fff);box-shadow:0 8px 24px rgba(28,70,120,.08)}
-.home-sync-status-head{display:flex;align-items:center;gap:10px}.home-sync-cloud-icon{width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:#edf6ff;font-size:19px}.home-sync-status-head h3{margin:0;color:#163f70;font-size:14px;font-weight:900}.home-sync-status-head p{margin:3px 0 0;color:#75869a;font-size:9px}.home-sync-status-pill{margin-left:auto;padding:5px 9px;border-radius:999px;font-size:9px;font-weight:900;white-space:nowrap}.home-sync-status-pill.connected{background:#e8f8f0;color:#16865c}.home-sync-status-pill.offline{background:#fff0e8;color:#b85a27}.home-sync-status-pill.checking{background:#edf2f8;color:#64778f}
-.home-sync-status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:11px}.home-sync-status-grid>div{padding:9px 10px;border-radius:12px;background:#f3f7fb}.home-sync-status-grid span{display:block;color:#7b8ba0;font-size:8px;font-weight:700}.home-sync-status-grid strong{display:block;margin-top:3px;color:#183f6c;font-size:13px;font-weight:900}.home-sync-status-note{margin-top:9px;color:#77879a;font-size:9px;line-height:1.45}
-</style>
-</head>
+<style id="innovall-v16-core-updates">
+html{width:100%;max-width:100%;min-width:0;overflow-x:hidden;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{width:100%;max-width:100%;min-width:0;min-height:100vh;min-height:100dvh;margin:0;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box;max-width:100%}
+img,svg,video,canvas{max-width:100%;height:auto}
+#mainShell{width:100%;max-width:1450px;margin-left:auto;margin-right:auto}
+.content{min-width:0;width:100%}
+.home-screen{width:100%;max-width:1180px;margin-left:auto;margin-right:auto;min-width:0}
+.home-hero,.home-grid,.home-card{min-width:0}
+.home-grid{width:100%}
+.home-card{width:100%;overflow:hidden}
+.home-copy{min-width:0}
+.home-copy h3,.home-copy p{overflow-wrap:anywhere;word-break:break-word}
+.voice-input-wrap{position:relative;width:100%}
+.voice-input-wrap textarea{padding-right:132px;min-height:120px}
+.voice-input-btn{position:absolute;right:10px;bottom:10px;border:0;border-radius:12px;padding:9px 12px;background:#eef5ff;color:#1769aa;display:flex;align-items:center;gap:7px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.voice-input-btn.is-listening{background:#eafaf0;color:#16834b;box-shadow:0 0 0 2px rgba(22,131,75,.12)}
+.voice-input-icon{font-size:18px;line-height:1}
+.voice-input-label{font-size:11px}
+.voice-input-status{display:block;margin-top:6px;color:var(--muted);font-size:10px}
+@media (max-width:850px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden}
+  #mainShell{width:100%;max-width:none;min-height:calc(100dvh - 62px)}
+  .content{width:100%;max-width:none;min-width:0;padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right));padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+  .home-screen{width:100%;max-width:none;margin:0;padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right));padding-bottom:calc(100px + env(safe-area-inset-bottom))}
+  .home-hero{width:100%;margin-left:0;margin-right:0}
+  .home-grid{width:100%;max-width:none;grid-template-columns:1fr}
+  .home-card{min-height:0!important}
+  .bottom{left:0;right:0;width:100%;max-width:none;padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom);height:calc(68px + env(safe-area-inset-bottom))}
+  .bottom button{min-width:0;width:100%}
+  .voice-input-wrap textarea{padding-right:12px;padding-bottom:62px}
+  .voice-input-btn{left:10px;right:10px;justify-content:center;bottom:10px}
+}
+@media (min-width:851px) and (max-width:1199px){
+  #mainShell{width:100%;max-width:1450px}
+  .home-screen{width:100%;max-width:1050px}
+  .home-grid{width:100%;max-width:760px;margin-left:auto;margin-right:auto}
+}
+@media (min-width:1200px){
+  #mainShell{width:100%;max-width:1450px}
+  .home-screen{width:100%;max-width:1180px}
+}
+@supports (height:100dvh){.login-screen{min-height:100dvh}}
+</style><meta name="innoval-build" content="V31-SENDTO-ESC-FIX"></head>
 <body>
 <div class="startup-splash" id="startupSplash">
   <div class="splash-inner">
@@ -1325,7 +1382,7 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
       <button class="forgot-link" type="button" onclick="forgotPassword()">Forgot Password?</button>
       <div class="login-error" id="loginError">Incorrect employee name or password.</div>
     </form>
-    <p class="login-note">Sign in with your official Outlook email and password.</p>
+    <p class="login-note">Initial password: <b>1234</b><br>You can change your password after login.</p>
   </div>
 </div>
 
@@ -1410,22 +1467,13 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
     <div><h3>Export Visit History</h3><p>Export selected visit records to the official HR-style Excel report.</p></div>
     <span class="wide-command-arrow">›</span>
   </button>
+
+  <button type="button" class="home-command-wide daily-report-command" onclick="openDailyReport()">
+    <div class="wide-command-icon">📧</div>
+    <div><h3>Send Visits Report</h3><p>Select one or more managers and prepare a visit report for the selected period.</p></div>
+    <span class="wide-command-arrow">›</span>
+  </button>
 </div>
-<section class="home-sync-status-card" id="homeSyncStatusCard" aria-label="Cloud synchronization status">
-  <div class="home-sync-status-head">
-    <div class="home-sync-cloud-icon" id="homeSyncCloudIcon">☁️</div>
-    <div>
-      <h3>Cloud Sync</h3>
-      <p id="homeSyncState">Checking connection…</p>
-    </div>
-    <span class="home-sync-status-pill checking" id="homeSyncPill">Checking</span>
-  </div>
-  <div class="home-sync-status-grid">
-    <div><span>Last Sync</span><strong id="homeSyncLast">—</strong></div>
-    <div><span>Pending Changes</span><strong id="homeSyncPending">0</strong></div>
-  </div>
-  <div class="home-sync-status-note" id="homeSyncNote">Your data is saved locally first. Pending changes retry automatically when the connection returns.</div>
-</section>
 <div class="home-footer-art" aria-hidden="true">
     <svg viewBox="0 0 800 120" preserveAspectRatio="none">
       <path d="M0 100h800M30 100c15-28 34-38 58-40 24 2 43 12 56 40M180 100c12-22 27-32 46-33 19 1 34 11 45 33M650 100c13-29 31-40 55-40 23 1 42 11 56 40" fill="#9ec6ec"/>
@@ -1461,7 +1509,7 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
 <div class="visit-section vs-teal">
   <div class="visit-section-head"><div class="section-art art-person">♙</div><div><span>STEP 02</span><h3>Customer Profile</h3><p>Define who you met and the customer profile.</p></div></div>
   <div class="section-grid">
-    <div class="field"><label>Customer Type *</label><div class="input"><span>♟</span><select id="type" required><option value="">Select Type</option><option>Veterinarian</option><option>Pharmacist</option><option>Farm Owner</option><option>Farm Manager</option><option>Accountant / محاسب</option><option>Engineering Office</option><option>Distributor</option><option>Other</option></select></div></div>
+    <div class="field"><label>Customer Type *</label><div class="input"><span>♟</span><select id="type" required><option value="">Select Type</option><option>مشرف</option><option>مربي</option><option>موزع</option><option>مكتب فني</option><option>محاسب</option><option>مهندس</option></select></div></div>
     <div class="field"><label>Potentiality</label><div class="input"><span>↗</span><select id="potential"><option value="">Select Potentiality</option></select></div></div>
     <div class="field"><label>Loyalty</label><div class="input"><span>♥</span><select id="loyalty"><option value="">Select Loyalty</option></select></div></div>
     <div class="field"><label>Met Person</label><div class="input"><span>●</span><input id="meted" placeholder="Name"></div></div>
@@ -1492,22 +1540,18 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
 </div>
 
 <div class="visit-section vs-slate">
-  <div class="visit-section-head"><div class="section-art art-note">☷</div><div><span>STEP 05</span><h3>Feedback & Next Action</h3><p>Keep the visit outcome clear and actionable.</p></div></div>
+  <div class="visit-section-head"><div class="section-art art-note">☷</div><div><span>STEP 05</span><h3>Visit Conclusion</h3><p>Capture the key outcome of the visit.</p></div></div>
   <div class="section-grid">
-    <div class="field full"><label>Comments</label><textarea id="comments" placeholder="Visit comments..."></textarea></div>
-    <div class="field full conclusion-field">
+    <div class="field full">
       <label>Visit Conclusion *</label>
-      <div class="conclusion-input-wrap">
-        <textarea id="conclusion" placeholder="Visit conclusion..." required></textarea>
-        <div class="conclusion-voice-tools" aria-label="Voice input controls">
-          <button type="button" class="conclusion-lang" id="conclusionLangBtn" title="Switch voice language">AR</button>
-          <button type="button" class="conclusion-mic" id="conclusionMicBtn" aria-label="Record voice for Visit Conclusion" title="Speak to type your conclusion">🎙️</button>
-        </div>
+      <div class="voice-input-wrap">
+        <textarea id="conclusion" required placeholder="Write or dictate the key outcome of the visit..."></textarea>
+        <button id="voiceConclusionBtn" class="voice-input-btn" type="button" onclick="toggleVisitConclusionVoice()" aria-label="Voice input for Visit Conclusion" title="Tap once to start, tap again to stop">
+          <span class="voice-input-icon">🎙️</span><span class="voice-input-label">Voice Input</span>
+        </button>
       </div>
-      <div class="conclusion-voice-status" id="conclusionVoiceStatus" aria-live="polite">Tap the microphone to speak your conclusion.</div>
+      <small id="voiceConclusionStatus" class="voice-input-status">Tap the microphone once to start listening.</small>
     </div>
-    <div class="field full"><label>Collection Details</label><textarea id="collection" placeholder="Collection / payment details if applicable..."></textarea></div>
-    <div class="field full"><label>Customer Feedback</label><textarea id="feedback" placeholder="Customer feedback..."></textarea></div>
   </div>
 </div>
 
@@ -1603,20 +1647,6 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
     <button type="button" class="customer-success-primary" onclick="closeCustomerSuccess()">OK</button>
   </div>
 </div>
-<!-- Password Update Success Overlay -->
-<div class="customer-success-overlay" id="passwordSuccessModal" aria-hidden="true" style="z-index:10050">
-  <div class="customer-success-card">
-    <button class="customer-success-close" type="button" onclick="closePasswordUpdateSuccess()">✕</button>
-    <div class="customer-success-orbit">
-      <div class="customer-success-check">✓</div>
-      <span class="orbit-dot dot1"></span><span class="orbit-dot dot2"></span><span class="orbit-dot dot3"></span>
-    </div>
-    <div class="customer-success-kicker">INNOVAL FIELD VISIT</div>
-    <h2>Password Updated Successfully</h2>
-    <p>Your new password has been updated successfully and synced with your cloud account.</p>
-    <button type="button" class="customer-success-primary" onclick="closePasswordUpdateSuccess()">OK</button>
-  </div>
-</div>
 <!-- Visit Success Overlay -->
 <div class="success-overlay" id="visitSuccess" aria-hidden="true">
   <div class="success-card">
@@ -1666,6 +1696,8 @@ html.browser-install-mode,body.browser-install-mode{background:#031f54!important
   </div>
 </div>
 <div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="modal-box"><div class="modal-head"><h3 id="modalTitle">My Visits</h3><button class="close" onclick="closeModal()">✕</button></div><div id="modalBody"></div></div></div><div class="modal" id="exportModal" onclick="if(event.target===this)closeExport()"><div class="modal-box"><div class="modal-head"><h3>Export Visit History</h3><button class="close" onclick="closeExport()">✕</button></div><p class="settings-note">Export visits in the selected date range using the HR-style monthly report structure.</p><div class="export-grid"><div class="field"><label>From</label><input id="exportFrom" class="date-input" type="date" onchange="updateExportCount()"></div><div class="field"><label>To</label><input id="exportTo" class="date-input" type="date" onchange="updateExportCount()"></div></div><div class="quick-title">Quick Range</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:7px"><button class="close" onclick="setExportRange('week')">This Week</button><button class="close" onclick="setExportRange('lastweek')">Last Week</button><button class="close" onclick="setExportRange('month')">This Month</button></div><div class="export-count" id="exportCount">Select a date range</div><div class="export-actions"><button class="save" type="button" onclick="exportHRExcel()">📊 &nbsp; Export &amp; Download Excel</button></div><p class="settings-note" style="margin-top:10px">The Excel file will download automatically to your device after export.</p></div></div>
+<div class="modal daily-report-modal" id="dailyReportModal" onclick="if(event.target===this)closeDailyReport()"><div class="modal-box"><div class="modal-head"><h3>📧 Send Visits Report</h3><button class="close" onclick="closeDailyReport()">✕</button></div><p class="settings-note">Select the report period and the manager(s) who should receive the visit report. Recipients are loaded from your Reporting → Send To mapping.</p><div class="export-grid"><div class="field"><label>From</label><input id="dailyReportFrom" class="date-input" type="date" onchange="updateDailyReportCount()"></div><div class="field"><label>To</label><input id="dailyReportTo" class="date-input" type="date" onchange="updateDailyReportCount()"></div></div><div class="quick-title">Quick Range</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:7px"><button class="close" type="button" onclick="setDailyReportRange('week')">This Week</button><button class="close" type="button" onclick="setDailyReportRange('lastweek')">Last Week</button><button class="close" type="button" onclick="setDailyReportRange('month')">This Month</button></div><div class="daily-report-toolbar"><span class="daily-report-count" id="dailyReportCount">Loading Send To…</span><div><button type="button" class="mini-btn" onclick="selectAllDailyManagers()">Select All</button><button type="button" class="mini-btn" onclick="clearDailyManagers()">Clear</button></div></div><div class="sendto-label">Send To</div><details class="manager-dropdown" id="dailyManagerDropdown"><summary><span class="manager-selected-label" id="dailyManagerSummary">Send To</span></summary><div class="manager-dropdown-panel" id="dailyManagerList"><div class="settings-note">Loading Send To list…</div></div></details><div class="daily-report-actions"><button type="button" class="daily-report-secondary" onclick="closeDailyReport()">Cancel</button><button type="button" class="daily-report-primary" onclick="sendDailyVisitsReport()">📧 Send Report</button></div><div class="daily-report-note">The report uses the same HR-style Excel structure already used by the app. Direct Microsoft 365 sending will use the logged-in official account through the native Microsoft Graph bridge once Entra/MSAL is configured.</div></div></div>
+<div class="modal daily-report-modal" id="weeklyReportModal" onclick="if(event.target===this)closeWeeklyReport()"><div class="modal-box"><div class="modal-head"><h3>📧 Send Weekly Plan</h3><button class="close" onclick="closeWeeklyReport()">✕</button></div><p class="settings-note">Select the current Saturday → Friday weekly plan and the Send To recipient(s) from your Reporting mapping who should receive it.</p><div class="export-grid"><div class="field"><label>From</label><input id="weeklyReportFrom" class="date-input" type="date" readonly></div><div class="field"><label>To</label><input id="weeklyReportTo" class="date-input" type="date" readonly></div></div><div class="daily-report-toolbar"><span class="daily-report-count" id="weeklyReportCount">Loading Send To…</span><div><button type="button" class="mini-btn" onclick="selectAllWeeklyManagers()">Select All</button><button type="button" class="mini-btn" onclick="clearWeeklyManagers()">Clear</button></div></div><div class="sendto-label">Send To</div><details class="manager-dropdown" id="weeklyManagerDropdown"><summary><span class="manager-selected-label" id="weeklyManagerSummary">Send To</span></summary><div class="manager-dropdown-panel" id="weeklyManagerList"><div class="settings-note">Loading Send To list…</div></div></details><div class="daily-report-actions"><button type="button" class="daily-report-secondary" onclick="closeWeeklyReport()">Cancel</button><button type="button" class="daily-report-primary" onclick="sendWeeklyPlanReport()">📧 Send Weekly Plan</button></div><div class="daily-report-note">The Excel attachment contains the planned customers for the selected Saturday → Friday week, including date, day, area and plan status.</div></div></div>
 </div><!-- appShell -->
 <script>
 /* ===== Innoval Cloud Layer v1.9.37 — Auth UUID fix ===== */
@@ -1736,17 +1768,7 @@ function installAuthRecoveryHandler(){
   });
 }
 function recoveryRedirectUrl(){
-  // Always use a Supabase-approved web origin. When the HTML is opened locally
-  // (file://), window.location.origin is "null" and cannot be used safely as a
-  // recovery redirect. The deployed GitHub Pages URL is the canonical app URL.
-  const deployed="https://ebrahimemary3-beep.github.io/Innoval-Field-Force/";
-  try{
-    const origin=String(window.location.origin||"");
-    if(origin && origin!=="null" && /^https?:$/i.test(window.location.protocol)){
-      return origin + window.location.pathname;
-    }
-  }catch(e){}
-  return deployed;
+  return window.location.origin + window.location.pathname;
 }
 async function submitPasswordRecovery(){
   const p1=String(document.getElementById("recoveryPassword")?.value||"");
@@ -1794,18 +1816,10 @@ setTimeout(()=>{ensureSupabaseClient().catch(e=>console.warn("Innoval Supabase b
 async function cloudSignIn(email, password){
   try{
     await ensureSupabaseClient();
-    // Always start from a clean auth state when a user explicitly signs in.
-    // This prevents a previous user's persisted session from being reused.
-    try{ await innovalSupabase.auth.signOut({scope:"local"}); }catch(e){}
-    const request=innovalSupabase.auth.signInWithPassword({email, password});
-    const timeout=new Promise((_,reject)=>setTimeout(()=>reject(new Error("Cloud authentication timed out after 30 seconds. Please check your internet connection and try again.")),30000));
-    const {data,error}=await Promise.race([request,timeout]);
+    const {data,error}=await innovalSupabase.auth.signInWithPassword({email, password});
     if(error) throw error;
     if(!data?.session) return {ok:false,error:"Supabase login returned no active session."};
-    // Force-refresh the persisted session once so subsequent customer/visit
-    // sync calls see the same authenticated session immediately.
-    try{ await innovalSupabase.auth.getSession(); }catch(e){}
-    return {ok:true,session:data.session};
+    return {ok:true};
   }catch(error){
     const msg=error?.message || String(error);
     console.warn("Innoval cloud sign-in unavailable:", msg);
@@ -1845,7 +1859,6 @@ async function cloudSession(){
     const emp=employeeList().find(x=>String(x.email||'').trim().toLowerCase()===String(p.email||'').trim().toLowerCase());
     const password=emp?.password||'';
     if(!password) return null;
-    if(typeof navigator!=="undefined" && navigator.onLine===false) return null;
     const auth=await cloudSignIn(p.email,password);
     if(!auth.ok) return null;
     const restored=await innovalSupabase.auth.getSession();
@@ -2027,12 +2040,11 @@ async function cloudSyncCustomer(customer,isNewCustomer=false){
 
 async function cloudPullMyData(){
   const session=await cloudSession();
-  const p=appUserForCloudSession(session)||currentUserRecord();
+  const p=currentUserRecord();
   const authUserId=session?.user?.id||"";
   const appUserId=String(p?.id||"");
   if(!session || !innovalSupabase || !appUserId || !authUserId) return false;
   try{
-    // 1) Pull the current user's visits only.
     const {data:vr,error:vErr}=await innovalSupabase.from("visits").select("*").eq("user_id",appUserId);
     if(vErr) throw vErr;
     const local=visits();
@@ -2041,52 +2053,19 @@ async function cloudPullMyData(){
       const key=String(v.id),localRow=map.get(key);
       const cloudTime=Date.parse(v.updated_at||'')||0, localTime=Date.parse(localRow?.updatedAt||'')||0;
       if(localRow && localTime>cloudTime) return;
-      map.set(key,{id:key,date:v.visit_date,visitNo:String(v.visit_no||""),rep:p.name,customer:v.customer_name||"",gov:v.governorate||"",area:v.area||"",areaId:v.area_id||"",visitType:v.visit_type||"",planId:v.plan_id||"",potential:v.potential||"",loyalty:v.loyalty||"",meted:v.meted||"",jobTitle:v.job_title||"",type:v.customer_type||"",objective:v.objective||"",nextDate:v.next_date||"",comments:v.comments||"",conclusion:v.conclusion||"",collection:v.collection||"",feedback:v.feedback||"",updatedAt:v.updated_at||new Date().toISOString()});
+      map.set(key,{
+        id:key,date:v.visit_date,visitNo:String(v.visit_no||""),rep:p.name,customer:v.customer_name||"",gov:v.governorate||"",area:v.area||"",areaId:v.area_id||"",visitType:v.visit_type||"",planId:v.plan_id||"",potential:v.potential||"",loyalty:v.loyalty||"",meted:v.meted||"",jobTitle:v.job_title||"",type:v.customer_type||"",objective:v.objective||"",nextDate:v.next_date||"",comments:v.comments||"",conclusion:v.conclusion||"",collection:v.collection||"",feedback:v.feedback||"",updatedAt:v.updated_at||new Date().toISOString()
+      });
     });
     saveVisits(Array.from(map.values()));
 
-    // 2) Pull the current user's weekly plan only.
     const {data:wp,error:wErr}=await innovalSupabase.from("weekly_plans").select("*").eq("user_id",appUserId);
     if(wErr) throw wErr;
     if(Array.isArray(wp)){
-      const rows=weeklyPlanRows(),wm=new Map(rows.map(x=>[String(x.id),x]));
+      const rows=weeklyPlanRows();
+      const wm=new Map(rows.map(x=>[String(x.id),x]));
       wp.forEach(x=>wm.set(String(x.id),{id:String(x.id),rep:p.name,date:x.visit_date,day:weeklyDayName(x.visit_date),customer:x.customer_name||"",area:x.area_name||"",areaId:x.area_id||"",createdAt:String(x.created_at||"").slice(0,10)}));
       saveWeeklyPlanRows(Array.from(wm.values()));
-    }
-
-    // 3) Pull shared customer master changes for this user's territory.
-    //    These are cached separately from MASTER_DATA so the locked master file
-    //    remains immutable while users can still receive Cloud updates.
-    const areaIds=(p.areaIds||[]).filter(x=>String(x)!=="A00");
-    let cq=innovalSupabase.from("customers").select("customer_id,name,governorate,area,area_id,customer_type,potential,loyalty,active,updated_at,created_by");
-    if(areaIds.length) cq=cq.in("area_id",areaIds); // A00/admin pulls all rows.
-    const {data:cr,error:cErr}=await cq;
-    if(cErr) throw cErr;
-    if(Array.isArray(cr)){
-      const cache=(()=>{try{const x=JSON.parse(localStorage.getItem("innovalCloudCustomerCacheV1")||"[]");return Array.isArray(x)?x:[]}catch(e){return[]}})();
-      const cm=new Map(cache.map(c=>[String(c.customerId||""),c]));
-      cr.forEach(c=>cm.set(String(c.customer_id),{customerId:String(c.customer_id),name:String(c.name||""),gov:String(c.governorate||""),area:String(c.area||""),areaId:String(c.area_id||""),type:String(c.customer_type||"Other"),potential:String(c.potential||"Medium"),loyalty:String(c.loyalty||"Neutral"),active:c.active!==false,createdBy:String(c.created_by||""),updatedAt:String(c.updated_at||"")}));
-      localStorage.setItem("innovalCloudCustomerCacheV1",JSON.stringify(Array.from(cm.values()).slice(-5000)));
-    }
-
-    // 4) Pull customer details used by Area Database and merge them into the
-    //    existing local override layer. Cloud is newer only when its timestamp
-    //    is newer than the locally stored override.
-    const ids=(Array.isArray(cr)?cr:[]).map(c=>String(c.customer_id||"")).filter(Boolean);
-    if(ids.length){
-      const {data:cd,error:dErr}=await innovalSupabase.from("customer_details").select("customer_id,responsible,phone,tasmim,bayad,omhat,updated_at").in("customer_id",ids);
-      if(dErr) throw dErr;
-      if(Array.isArray(cd)){
-        let ov={};try{ov=JSON.parse(localStorage.getItem('innovalCustomerOverridesV1947')||'{}')}catch(e){ov={}}
-        cd.forEach(row=>{
-          const k=String(row.customer_id||""); if(!k)return;
-          const localRow=ov[k]||{}, cloudTime=Date.parse(row.updated_at||'')||0, localTime=Date.parse(localRow.updatedAt||'')||0;
-          if(!localRow.updatedAt || cloudTime>=localTime){
-            ov[k]=Object.assign({},localRow,{responsible:String(row.responsible||""),phone:String(row.phone||""),tasmim:String(row.tasmim??0),bayad:String(row.bayad??0),omhat:String(row.omhat??0),updatedAt:String(row.updated_at||new Date().toISOString())});
-          }
-        });
-        localStorage.setItem('innovalCustomerOverridesV1947',JSON.stringify(ov));
-      }
     }
     return true;
   }catch(error){ console.warn("Innoval cloud pull failed:",error?.message||error); return false; }
@@ -2159,26 +2138,14 @@ function syncMasterData(){
   localStorage.setItem("innovalMasterDataVersion","1.8.0");
 }
 
-const DATA={"customers": [{"name": "عبدالرحمن اسامه", "gov": "بني سويف", "area": "الروضه", "potential": "High", "loyalty": "Loyal"}, {"name": "عيد ابو السعود", "gov": "الفيوم", "area": "ابو السعود", "potential": "High", "loyalty": "Loyal"}, {"name": "البنك", "gov": "بني سويف", "area": "صلاح سالم", "potential": "Medium", "loyalty": "Neutral"}, {"name": "عبد الله حسين", "gov": "الفيوم", "area": "الممشي", "potential": "Medium", "loyalty": "Neutral"}, {"name": "عبد الله عبد الوهاب", "gov": "بني سويف", "area": "مقبل", "potential": "Medium", "loyalty": "Neutral"}, {"name": "ايهاب القلعاوي", "gov": "بني سويف", "area": "محي الدين", "potential": "Medium", "loyalty": "Neutral"}, {"name": "احمد عبد الباقي", "gov": "الفيوم", "area": "الحواتم", "potential": "Medium", "loyalty": "Neutral"}, {"name": "رضا عبد العليم", "gov": "الفيوم", "area": "طاميه", "potential": "Medium", "loyalty": "Neutral"}, {"name": "احمد عبد الرحمن", "gov": "الفيوم", "area": "المسله", "potential": "Medium", "loyalty": "Neutral"}, {"name": "يوسف شعبان مفتاح", "gov": "الفيوم", "area": "دله", "potential": "Medium", "loyalty": "Neutral"}, {"name": "محمود عشري", "gov": "الفيوم", "area": "باغوص", "potential": "Medium", "loyalty": "Neutral"}, {"name": "الشركه", "gov": "القاهرة", "area": "المقطم", "potential": "High", "loyalty": "Loyal"}, {"name": "محمد رمضان", "gov": "الفيوم", "area": "المسله", "potential": "Medium", "loyalty": "Neutral"}, {"name": "حسام العاصي", "gov": "الفيوم", "area": "دله", "potential": "Medium", "loyalty": "Neutral"}, {"name": "المصريه الفرنسيه", "gov": "بني سويف", "area": "المنطقه الصناعيه", "potential": "Medium", "loyalty": "Neutral"}], "govs": ["القاهرة", "الجيزة", "البحيرة", "الإسكندرية", "مطروح", "كفر الشيخ", "الغربية", "المنوفية", "القليوبية", "دمياط", "الدقهلية", "بور سعيد", "الشرقية", "الإسماعيلية", "السويس", "شمال سيناء", "جنوب سيناء", "البحر الأحمر", "الفيوم", "بني سويف", "المنيا", "أسيوط", "سوهاج", "قنا", "الأقصر", "أسوان", "الوادي الجديد"], "potential": ["High", "Medium", "Low"], "loyalty": ["Loyal", "Neutral", "UnLoyal"], "objectives": ["Sales Call (Product Promotion)", "Sales Order", "Promotion + Order", "Collection - Cash", "Collection - Credit", "Collection Follow up", "Technical Service / Problem Solving", "Marketing activity", "Public Relations / Personal requests"], "products": ["Product A", "Product B", "Product C", "Product D"], "employees":[{"name":"Ahmed Aly Abdel Atty Ebeid","area":"BEHERA","password":"1234"},{"name":"Mohamed, Saad Abdel Wahed Saad","area":"BEHERA","password":"1234"},{"name":"Ibram Adel","area":"CAIRO","password":"1234"},{"name":"Mohamed Sayed Ahmed Aboshanab","area":"cairo","password":"1234"},{"name":"Abdelrahman Ragaei Mahrous","area":"CAIRO","password":"1234"},{"name":"Ahmed, Osama Hamdy El Bendary","area":"DAKAHLIA","password":"1234"},{"name":"Mahmoud Nasr Ibrahim","area":"DAKAHLIA","password":"1234"},{"name":"Mostafa Ahmed Mostafa Ramadan","area":"DAKAHLIA","password":"1234"},{"name":"Mohamed Abdel Aziz Rashed","area":"DAKAHLIA","password":"1234"},{"name":"Ahmed , Abdel Naser Mohamed Sayed","area":"Fayoum","password":"1234"},{"name":"Moemen, Mohamed Ali Abdel Gawad","area":"GHARBIA","password":"1234"},{"name":"Amr Ibrahim Mady","area":"GHARBIA","password":"1234"},{"name":"Mohamed, El Saied Awad","area":"MENOFIA","password":"1234"},{"name":"Belal Mohamed Sayed Mohamed Marzok","area":"National","password":"1234"},{"name":"Ibrahim, Mohamed Abdel Latif El Emary","area":"National","password":"1234"},{"name":"Mohamed, Ibrahim Mahmoud Ali El Zayat","area":"National","password":"1234"},{"name":"Mohamed Mostafa AbouEl Yazied","area":"National","password":"1234"},{"name":"Ibrahim, Mousa Ahmed Mousa","area":"SHARKIA","password":"1234"},{"name":"Islam, Mohamady El Sayed Mansour","area":"SHARKIA","password":"1234"},{"name":"Mohamed Gomaa Ibrahim Gomaa","area":"SHARKIA","password":"1234"},{"name":"Ahmed Atef Farghaly Akl","area":"UE","password":"1234"},{"name":"Mostafa, Ahmed Abdel Radi","area":"UE","password":"1234"},{"name":"Mohamed Ashraf Gaber","area":"UE","password":"1234"},{"name":"Hossam Bashier","area":"UE","password":"1234"}]};const $=id=>document.getElementById(id);const today=()=>new Date().toISOString().slice(0,10);const visits=()=>JSON.parse(localStorage.getItem("innovalVisitsFinal")||"[]");const saveVisits=v=>localStorage.setItem("innovalVisitsFinal",JSON.stringify(v));
+const DATA={"customers": [{"name": "عبدالرحمن اسامه", "gov": "بني سويف", "area": "الروضه", "potential": "High", "loyalty": "Loyal"}, {"name": "عيد ابو السعود", "gov": "الفيوم", "area": "ابو السعود", "potential": "High", "loyalty": "Loyal"}, {"name": "البنك", "gov": "بني سويف", "area": "صلاح سالم", "potential": "Medium", "loyalty": "Neutral"}, {"name": "عبد الله حسين", "gov": "الفيوم", "area": "الممشي", "potential": "Medium", "loyalty": "Neutral"}, {"name": "عبد الله عبد الوهاب", "gov": "بني سويف", "area": "مقبل", "potential": "Medium", "loyalty": "Neutral"}, {"name": "ايهاب القلعاوي", "gov": "بني سويف", "area": "محي الدين", "potential": "Medium", "loyalty": "Neutral"}, {"name": "احمد عبد الباقي", "gov": "الفيوم", "area": "الحواتم", "potential": "Medium", "loyalty": "Neutral"}, {"name": "رضا عبد العليم", "gov": "الفيوم", "area": "طاميه", "potential": "Medium", "loyalty": "Neutral"}, {"name": "احمد عبد الرحمن", "gov": "الفيوم", "area": "المسله", "potential": "Medium", "loyalty": "Neutral"}, {"name": "يوسف شعبان مفتاح", "gov": "الفيوم", "area": "دله", "potential": "Medium", "loyalty": "Neutral"}, {"name": "محمود عشري", "gov": "الفيوم", "area": "باغوص", "potential": "Medium", "loyalty": "Neutral"}, {"name": "الشركه", "gov": "القاهرة", "area": "المقطم", "potential": "High", "loyalty": "Loyal"}, {"name": "محمد رمضان", "gov": "الفيوم", "area": "المسله", "potential": "Medium", "loyalty": "Neutral"}, {"name": "حسام العاصي", "gov": "الفيوم", "area": "دله", "potential": "Medium", "loyalty": "Neutral"}, {"name": "المصريه الفرنسيه", "gov": "بني سويف", "area": "المنطقه الصناعيه", "potential": "Medium", "loyalty": "Neutral"}], "govs": ["القاهرة", "الجيزة", "البحيرة", "الإسكندرية", "مطروح", "كفر الشيخ", "الغربية", "المنوفية", "القليوبية", "دمياط", "الدقهلية", "بور سعيد", "الشرقية", "الإسماعيلية", "السويس", "شمال سيناء", "جنوب سيناء", "البحر الأحمر", "الفيوم", "بني سويف", "المنيا", "أسيوط", "سوهاج", "قنا", "الأقصر", "أسوان", "الوادي الجديد"], "potential": ["High", "Medium", "Low"], "loyalty": ["Loyal", "Neutral", "UnLoyal"], "objectives": ["Sales Call (Product Promotion)", "Sales Order", "Promotion + Order", "Collection - Cash", "Collection - Credit", "Collection Follow up", "Technical Service / Problem Solving", "Marketing activity", "Public Relations / Personal requests", "Public Relation and Feedback"], "products": ["Product A", "Product B", "Product C", "Product D"], "employees":[{"name":"Ahmed Aly Abdel Atty Ebeid","area":"BEHERA","password":"1234"},{"name":"Mohamed, Saad Abdel Wahed Saad","area":"BEHERA","password":"1234"},{"name":"Ibram Adel","area":"CAIRO","password":"1234"},{"name":"Mohamed Sayed Ahmed Aboshanab","area":"cairo","password":"1234"},{"name":"Abdelrahman Ragaei Mahrous","area":"CAIRO","password":"1234"},{"name":"Ahmed, Osama Hamdy El Bendary","area":"DAKAHLIA","password":"1234"},{"name":"Mahmoud Nasr Ibrahim","area":"DAKAHLIA","password":"1234"},{"name":"Mostafa Ahmed Mostafa Ramadan","area":"DAKAHLIA","password":"1234"},{"name":"Mohamed Abdel Aziz Rashed","area":"DAKAHLIA","password":"1234"},{"name":"Ahmed , Abdel Naser Mohamed Sayed","area":"Fayoum","password":"1234"},{"name":"Moemen, Mohamed Ali Abdel Gawad","area":"GHARBIA","password":"1234"},{"name":"Amr Ibrahim Mady","area":"GHARBIA","password":"1234"},{"name":"Mohamed, El Saied Awad","area":"MENOFIA","password":"1234"},{"name":"Belal Mohamed Sayed Mohamed Marzok","area":"National","password":"1234"},{"name":"Ibrahim, Mohamed Abdel Latif El Emary","area":"National","password":"1234"},{"name":"Mohamed, Ibrahim Mahmoud Ali El Zayat","area":"National","password":"1234"},{"name":"Mohamed Mostafa AbouEl Yazied","area":"National","password":"1234"},{"name":"Ibrahim, Mousa Ahmed Mousa","area":"SHARKIA","password":"1234"},{"name":"Islam, Mohamady El Sayed Mansour","area":"SHARKIA","password":"1234"},{"name":"Mohamed Gomaa Ibrahim Gomaa","area":"SHARKIA","password":"1234"},{"name":"Ahmed Atef Farghaly Akl","area":"UE","password":"1234"},{"name":"Mostafa, Ahmed Abdel Radi","area":"UE","password":"1234"},{"name":"Mohamed Ashraf Gaber","area":"UE","password":"1234"},{"name":"Hossam Bashier","area":"UE","password":"1234"}]};const $=id=>document.getElementById(id);const today=()=>new Date().toISOString().slice(0,10);const visits=()=>JSON.parse(localStorage.getItem("innovalVisitsFinal")||"[]");const saveVisits=v=>localStorage.setItem("innovalVisitsFinal",JSON.stringify(v));
 const customers=()=>{
   const u=currentUserRecord();
-  const byId=new Map();
-  (MASTER_DATA.customers||[]).forEach(c=>byId.set(String(c.customerId||c.id||c.name),Object.assign({},c)));
-  try{
-    const cache=JSON.parse(localStorage.getItem("innovalCloudCustomerCacheV1")||"[]");
-    if(Array.isArray(cache)) cache.forEach(c=>{
-      const k=String(c.customerId||c.id||c.name||"");
-      if(k) byId.set(k,Object.assign({},byId.get(k)||{},c));
-    });
-  }catch(e){}
+  let base=MASTER_DATA.customers.slice();
   try{
     const extra=JSON.parse(localStorage.getItem("innovalExtraCustomersV17")||"[]");
-    if(Array.isArray(extra)) extra.filter(c=>String(c?.customerScope||"both")!=="db").forEach(c=>{
-      const k=String(c.customerId||c.id||c.name||"");
-      if(k) byId.set(k,Object.assign({},byId.get(k)||{},c));
-    });
+    if(Array.isArray(extra))base=base.concat(extra.filter(c=>String(c?.customerScope||"both")!=="db"));
   }catch(e){}
-  const base=Array.from(byId.values()).filter(c=>c.active!==false);
   if(!u || (u.areaIds||[]).includes("A00")) return base;
   return base.filter(c=>(u.areaIds||[]).includes(c.areaId));
 };
@@ -2410,32 +2377,8 @@ async function forgotPassword(){
   if(errEl)errEl.style.display="none";
   try{
     await ensureSupabaseClient();
-    const redirectTo=recoveryRedirectUrl();
-    // Use the Auth REST endpoint directly for the recovery email. This avoids
-    // an SDK request hanging indefinitely on some WebView/network stacks and
-    // gives us an explicit abort timeout plus the real HTTP error if Supabase
-    // responds with one.
-    const controller=new AbortController();
-    const timer=setTimeout(()=>controller.abort(),30000);
-    let response;
-    try{
-      response=await fetch(INNOVAL_SUPABASE_URL+"/auth/v1/recover",{
-        method:"POST",
-        headers:{"Content-Type":"application/json","apikey":INNOVAL_SUPABASE_PUBLISHABLE_KEY},
-        body:JSON.stringify({email,redirect_to:redirectTo}),
-        signal:controller.signal
-      });
-    }catch(fetchErr){
-      if(fetchErr?.name==="AbortError") throw new Error("Password reset request timed out after 30 seconds. Please check your internet connection and try again.");
-      throw fetchErr;
-    }finally{ clearTimeout(timer); }
-    const raw=await response.text();
-    let data={};
-    try{data=raw?JSON.parse(raw):{};}catch(e){}
-    if(!response.ok){
-      const detail=data?.msg||data?.message||data?.error_description||data?.error||("Password reset request failed (HTTP "+response.status+").");
-      throw new Error(String(detail));
-    }
+    const {error}=await innovalSupabase.auth.resetPasswordForEmail(email,{redirectTo:recoveryRedirectUrl()});
+    if(error)throw error;
     if(errEl){
       errEl.textContent="Password reset link sent to your official Outlook email. Open the link to set a new password.";
       errEl.style.display="block";
@@ -2456,7 +2399,7 @@ function hideStartupSplash(){
 }
 // Hard fail-safe: a slow/blocked CDN must never leave the app frozen on the splash screen.
 setTimeout(()=>{try{hideStartupSplash();}catch(e){}},2200);
-// Splash visibility is controlled by init() so the intro can complete smoothly before navigation.
+window.addEventListener('load',()=>setTimeout(()=>{try{hideStartupSplash();}catch(e){}},250));
 function isIOSDevice(){return /iPad|iPhone|iPod/.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&navigator.maxTouchPoints>1)}
 function isAndroidDevice(){return /Android/i.test(navigator.userAgent)}
 async function downloadLatestAndroidApk(){
@@ -2573,12 +2516,7 @@ function init(){
     login?.style.setProperty("display","none","important");
     shell?.classList.remove("hidden");
     shell?.style.setProperty("display","block","important");
-    try{
-      $("modal")?.classList.remove("open");
-      $("exportModal")?.classList.remove("open");
-      unlockModalLayer();
-      showHome();
-    }catch(e){console.error("Home render error:",e);}
+    try{showHome();}catch(e){console.error("Home render error:",e);}
   };
   const showOnlyLogin=()=>{
     shell?.classList.add("hidden");
@@ -2635,7 +2573,7 @@ function init(){
     }finally{
       hideStartupSplash();
     }
-  },1450);
+  },1250);
 }
 $("loginForm").addEventListener("submit",async e=>{
   e.preventDefault();
@@ -2656,27 +2594,12 @@ $("loginForm").addEventListener("submit",async e=>{
   // Supabase Auth is the authoritative password source. Local password data
   // is only an offline fallback and is refreshed after a successful Cloud login.
   let cloudAuth=null;
-  const browserOffline=(typeof navigator!=="undefined" && navigator.onLine===false);
   try{cloudAuth=await cloudSignIn(email,pass);}catch(e){cloudAuth={ok:false,error:e?.message||String(e)}}
 
-  // ONLINE: Supabase Auth is mandatory. Never let a local-only login look
-  // successful when the Cloud session was not created; otherwise later
-  // customer/visit updates would be saved only on the device and disappear
-  // when the user changes browser/device.
-  if(!browserOffline && !cloudAuth?.ok){
-    const msg=String(cloudAuth?.error||"");
-    errEl.textContent=msg.toLowerCase().includes("invalid login credentials")
+  if(!cloudAuth?.ok && String(emp.password||"")!==String(pass)){
+    errEl.textContent=cloudAuth?.error?.toLowerCase?.().includes("invalid login credentials")
       ? "Invalid official Outlook email or password."
-      : msg || "Cloud login failed. Please check your internet connection and try again.";
-    errEl.style.display="block";
-    return;
-  }
-
-  // OFFLINE: allow the existing local credential fallback only when the
-  // browser explicitly reports no network. The record remains local/pending
-  // and will sync automatically after connectivity returns.
-  if(browserOffline && !cloudAuth?.ok && String(emp.password||"")!==String(pass)){
-    errEl.textContent="Offline login failed. Please check your saved password or reconnect to the internet.";
+      : "Invalid official Outlook email or password. Please check your internet connection and try again.";
     errEl.style.display="block";
     return;
   }
@@ -2728,15 +2651,7 @@ $("loginForm").addEventListener("submit",async e=>{
     login?.style.setProperty("display","none","important");
     shell?.classList.remove("hidden");
     shell?.style.setProperty("display","block","important");
-    // A successful login must always start from a clean Home state.
-    try{
-      $("modal")?.classList.remove("open");
-      $("exportModal")?.classList.remove("open");
-      $("appDrawer")?.classList.remove("open");
-      $("drawerOverlay")?.classList.remove("open");
-      unlockModalLayer();
-      showHome();
-    }catch(e){console.warn("Post-login Home navigation warning:",e);}
+    try{showHome();}catch(e){}
   }catch(err){
     console.error("Innoval app login render error:",err);
     showAppLoginScreen();
@@ -2862,6 +2777,139 @@ function showVisitSuccess(customer,date){
 function closeVisitSuccess(){
   $("visitSuccess").classList.remove("open");$("visitSuccess").setAttribute("aria-hidden","true");unlockModalLayer();
 }
+
+
+(function(){
+  let visitConclusionRecognition=null;
+  let visitConclusionListening=false;
+  let visitConclusionPendingPermission=false;
+  let visitConclusionBaseText="";
+
+  function conclusionEl(){return document.getElementById("conclusion")}
+  function voiceBtn(){return document.getElementById("voiceConclusionBtn")}
+  function voiceStatus(){return document.getElementById("voiceConclusionStatus")}
+
+  function setVoiceUI(listening,message){
+    visitConclusionListening=!!listening;
+    const b=voiceBtn(), st=voiceStatus();
+    if(b){
+      b.classList.toggle("is-listening",!!listening);
+      const label=b.querySelector(".voice-input-label");
+      if(label) label.textContent=listening ? "Stop Listening" : "Voice Input";
+      const icon=b.querySelector(".voice-input-icon");
+      if(icon) icon.textContent=listening ? "⏹️" : "🎙️";
+    }
+    if(st) st.textContent=message || (listening ? "Listening… tap again to stop." : "Tap the microphone once to start listening.");
+  }
+
+  function recognitionCtor(){
+    return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  }
+
+  function startRecognitionNow(){
+    const Ctor=recognitionCtor();
+    if(!Ctor){
+      setVoiceUI(false,"Voice input is not supported on this device.");
+      return;
+    }
+    const field=conclusionEl();
+    if(!field) return;
+
+    if(visitConclusionRecognition){
+      try{visitConclusionRecognition.stop()}catch(e){}
+      visitConclusionRecognition=null;
+    }
+
+    const r=new Ctor();
+    visitConclusionRecognition=r;
+    r.continuous=true;
+    r.interimResults=true;
+    r.lang="ar-EG";
+    visitConclusionBaseText=String(field.value||"").trim();
+
+    r.onstart=function(){
+      setVoiceUI(true,"Listening… tap again to stop.");
+    };
+    r.onresult=function(event){
+      let finalText="", interimText="";
+      for(let i=event.resultIndex;i<event.results.length;i++){
+        const text=event.results[i][0]?.transcript||"";
+        if(event.results[i].isFinal) finalText+=text+" ";
+        else interimText+=text;
+      }
+      const base=visitConclusionBaseText;
+      const finalPart=finalText.trim();
+      const combined=[base,finalPart].filter(Boolean).join(base && finalPart ? " " : "");
+      field.value=interimText ? (combined + (combined ? " " : "") + interimText).trim() : combined;
+      field.dispatchEvent(new Event("input",{bubbles:true}));
+    };
+    r.onerror=function(event){
+      if(event?.error==="aborted") return;
+      setVoiceUI(false,event?.error==="not-allowed" ? "Microphone permission is required." : "Voice input stopped.");
+    };
+    r.onend=function(){
+      visitConclusionRecognition=null;
+      if(visitConclusionListening) setVoiceUI(false,"Voice input stopped. Tap again to start.");
+    };
+    try{r.start()}catch(e){
+      visitConclusionRecognition=null;
+      setVoiceUI(false,"Voice input could not start.");
+    }
+  }
+
+  window.toggleVisitConclusionVoice=function(){
+    if(visitConclusionListening){
+      if(visitConclusionRecognition){
+        try{visitConclusionRecognition.stop()}catch(e){}
+      }else{
+        setVoiceUI(false);
+      }
+      return;
+    }
+
+    const Ctor=recognitionCtor();
+    if(!Ctor){
+      setVoiceUI(false,"Voice input is not supported on this device.");
+      return;
+    }
+
+    // Android wrapper: request system microphone permission first.
+    // No in-app permission card/message is shown.
+    if(window.Android && typeof window.Android.requestMicrophonePermission==="function"){
+      try{
+        const granted=window.Android.requestMicrophonePermission();
+        if(granted===true){ startRecognitionNow(); }
+        else{
+          visitConclusionPendingPermission=true;
+          setVoiceUI(false,"Microphone permission is required to use Voice Input.");
+        }
+        return;
+      }catch(e){}
+    }
+
+    startRecognitionNow();
+  };
+
+  // Called by MainActivity after the Android system permission dialog.
+  window.onNativeMicrophonePermission=function(granted){
+    if(granted && visitConclusionPendingPermission){
+      visitConclusionPendingPermission=false;
+      startRecognitionNow();
+    }else{
+      visitConclusionPendingPermission=false;
+      if(!granted) setVoiceUI(false,"Microphone permission is required to use Voice Input.");
+    }
+  };
+
+  window.stopVisitConclusionVoice=function(){
+    visitConclusionPendingPermission=false;
+    if(visitConclusionRecognition){
+      try{visitConclusionRecognition.stop()}catch(e){}
+    }
+    setVoiceUI(false);
+  };
+})();
+
 $("visitForm").addEventListener("submit",async e=>{
   e.preventDefault();
   const form=e.currentTarget;
@@ -2932,8 +2980,10 @@ $("visitForm").addEventListener("submit",async e=>{
   if(existingCount>=10){toast("Maximum 10 visits per day");return;}
 
   const objective=$("objective").value;
+  const conclusionText=String($("conclusion")?.value||"").trim();
+  if(!conclusionText){toast("Please enter the Visit Conclusion");$("conclusion")?.focus();unlockSubmit();return;}
   const selected=selectedProducts();
-  if(isProductPromotionObjective(objective) && selected.length===0){toast("Please select at least one promoted product");return;}
+  if(isProductPromotionObjective(objective) && selected.length===0){toast("Please select at least one promoted product");unlockSubmit();return;}
 
   if($('potential') && !['High','Medium','Low'].includes(String($('potential').value||'').trim())) $('potential').value='Medium';
 
@@ -2962,10 +3012,11 @@ $("visitForm").addEventListener("submit",async e=>{
     p2:selected[1]||"",
     p3:selected[2]||"",
     nextDate:$("nextDate").value,
-    comments:$("comments").value,
-    conclusion:$("conclusion").value,
-    collection:$("collection").value,
-    feedback:$("feedback").value,
+    // Legacy fields remain empty for database/schema compatibility. They are no longer part of the UI.
+    comments:"",
+    conclusion:$("conclusion").value.trim(),
+    collection:"",
+    feedback:"",
     updatedAt:new Date().toISOString()
   });
 
@@ -2976,6 +3027,7 @@ $("visitForm").addEventListener("submit",async e=>{
   saveVisits(d);
 
   e.target.reset();
+  try{stopVisitConclusionVoice();}catch(e){}
   $("visitDate").value=today();
   $("todayLabel").textContent=visitDate;
   if($("plannedVisitCustomer"))$("plannedVisitCustomer").value="";
@@ -3142,7 +3194,7 @@ function openCustomerCard(index){
     '<div class="detail-item"><span>Last Visit</span><b>'+esc(last?formatDate(last.date):"—")+'</b></div>'+
     '<div class="detail-item"><span>Last Objective</span><b>'+esc(last?last.objective:"—")+'</b></div>'+
     '</div>'+
-    (last?'<div style="background:#f7f9fc;border-radius:12px;padding:12px;margin-bottom:13px"><b style="font-size:11px">Latest Feedback</b><div style="font-size:11px;color:var(--muted);margin-top:5px">'+esc(last.comments||"No feedback recorded.")+'</div></div>':'')+
+
     '<div class="form-actions"><button class="secondary-btn" onclick="openCustomerCards()">← Back</button><button class="save" style="margin:0" onclick="closeModal();showVisitPageForCustomer('+JSON.stringify(c.name)+')">＋ New Visit</button></div>';
 }
 
@@ -3220,7 +3272,7 @@ function openCustomerDatabaseRecord(index){
       '<div class="customer-db-item"><span>Total Visits</span><b>'+vd.length+'</b></div>'+
       '<div class="customer-db-item"><span>Last Visit</span><b>'+esc(last?formatDate(last.date):"—")+'</b></div>'+
       '<div class="customer-db-item full"><span>Last Objective</span><b>'+esc(last?last.objective:"—")+'</b></div>'+
-      (last?'<div class="customer-db-item full"><span>Latest Feedback</span><b>'+esc(last.comments||"—")+'</b></div>':'')+
+
     '</div>'+
     '<div class="customer-db-note">Fields not yet available in the current customer master data are shown as — and can be populated later from the official database sheet.</div>'+
     '<div class="form-actions" style="margin-top:13px"><button class="secondary-btn" onclick="openAreaDatabase()">← Back</button><button class="save" style="margin:0" onclick="closeModal();showVisitPageForCustomer('+JSON.stringify(c.name)+')">＋ New Visit</button></div>';
@@ -3303,7 +3355,7 @@ function openAddCustomer(){
     '<div class="field"><label>Customer Name *</label><input id="newCustomerName" style="padding-left:12px" required placeholder="Enter customer name"></div>'+
     '<div class="field"><label>Area *</label><select id="newCustomerArea" required style="padding-left:12px"></select><small class="add-customer-area-note">Area is assigned from the logged-in official Outlook account.</small></div>'+
     '<div class="field"><label>Governorate / Center *</label><select id="newCustomerGov" required style="padding-left:12px"><option value="">Select Governorate / Center</option></select></div>'+
-    '<div class="field"><label>Customer Type *</label><select id="newCustomerType" required style="padding-left:12px"><option value="">Select Type</option><option>Veterinarian</option><option>Pharmacist</option><option>Farm Owner</option><option>Farm Manager</option><option>Accountant / محاسب</option><option>Engineering Office</option><option>Distributor</option><option>Other</option></select></div>'+
+    '<div class="field"><label>Customer Type *</label><select id="newCustomerType" required style="padding-left:12px"><option value="">Select Type</option><option>مشرف</option><option>مربي</option><option>موزع</option><option>مكتب فني</option><option>محاسب</option><option>مهندس</option></select></div>'+
     '<div class="field"><label>Potentiality</label><select id="newCustomerPotential" style="padding-left:12px">'+DATA.potential.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select></div>'+
     '<div class="field"><label>Loyalty</label><select id="newCustomerLoyalty" style="padding-left:12px">'+DATA.loyalty.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select></div>'+
     '<button class="save" type="submit">＋ &nbsp; Add Customer</button>'+
@@ -3395,7 +3447,7 @@ function openVisits(){
     const selected=dateEl?dateEl.value:"";
     const q=String($("visitSearch")?.value||"").trim().toLowerCase();
     let rows=all.filter(v=>!selected||v.date===selected);
-    if(q) rows=rows.filter(v=>[v.customer,v.area,v.objective,v.comments,v.type].some(x=>String(x||"").toLowerCase().includes(q)));
+    if(q) rows=rows.filter(v=>[v.customer,v.area,v.objective,v.type].some(x=>String(x||"").toLowerCase().includes(q)));
     rows.sort((a,b)=>String(b.date).localeCompare(String(a.date)));
 
     const uniqueCustomers=[...new Set(rows.map(v=>v.customer).filter(Boolean))];
@@ -3421,7 +3473,7 @@ function openVisits(){
           (v.p1||v.p2||v.p3?'<span class="chip">Product</span>':'')+
         '</div>'+
         ((v.p1||v.p2||v.p3)?'<small><b>Products:</b> '+esc([v.p1,v.p2,v.p3].filter(Boolean).join(" • "))+'</small>':'')+
-        (v.comments?'<div class="visit-feedback">'+esc(v.comments)+'</div>':'')+
+
       '</div>'
     ).join(''):'<div style="padding:30px;text-align:center;color:#71809a">No visits found for this date.</div>';
 
@@ -3704,7 +3756,7 @@ function togglePasswordField(id,btn){
 function openPasswordSettings(){
   $("modalTitle").textContent="Change Password";
   $("modalBody").innerHTML=
-    '<div class="password-page-intro"><div class="password-title">🔐 Account Security</div><p>Update your password securely. Use any password format you prefer, then confirm your new password.</p></div>'+
+    '<div class="password-page-intro"><div class="password-title">🔐 Account Security</div><p>Update your password securely. Enter your current password, then choose and confirm your new password.</p></div>'+
     '<div class="password-fields-card">'+
       '<div class="field"><label>Current Password</label><span class="password-icon">🔑</span><input id="oldPass" type="password" autocomplete="current-password" placeholder="Enter current password"><button class="password-toggle" type="button" onclick="togglePasswordField(\'oldPass\',this)" aria-label="Show password">◉</button></div>'+
       '<div class="field"><label>New Password</label><span class="password-icon">🛡️</span><input id="newPass" type="password" autocomplete="new-password" placeholder="Enter new password"><button class="password-toggle" type="button" onclick="togglePasswordField(\'newPass\',this)" aria-label="Show password">◉</button></div>'+
@@ -3772,9 +3824,8 @@ function saveProfileData(){
 async function changePassword(){
   const p=profile(),list=employeeList(),emp=list.find(x=>x.name===p.rep),oldPass=String($("oldPass")?.value||""),newp=String($("newPass")?.value||""),conf=String($("confirmPass")?.value||"");
   if(!emp||oldPass!==String(emp.password||"")){toast("Current password is incorrect");return}
-  /* Flexible password format: letters, numbers, symbols and spaces are allowed.
-     Supabase still enforces its server-side minimum password length. */
-  if(newp.length<6){toast("New password must be at least 6 characters");return}
+  if(newp.length<4){toast("New password must be at least 4 characters");return}
+  if(!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]+$/.test(newp)){toast("New password must contain letters and numbers only");return}
   if(newp!==conf){toast("New passwords do not match");return}
   const btn=document.querySelector('.password-save');if(btn){btn.disabled=true;btn.textContent='Updating…'}
   try{
@@ -3782,34 +3833,16 @@ async function changePassword(){
     if(!session||!innovalSupabase)throw new Error('Cloud account is not connected. Please connect to the internet and try again.');
     const {error}=await innovalSupabase.auth.updateUser({password:newp});
     if(error)throw error;
-    /* Keep the local app credential synchronized after the cloud update is confirmed. */
     emp.password=newp;
     localStorage.setItem('innovalEmployeesFinal',JSON.stringify(list));
     localStorage.setItem('innovalPasswordUpdatedAt_'+String(p.id||p.rep),new Date().toISOString());
     closeModal();
-    showPasswordUpdateSuccess();
+    toast('Password updated successfully ✓');
   }catch(e){
     console.warn('Password update failed:',e?.message||e);
     toast('Password was not changed. Cloud update failed.');
     if(btn){btn.disabled=false;btn.textContent='Update Password'}
   }
-}
-
-function showPasswordUpdateSuccess(){
-  const m=$('passwordSuccessModal');
-  if(!m)return;
-  m.classList.add('open');
-  m.setAttribute('aria-hidden','false');
-  document.documentElement.classList.add('modal-locked');
-  document.body.classList.add('modal-locked');
-}
-function closePasswordUpdateSuccess(){
-  const m=$('passwordSuccessModal');
-  if(m){
-    m.classList.remove('open');
-    m.setAttribute('aria-hidden','true');
-  }
-  unlockModalLayer();
 }
 
 function weeklyPlanKey(){const p=profile();return "innovalWeeklyPlan_"+(p.rep||"guest")}
@@ -3856,7 +3889,7 @@ function renderWeeklyPlan(range){
   $("modalBody").innerHTML='<div class="weekly-week-label">Saturday → Friday • '+formatDate(range.start)+' → '+formatDate(range.end)+'</div>'+
     '<div class="weekly-plan-summary"><div class="weekly-kpi"><strong>'+info.planned+'</strong><span>Planned</span></div><div class="weekly-kpi"><strong>'+info.matched+'</strong><span>Matched</span></div><div class="weekly-kpi"><strong>'+info.percent+'%</strong><span>Plan Match</span></div></div>'+
     '<div class="weekly-progress"><span style="width:'+pct+'%"></span></div>'+days+
-    '<div class="weekly-toolbar"><button type="button" onclick="openWeeklyFullView()">▤ Full Week View</button><button type="button" onclick="openAddPlannedVisit(weeklyCurrentRange().start)">＋ Add Planned Visit</button></div>';
+    '<div class="weekly-toolbar weekly-toolbar-3"><button type="button" onclick="openWeeklyFullView()">▤ Full Week View</button><button type="button" onclick="openAddPlannedVisit(weeklyCurrentRange().start)">＋ Add Planned Visit</button><button type="button" class="weekly-send-report" onclick="openWeeklyReport()">📧 Send Weekly Plan</button></div>';
 }
 function deletePlannedVisit(id){
   if(!id)return;
@@ -3925,7 +3958,339 @@ function closeModal(){$("modal").classList.remove("open");unlockModalLayer()}fun
     localStorage.setItem("innovalAuthSessionVersion",AUTH_SESSION_VERSION);
   }
 })();
-init();loadProfilePhoto();function openExport(){
+init();loadProfilePhoto();// ===== XLSX export helper (Office/Excel mobile compatible) =====
+function xlsxXmlEsc(v){
+  return String(v??'').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
+}
+function xlsxColName(n){let s='';n=Number(n)+1;while(n){let r=(n-1)%26;s=String.fromCharCode(65+r)+s;n=Math.floor((n-1)/26);}return s;}
+function buildXlsxSheetXml(rows){
+  const maxCols=rows.reduce((m,r)=>Math.max(m,r.length),0);
+  const widths=[14,10,22,18,30,14,12,24,22,34,24,24,24,46,18,18,18,46];
+  const lastRef=maxCols&&rows.length?(xlsxColName(maxCols-1)+rows.length):'A1';
+  let xml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+  xml+='<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">';
+  xml+='<dimension ref="A1:'+lastRef+'"/>';
+  xml+='<sheetViews><sheetView workbookViewId="0"><selection activeCell="A1" sqref="A1"/><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>';
+  xml+='<sheetFormatPr defaultRowHeight="18"/>';
+  xml+='<cols>';
+  for(let i=0;i<maxCols;i++)xml+='<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+(widths[i]||18)+'" customWidth="1"/>';
+  xml+='</cols><sheetData>';
+  rows.forEach((row,ri)=>{
+    const rn=ri+1,isHeader=ri===0;
+    xml+='<row r="'+rn+'"'+(isHeader?' ht="30" customHeight="1"':'')+'>';
+    row.forEach((v,ci)=>{
+      const ref=xlsxColName(ci)+rn,val=xlsxXmlEsc(v);
+      xml+='<c r="'+ref+'" s="'+(isHeader?'1':'2')+'" t="inlineStr"><is><t xml:space="preserve">'+val+'</t></is></c>';
+    });
+    xml+='</row>';
+  });
+  xml+='</sheetData>';
+  if(rows.length&&maxCols)xml+='<autoFilter ref="A1:'+xlsxColName(maxCols-1)+rows.length+'"/>';
+  xml+='<pageMargins left="0.25" right="0.25" top="0.5" bottom="0.5" header="0.3" footer="0.3"/>';
+  xml+='</worksheet>';
+  return xml;
+}
+function crc32Xlsx(data){
+  let table=crc32Xlsx.table;
+  if(!table){table=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);table[n]=c>>>0;}crc32Xlsx.table=table;}
+  let c=0xFFFFFFFF;for(let i=0;i<data.length;i++)c=table[(c^data[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0;
+}
+function u16Xlsx(n){return new Uint8Array([n&255,(n>>>8)&255]);}
+function u32Xlsx(n){return new Uint8Array([n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255]);}
+function zipStoredXlsx(files){
+  const enc=new TextEncoder(), parts=[], central=[]; let offset=0;
+  for(const f of files){
+    const name=enc.encode(f.name), data=typeof f.data==='string'?enc.encode(f.data):f.data;
+    const crc=crc32Xlsx(data), size=data.length;
+    const local=new Uint8Array(30+name.length+size); let o=0;
+    local.set(u32Xlsx(0x04034b50),o);o+=4;local.set(u16Xlsx(20),o);o+=2;local.set(u16Xlsx(0),o);o+=2;local.set(u16Xlsx(0),o);o+=2;local.set(u16Xlsx(0),o);o+=2;local.set(u16Xlsx(0),o);o+=2;local.set(u32Xlsx(crc),o);o+=4;local.set(u32Xlsx(size),o);o+=4;local.set(u32Xlsx(size),o);o+=4;local.set(u16Xlsx(name.length),o);o+=2;local.set(u16Xlsx(0),o);o+=2;local.set(name,o);o+=name.length;local.set(data,o);
+    parts.push(local);
+    const cd=new Uint8Array(46+name.length);o=0;cd.set(u32Xlsx(0x02014b50),o);o+=4;cd.set(u16Xlsx(20),o);o+=2;cd.set(u16Xlsx(20),o);o+=2;cd.set(u16Xlsx(0),o);o+=2;cd.set(u16Xlsx(0),o);o+=2;cd.set(u16Xlsx(0),o);o+=2;cd.set(u16Xlsx(0),o);o+=2;cd.set(u32Xlsx(crc),o);o+=4;cd.set(u32Xlsx(size),o);o+=4;cd.set(u32Xlsx(size),o);o+=4;cd.set(u16Xlsx(name.length),o);o+=2;cd.set(u16Xlsx(0),o);o+=2;cd.set(u16Xlsx(0),o);o+=2;cd.set(u16Xlsx(0),o);o+=2;cd.set(u16Xlsx(0),o);o+=2;cd.set(u32Xlsx(0),o);o+=4;cd.set(u32Xlsx(offset),o);o+=4;cd.set(name,o);central.push(cd);offset+=local.length;
+  }
+  const centralSize=central.reduce((n,a)=>n+a.length,0), end=new Uint8Array(22);let o=0;end.set(u32Xlsx(0x06054b50),o);o+=4;end.set(u16Xlsx(0),o);o+=2;end.set(u16Xlsx(0),o);o+=2;end.set(u16Xlsx(files.length),o);o+=2;end.set(u16Xlsx(files.length),o);o+=2;end.set(u32Xlsx(centralSize),o);o+=4;end.set(u32Xlsx(offset),o);o+=4;end.set(u16Xlsx(0),o);
+  return new Blob([...parts,...central,end],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+function buildXlsxBlob(sheetDefs){
+  const esc=xlsxXmlEsc; const files=[];
+  files.push({name:'[Content_Types].xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+sheetDefs.map((_,i)=>'<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>').join('')+'</Types>'});
+  files.push({name:'_rels/.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'});
+  files.push({name:'xl/workbook.xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>'+sheetDefs.map((x,i)=>'<sheet name="'+esc(x.name.slice(0,31))+'" sheetId="'+(i+1)+'" r:id="rId'+(i+1)+'"/>').join('')+'</sheets><calcPr calcId="191029" fullCalcOnLoad="1" forceFullCalc="1"/></workbook>'});
+  files.push({name:'xl/_rels/workbook.xml.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+sheetDefs.map((_,i)=>'<Relationship Id="rId'+(i+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>').join('')+'</Relationships>'});
+  files.push({name:'xl/styles.xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="0"/><fonts count="2"><font><sz val="11"/><name val="Aptos"/></font><font><b/><sz val="11"/><name val="Aptos"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="D9EAF7"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment horizontal="center" vertical="center" wrapText="1"/></xf><xf numFmtId="0" fontId="0" fillId="0" borderId="0" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>'});
+  sheetDefs.forEach((x,i)=>files.push({name:'xl/worksheets/sheet'+(i+1)+'.xml',data:buildXlsxSheetXml(x.rows)}));
+  return zipStoredXlsx(files);
+}
+function rowsFromVisits(list){
+  return [['Date of Visit','Visit #','Governorate','Area','Customer Name','Potentiality','Loyalty','Meted Person','Job Title','Visit Objective','Product 1','Product 2','Product 3','Conclusion'],...list.map((v,i)=>[v.date||'',v.visitNo||'',v.gov||'',v.area||'',v.customer||'',v.potential||'',v.loyalty||'',v.meted||'',v.jobTitle||'',v.objective||'',v.p1||'',v.p2||'',v.p3||'',v.conclusion||''])];
+}
+// ===== Daily Visits Report =====
+let dailyReportManagers=[];
+let dailyReportLoading=false;
+function normalizeManagerEmail(email){return String(email||'').trim().toLowerCase();}
+function extractSentToEmails(value){
+  const out=[];
+  const push=v=>{const e=normalizeManagerEmail(v);if(e&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)&&!out.includes(e))out.push(e);};
+  if(Array.isArray(value)){value.forEach(v=>{if(typeof v==='string')push(v);else if(v&&typeof v==='object')push(v.email||v.mail||v.address);});return out;}
+  if(value&&typeof value==='object'){
+    if(Array.isArray(value.emails))value.emails.forEach(push);
+    else push(value.email||value.mail||value.address);
+    return out;
+  }
+  let str=String(value??'').trim(); if(!str)return out;
+  try{const parsed=JSON.parse(str); if(parsed!==value)return extractSentToEmails(parsed);}catch(e){}
+  str=str.replace(/<br\s*\/?>/gi,'\n').replace(/&lt;br\s*\/?>/gi,'\n');
+  (str.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi)||[]).forEach(push);
+  return out;
+}
+function findSentToField(row){
+  if(!row||typeof row!=='object')return null;
+  const preferred=['sent_to','sentto','sentTo','Sent To','SentTo','manager_emails','managerEmails','recipient_emails'];
+  for(const k of preferred)if(Object.prototype.hasOwnProperty.call(row,k))return row[k];
+  const key=Object.keys(row).find(k=>/sent\s*[_-]?\s*to|manager\s*[_-]?\s*emails?|recipient\s*[_-]?\s*emails?/i.test(k));
+  return key?row[key]:null;
+}
+function uniqueManagers(list){
+  const seen=new Set();
+  return (Array.isArray(list)?list:[]).filter(x=>{
+    const email=normalizeManagerEmail(x?.email);
+    const key=email||String(x?.user_id||x?.id||x?.name||'').trim().toLowerCase();
+    if(!key||seen.has(key))return false; seen.add(key); return true;
+  });
+}
+function buildManagersForEmployee(rows,employee){
+  const active=Array.isArray(rows)?rows.filter(x=>x && x.active!==false):[];
+  const employeeEmail=normalizeManagerEmail(employee?.email);
+  const employeeName=String(employee?.name||employee?.rep||'').trim().toLowerCase();
+  const me=active.find(x=>normalizeManagerEmail(x.email)===employeeEmail) || active.find(x=>String(x.name||'').trim().toLowerCase()===employeeName);
+  if(!me)return [];
+  const emails=extractSentToEmails(findSentToField(me));
+  if(!emails.length)return [];
+  const byEmail=new Map(active.map(x=>[normalizeManagerEmail(x.email),x]).filter(([e])=>e));
+  return uniqueManagers(emails.map(email=>{
+    const row=byEmail.get(email);
+    return row?{user_id:row.user_id||row.id||email,name:row.name||email,email:row.email||email,role:row.role||''}:{user_id:email,name:email,email,role:''};
+  }));
+}
+const INNOVAL_REPORTING_FALLBACK=[{"employee_email":"Ahmed.Akl@ift-online.com","employee_name":"Ahmed Atef Akl","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"Ahmed.Akl@ift-online.com","employee_name":"Ahmed Atef Akl","manager_email":"mohamed.gomaa@ift-online.com","manager_name":"Mohamed Gomaa Ibrahim Gomaa"},{"employee_email":"Ahmed.Akl@ift-online.com","employee_name":"Ahmed Atef Akl","manager_email":"Mohamed.gaber@ift-online.com","manager_name":"Mohamed Gaber"},{"employee_email":"Mostafa.Abdelrady@ift-online.com","employee_name":"Mostafa Ahmed Abdelrady","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"Mostafa.Abdelrady@ift-online.com","employee_name":"Mostafa Ahmed Abdelrady","manager_email":"mohamed.gomaa@ift-online.com","manager_name":"Mohamed Gomaa Ibrahim Gomaa"},{"employee_email":"Mostafa.Abdelrady@ift-online.com","employee_name":"Mostafa Ahmed Abdelrady","manager_email":"Mohamed.gaber@ift-online.com","manager_name":"Mohamed Gaber"},{"employee_email":"Hossam.Bashier@ift-online.com","employee_name":"Hossam Bashier","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"Hossam.Bashier@ift-online.com","employee_name":"Hossam Bashier","manager_email":"mohamed.gomaa@ift-online.com","manager_name":"Mohamed Gomaa Ibrahim Gomaa"},{"employee_email":"Hossam.Bashier@ift-online.com","employee_name":"Hossam Bashier","manager_email":"Mohamed.gaber@ift-online.com","manager_name":"Mohamed Gaber"},{"employee_email":"Hossam.Bashier@ift-online.com","employee_name":"Hossam Bashier","manager_email":"belalmarzouk@ift-online.com","manager_name":"Belal Mohamed Sayed Mohamed Marzok"},{"employee_email":"Mohamed.Gaber@ift-online.com","employee_name":"Mohamed Gaber","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"Mohamed.Gaber@ift-online.com","employee_name":"Mohamed Gaber","manager_email":"mohamed.gomaa@ift-online.com","manager_name":"Mohamed Gomaa Ibrahim Gomaa"},{"employee_email":"Ahmed.abdelnaser@ift-online.com","employee_name":"Ahmed Abdel-Naser Mohamed","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"Ahmed.abdelnaser@ift-online.com","employee_name":"Ahmed Abdel-Naser Mohamed","manager_email":"mohamed.gomaa@ift-online.com","manager_name":"Mohamed Gomaa Ibrahim Gomaa"},{"employee_email":"Ahmed.abdelnaser@ift-online.com","employee_name":"Ahmed Abdel-Naser Mohamed","manager_email":"Mohamed.gaber@ift-online.com","manager_name":"Mohamed Gaber"},{"employee_email":"Mohamed.Elsaeid@ift-online.com","employee_name":"Mohamed El-Saeid Awad","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"Mohamed.Elsaeid@ift-online.com","employee_name":"Mohamed El-Saeid Awad","manager_email":"mohamed.gomaa@ift-online.com","manager_name":"Mohamed Gomaa Ibrahim Gomaa"},{"employee_email":"Mohamed.Mekheimar@ift-online.com","employee_name":"Mohamed Saad Mekheimar","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"Mohamed.Mekheimar@ift-online.com","employee_name":"Mohamed Saad Mekheimar","manager_email":"mohamed.gomaa@ift-online.com","manager_name":"Mohamed Gomaa Ibrahim Gomaa"},{"employee_email":"ahmed.aly.ebeid@ift-online.com","employee_name":"Ahmed Aly Abdel Atty Ebeid","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"ahmed.aly.ebeid@ift-online.com","employee_name":"Ahmed Aly Abdel Atty Ebeid","manager_email":"mohamed.gomaa@ift-online.com","manager_name":"Mohamed Gomaa Ibrahim Gomaa"},{"employee_email":"Moamen.Mohamed@ift-online.com","employee_name":"Moamen Mohamed Ali","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"Moamen.Mohamed@ift-online.com","employee_name":"Moamen Mohamed Ali","manager_email":"mohamed.gomaa@ift-online.com","manager_name":"Mohamed Gomaa Ibrahim Gomaa"},{"employee_email":"amr.mady@ift-online.com","employee_name":"Amr Ibrahim Mady","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"amr.mady@ift-online.com","employee_name":"Amr Ibrahim Mady","manager_email":"mohamed.gomaa@ift-online.com","manager_name":"Mohamed Gomaa Ibrahim Gomaa"},{"employee_email":"Ibrahim.Mousa@ift-online.com","employee_name":"Ibrahim Mousa","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"Ibrahim.Mousa@ift-online.com","employee_name":"Ibrahim Mousa","manager_email":"mohamed.gomaa@ift-online.com","manager_name":"Mohamed Gomaa Ibrahim Gomaa"},{"employee_email":"Islam.mohamady@ift-online.com","employee_name":"Islam Mohamady Mansour","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"Islam.mohamady@ift-online.com","employee_name":"Islam Mohamady Mansour","manager_email":"mohamed.gomaa@ift-online.com","manager_name":"Mohamed Gomaa Ibrahim Gomaa"},{"employee_email":"mohamed.gomaa@ift-online.com","employee_name":"Mohamed Gomaa Ibrahim Gomaa","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"mahmoud.nasr@ift-online.com","employee_name":"Mahmoud Nasr","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"mahmoud.nasr@ift-online.com","employee_name":"Mahmoud Nasr","manager_email":"mohamed.gomaa@ift-online.com","manager_name":"Mohamed Gomaa Ibrahim Gomaa"},{"employee_email":"Mostafa.ramadan@ift-online.com","employee_name":"Mostafa Ahmed Mostafa Ramadan","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"Mostafa.ramadan@ift-online.com","employee_name":"Mostafa Ahmed Mostafa Ramadan","manager_email":"mohamed.gomaa@ift-online.com","manager_name":"Mohamed Gomaa Ibrahim Gomaa"},{"employee_email":"Mostafa.ramadan@ift-online.com","employee_name":"Mostafa Ahmed Mostafa Ramadan","manager_email":"Mohamed.Elzayat@ift-online.com","manager_name":"Mohamed, Ibrahim Mahmoud Ali El Zayat"},{"employee_email":"mohamed.rashed@ift-online.com","employee_name":"Mohamed Abdel Aziz Rashed","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"mohamed.rashed@ift-online.com","employee_name":"Mohamed Abdel Aziz Rashed","manager_email":"mohamed.gomaa@ift-online.com","manager_name":"Mohamed Gomaa Ibrahim Gomaa"},{"employee_email":"mohamed.rashed@ift-online.com","employee_name":"Mohamed Abdel Aziz Rashed","manager_email":"belalmarzouk@ift-online.com","manager_name":"Belal Mohamed Sayed Mohamed Marzok"},{"employee_email":"Ahmed.osama@ift-online.com","employee_name":"Ahmed Osama Hamdy","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"Ahmed.osama@ift-online.com","employee_name":"Ahmed Osama Hamdy","manager_email":"mohamed.gomaa@ift-online.com","manager_name":"Mohamed Gomaa Ibrahim Gomaa"},{"employee_email":"Ahmed.osama@ift-online.com","employee_name":"Ahmed Osama Hamdy","manager_email":"mahmoud.nasr@ift-online.com","manager_name":"Mahmoud Nasr"},{"employee_email":"Abdelrahman.Ragaia@ift-online.com","employee_name":"Abdelrahman Ragaee Mahrous","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"Abdelrahman.Ragaia@ift-online.com","employee_name":"Abdelrahman Ragaee Mahrous","manager_email":"mohamed.gomaa@ift-online.com","manager_name":"Mohamed Gomaa Ibrahim Gomaa"},{"employee_email":"Abdelrahman.Ragaia@ift-online.com","employee_name":"Abdelrahman Ragaee Mahrous","manager_email":"Mohamed.Aboshanab@ift-online.com","manager_name":"Mohamed Abo Shanab"},{"employee_email":"Mohamed.Aboshanab@ift-online.com","employee_name":"Mohamed Abo Shanab","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"Mohamed.Aboshanab@ift-online.com","employee_name":"Mohamed Abo Shanab","manager_email":"mohamed.gomaa@ift-online.com","manager_name":"Mohamed Gomaa Ibrahim Gomaa"},{"employee_email":"mohamed.aboelyazid@ift-online.com","employee_name":"Mohamed Mostafa AbouEl Yazied","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"Mohamed.Elzayat@ift-online.com","employee_name":"Mohamed, Ibrahim Mahmoud Ali El Zayat","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"belalmarzouk@ift-online.com","employee_name":"Belal Mohamed Sayed Mohamed Marzok","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"},{"employee_email":"Ibrahim.Elamary@ift-online.com","employee_name":"Ibrahim El-Emary","manager_email":"Ibrahim.Elamary@ift-online.com","manager_name":"Ibrahim El-Emary"}];
+function loadDailyReportManagers(){
+  const listEl=$('dailyManagerList'), countEl=$('dailyReportCount');
+  dailyReportLoading=false;
+  dailyReportManagers=[];
+  try{
+    const e=currentUserRecord()||{};
+    const id=String(e.id||e.userId||'').trim().toUpperCase();
+    const email=normalizeManagerEmail(e.email||'');
+    const name=String(e.name||e.rep||'').trim().toLowerCase();
+    const byId={
+      'U001':[
+        {email:'Ibrahim.Elamary@ift-online.com',name:'Ibrahim El-Emary'},
+        {email:'mohamed.gomaa@ift-online.com',name:'Mohamed Gomaa Ibrahim Gomaa'},
+        {email:'Mohamed.gaber@ift-online.com',name:'Mohamed Gaber'}
+      ],
+      'U002':[
+        {email:'Ibrahim.Elamary@ift-online.com',name:'Ibrahim El-Emary'},
+        {email:'mohamed.gomaa@ift-online.com',name:'Mohamed Gomaa Ibrahim Gomaa'},
+        {email:'Mohamed.gaber@ift-online.com',name:'Mohamed Gaber'}
+      ],
+      'U003':[
+        {email:'Ibrahim.Elamary@ift-online.com',name:'Ibrahim El-Emary'},
+        {email:'mohamed.gomaa@ift-online.com',name:'Mohamed Gomaa Ibrahim Gomaa'},
+        {email:'Mohamed.gaber@ift-online.com',name:'Mohamed Gaber'},
+        {email:'belalmarzouk@ift-online.com',name:'Belal Mohamed Sayed Mohamed Marzok'}
+      ],
+      'U004':[
+        {email:'Ibrahim.Elamary@ift-online.com',name:'Ibrahim El-Emary'},
+        {email:'mohamed.gomaa@ift-online.com',name:'Mohamed Gomaa Ibrahim Gomaa'}
+      ]
+    };
+    const byEmail={
+      'ahmed.akl@ift-online.com':'U001','mostafa.abdelrady@ift-online.com':'U002','hossam.bashier@ift-online.com':'U003','mohamed.gaber@ift-online.com':'U004',
+      'ahmed.abdelnaser@ift-online.com':'U005','mohamed.elsaeid@ift-online.com':'U006','mohamed.mekheimar@ift-online.com':'U007','ahmed.aly.ebeid@ift-online.com':'U008',
+      'moamen.mohamed@ift-online.com':'U009','amr.mady@ift-online.com':'U010','ibrahim.mousa@ift-online.com':'U011','islam.mohamady@ift-online.com':'U012',
+      'mohamed.gomaa@ift-online.com':'U013','mahmoud.nasr@ift-online.com':'U014','mostafa.ramadan@ift-online.com':'U015','mohamed.rashed@ift-online.com':'U016',
+      'ahmed.osama@ift-online.com':'U017','abdelrahman.ragaia@ift-online.com':'U018','mohamed.aboshanab@ift-online.com':'U019','mohamed.aboelyazid@ift-online.com':'U020',
+      'mohamed.elzayat@ift-online.com':'U021','belalmarzouk@ift-online.com':'U022','ibrahim.elamary@ift-online.com':'U000'
+    };
+    const effectiveId=byId[id]?id:(byEmail[email]||'');
+    let mapped=byId[effectiveId]||[];
+    if(!mapped.length && Array.isArray(INNOVAL_REPORTING_FALLBACK)){
+      const rows=INNOVAL_REPORTING_FALLBACK.filter(r=>r&&r.active!==false);
+      const match=rows.filter(r=>normalizeManagerEmail(r.employee_email)===email || String(r.employee_name||'').trim().toLowerCase()===name);
+      mapped=match.map(r=>({email:r.manager_email,name:r.manager_name}));
+    }
+    dailyReportManagers=uniqueManagers(mapped.map((x,i)=>({user_id:x.email||('manager_'+i),id:x.email||('manager_'+i),name:x.name||x.email,email:x.email||'',role:''})));
+  }catch(err){
+    console.error('Send To local mapping error:',err);
+    dailyReportManagers=[];
+  }
+  renderDailyReportManagers();
+  updateDailyManagerSummary();
+  updateDailyReportCount();
+  return dailyReportManagers;
+}
+function managerCheckboxHtml(m,i,type){
+  const cls=type==='weekly'?'weekly-manager-check':'daily-manager-check';
+  const id=(type==='weekly'?'weeklyManager_':'dailyManager_')+i;
+  return '<label class="manager-option" for="'+id+'"><input id="'+id+'" type="checkbox" class="'+cls+'" value="'+esc(m.user_id||m.id||m.email||String(i))+'" data-email="'+esc(m.email||'')+'" data-name="'+esc(m.name||'')+'" data-role="'+esc(m.role||'')+'" onchange="'+(type==='weekly'?'updateWeeklyManagerSummary();updateWeeklyReportCount();':'updateDailyManagerSummary();updateDailyReportCount();')+'"><span class="manager-copy"><b>'+esc(m.name||'Unnamed Manager')+'</b><small>'+esc(m.email||'')+(m.role?' • '+esc(m.role):'')+'</small></span></label>';
+}
+function renderCheckboxList(items,type){
+  const arr=Array.isArray(items)?items:[];
+  const t=type==='weekly'?'weekly':'daily';
+  return arr.map((m,i)=>managerCheckboxHtml(m,i,t)).join('');
+}
+function renderDailyReportManagers(){
+  const listEl=$('dailyManagerList'), countEl=$('dailyReportCount'); if(!listEl)return;
+  if(!dailyReportManagers.length){ listEl.innerHTML='<div class="settings-note">No Send To recipients are mapped to this account. Please verify the Reporting table and mapping in Supabase.</div>'; if(countEl)countEl.textContent='0 Send To recipients'; updateDailyManagerSummary(); return; }
+  listEl.innerHTML=dailyReportManagers.map((m,i)=>managerCheckboxHtml(m,i,'daily')).join('');
+  updateDailyManagerSummary(); updateDailyReportCount();
+}
+function selectedDailyManagers(){return Array.from(document.querySelectorAll('.daily-manager-check:checked')).map(x=>({id:x.value,email:x.dataset.email||'',name:x.dataset.name||'',role:x.dataset.role||''}));}
+function updateDailyManagerSummary(){
+  const el=$("dailyManagerSummary"); if(!el)return; const a=selectedDailyManagers();
+  el.textContent=!a.length?'Send To':a.length===1?a[0].name:(a.length+' recipients selected');
+}
+function selectAllDailyManagers(){document.querySelectorAll('.daily-manager-check').forEach(x=>x.checked=true);updateDailyManagerSummary();updateDailyReportCount();}
+function clearDailyManagers(){document.querySelectorAll('.daily-manager-check').forEach(x=>x.checked=false);updateDailyManagerSummary();updateDailyReportCount();}
+function setDailyReportRange(kind){
+  const d=new Date(); let from,to;
+  if(kind==='week'){
+    const day=d.getDay()||7;
+    from=new Date(d); from.setDate(d.getDate()-day+1);
+    to=new Date(from); to.setDate(from.getDate()+6);
+  }else if(kind==='lastweek'){
+    const day=d.getDay()||7;
+    to=new Date(d); to.setDate(d.getDate()-day);
+    from=new Date(to); from.setDate(to.getDate()-6);
+  }else{
+    from=new Date(d.getFullYear(),d.getMonth(),1);
+    to=new Date(d.getFullYear(),d.getMonth()+1,0);
+  }
+  if($('dailyReportFrom'))$('dailyReportFrom').value=isoDate(from);
+  if($('dailyReportTo'))$('dailyReportTo').value=isoDate(to);
+  updateDailyReportCount();
+}
+function updateDailyReportCount(){
+  const from=$('dailyReportFrom')?.value||today();
+  const to=$('dailyReportTo')?.value||from;
+  const selected=selectedDailyManagers().length;
+  const el=$('dailyReportCount');
+  if(!from||!to){if(el)el.textContent='Select a date range • '+selected+' manager'+(selected===1?'':'s')+' selected';return;}
+  if(from>to){if(el)el.textContent='Invalid date range • '+selected+' manager'+(selected===1?'':'s')+' selected';return;}
+  const n=visits().filter(v=>v.rep===profile().rep&&v.date>=from&&v.date<=to).length;
+  if(el)el.textContent=n+' visit'+(n===1?'':'s')+' found in selected range • '+selected+' manager'+(selected===1?'':'s')+' selected';
+}
+async function openDailyReport(){
+  const p=profile();
+  const d=visits().filter(v=>v.rep===p.rep&&v.date).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  const dates=d.map(v=>v.date).filter(Boolean);
+  const defaultDate=today();
+  if($('dailyReportFrom'))$('dailyReportFrom').value=dates.length?dates[0]:defaultDate;
+  if($('dailyReportTo'))$('dailyReportTo').value=dates.length?dates[dates.length-1]:defaultDate;
+  openModalLayer('dailyReportModal');
+  loadDailyReportManagers();
+  updateDailyManagerSummary();
+  updateDailyReportCount();
+}
+function closeDailyReport(){$('dailyReportModal')?.classList.remove('open');unlockModalLayer()}
+function buildDailyReportExcel(fromStr,toStr){
+  const p=profile(); if(!fromStr||!toStr||fromStr>toStr)return null;
+  const list=visits().filter(v=>v.rep===p.rep&&v.date>=fromStr&&v.date<=toStr).sort((a,b)=>String(a.date).localeCompare(String(b.date))||Number(a.visitNo||999)-Number(b.visitNo||999));
+  if(!list.length)return null;
+  const blob=buildXlsxBlob([{name:'Visits Report',rows:rowsFromVisits(list)}]);
+  return {blob,fileName:'Innoval_Daily_Visits_Report_'+fromStr+'_to_'+toStr+'.xlsx',list};
+}
+async function sendDailyVisitsReport(){
+  if(dailyReportLoading)return;
+  const managers=selectedDailyManagers();
+  if(!managers.length){toast('Please select at least one manager');return;}
+  const fromStr=$('dailyReportFrom')?.value||today();
+  const toStr=$('dailyReportTo')?.value||fromStr;
+  if(!fromStr||!toStr||fromStr>toStr){toast('Please select a valid date range');return;}
+  const report=buildDailyReportExcel(fromStr,toStr);
+  if(!report){toast('No visits found in selected range');return;}
+  const recipients=managers.map(x=>x.email).filter(Boolean);
+  if(!recipients.length){toast('Selected managers do not have valid email addresses');return;}
+  const periodLabel=fromStr===toStr?fromStr:(fromStr+' to '+toStr);
+  const bodyPeriod=fromStr===toStr?('for '+fromStr):('for the period from '+fromStr+' to '+toStr);
+  const subject='Innoval Daily Visits Report — '+periodLabel;
+  const body='Dear Manager,\n\nPlease find attached the Innoval Daily Visits Report '+bodyPeriod+'.\n\nRegards,\n'+profile().rep;
+  const reader=new FileReader();
+  reader.onloadend=()=>{
+    const base64=String(reader.result||'').split(',')[1]||'';
+    try{
+      if(window.Android && typeof window.Android.sendDailyVisitsReport==='function'){
+        window.Android.openOutlookDailyReport(recipients.join(';'),subject,body,report.fileName,base64);
+        toast('Daily report sent ✓');
+        closeDailyReport();
+        return;
+      }
+      toast('Microsoft 365 direct sending is not connected yet');
+    }catch(e){console.error(e);toast('Daily report could not be sent');}
+  };
+  reader.readAsDataURL(report.blob);
+}
+
+// ===== Weekly Plan Report =====
+function weeklyReportManagersHtml(){return (dailyReportManagers||[]).map((m,i)=>managerCheckboxHtml(m,i,'weekly')).join('');}
+function selectedWeeklyManagers(){return Array.from(document.querySelectorAll('.weekly-manager-check:checked')).map(x=>({id:x.value,email:x.dataset.email||'',name:x.dataset.name||'',role:x.dataset.role||''}));}
+function updateWeeklyManagerSummary(){
+  const el=$("weeklyManagerSummary"); if(!el)return; const a=selectedWeeklyManagers();
+  el.textContent=!a.length?'Send To':a.length===1?a[0].name:(a.length+' recipients selected');
+}
+function updateWeeklyReportCount(){
+  const range=weeklyCurrentRange(), rows=weeklyPlanRows().filter(x=>x.date>=range.start&&x.date<=range.end), selected=selectedWeeklyManagers().length;
+  const el=$('weeklyReportCount');
+  if(el)el.textContent=rows.length+' planned visit'+(rows.length===1?'':'s')+' in selected week • '+selected+' manager'+(selected===1?'':'s')+' selected';
+}
+function selectAllWeeklyManagers(){document.querySelectorAll('.weekly-manager-check').forEach(x=>x.checked=true);updateWeeklyManagerSummary();updateWeeklyReportCount()}
+function clearWeeklyManagers(){document.querySelectorAll('.weekly-manager-check').forEach(x=>x.checked=false);updateWeeklyManagerSummary();updateWeeklyReportCount()}
+async function openWeeklyReport(){
+  const range=weeklyCurrentRange();
+  $('weeklyReportFrom').value=range.start; $('weeklyReportTo').value=range.end;
+  $('weeklyManagerList').innerHTML='<div class="settings-note">Loading Send To list…</div>';
+  openModalLayer('weeklyReportModal');
+  await loadDailyReportManagers();
+  $('weeklyManagerList').innerHTML=(dailyReportManagers||[]).map((m,i)=>managerCheckboxHtml(m,i,'weekly')).join('')||'<div class="settings-note">No Send To recipients are mapped to this account. Please verify the Reporting table and mapping in Supabase.</div>';
+  updateWeeklyManagerSummary();
+  updateWeeklyReportCount();
+}
+function closeWeeklyReport(){$('weeklyReportModal')?.classList.remove('open');unlockModalLayer()}
+function buildWeeklyPlanExcel(){
+  const p=profile(), range=weeklyCurrentRange();
+  const list=weeklyPlanRows().filter(x=>x.date>=range.start&&x.date<=range.end).sort((a,b)=>String(a.date).localeCompare(String(b.date))||String(a.customer||'').localeCompare(String(b.customer||''),'ar'));
+  if(!list.length)return null;
+  const rows=[['Plan Date','Day','Employee Name','Employee Code','Region / Area','Customer Name','Status']];
+  list.forEach(x=>{
+    const done=visits().some(v=>v.rep===p.rep&&((v.planId&&x.id&&v.planId===x.id)||(String(v.customer||'').trim()===String(x.customer||'').trim()&&v.date===x.date)));
+    rows.push([x.date,weeklyDayName(x.date),p.rep||'',p.employeeCode||'',x.area||'',x.customer||'',done?'Done':'Planned']);
+  });
+  return {blob:buildXlsxBlob([{name:'Weekly Plan',rows}]),fileName:'Innoval_Weekly_Plan_'+range.start+'_to_'+range.end+'.xlsx',list};
+}
+async function sendWeeklyPlanReport(){
+  const managers=selectedWeeklyManagers();
+  if(!managers.length){toast('Please select at least one manager');return;}
+  const report=buildWeeklyPlanExcel();
+  if(!report){toast('No planned visits found for this week');return;}
+  const recipients=managers.map(x=>x.email).filter(Boolean);
+  if(!recipients.length){toast('Selected managers do not have valid email addresses');return;}
+  const range=weeklyCurrentRange();
+  const subject='Innoval Weekly Plan — '+range.start+' to '+range.end;
+  const body='Dear Manager,\n\nPlease find attached the Innoval Weekly Plan for '+range.start+' to '+range.end+'.\n\nRegards,\n'+profile().rep;
+  const reader=new FileReader();
+  reader.onloadend=()=>{
+    const base64=String(reader.result||'').split(',')[1]||'';
+    try{
+      if(window.Android && typeof window.Android.sendDailyVisitsReport==='function'){
+        window.Android.openOutlookDailyReport(recipients.join(';'),subject,body,report.fileName,base64);
+        toast('Weekly plan sent ✓'); closeWeeklyReport(); return;
+      }
+      toast('Microsoft 365 direct sending is not connected yet');
+    }catch(e){console.error(e);toast('Weekly plan could not be sent');}
+  };
+  reader.readAsDataURL(report.blob);
+}
+
+function openExport(){
   const p=profile(), d=visits().filter(v=>v.rep===p.rep).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
   const dates=d.map(v=>v.date).filter(Boolean); const todayStr=today();
   const from=dates.length?dates[0]:todayStr, to=dates.length?dates[dates.length-1]:todayStr;
@@ -3948,99 +4313,42 @@ function updateExportCount(){
 }
 function xmlEsc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;')}
 function xcell(v,style){return '<Cell'+(style?' ss:StyleID="'+style+'"':'')+'><Data ss:Type="String">'+xmlEsc(v)+'</Data></Cell>'}
-function exportDateText(v){
-  const s=String(v||'');
-  if(!/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-  const [y,m,d]=s.split('-');
-  return d+'/'+m+'/'+y;
-}
-function exportRepCode(rep){
-  const p=profile();
-  return String(p.id||'').trim();
-}
 function hrSheetRows(list){
-  const headers=[
-    'Visit Date','Colleague Name','Employee Code','Region / Area','Governorate / Center',
-    'Customer ID','Customer Name','Visit Type','Potentiality','Loyalty','Meted Person','Job Title',
-    'Visit Objective','Product 1','Product 2','Product 3','Next Visit Date','Visit Comments',
-    'Visit Conclusion','Collection Details','Customer Feedback'
-  ];
-  let out='<Row ss:AutoFitHeight="0">'+headers.map(h=>xcell(h,'Header')).join('')+'</Row>';
-  const repName=String(profile().rep||'').trim();
-  const repCode=exportRepCode(repName);
-  const byDate={};
-  list.forEach(v=>(byDate[v.date]??=[]).push(v));
-  Object.keys(byDate).sort().forEach(dt=>{
-    const arr=byDate[dt].sort((a,b)=>Number(a.visitNo||999)-Number(b.visitNo||999));
-    arr.forEach(v=>{
-      const vals=[
-        exportDateText(v.date),
-        repName,
-        repCode,
-        v.area||'',
-        v.gov||'',
-        v.customerId||'',
-        v.customer||'',
-        v.visitType||'',
-        v.potential||'',
-        v.loyalty||'',
-        v.meted||'',
-        v.jobTitle||'',
-        v.objective||'',
-        v.p1||'',
-        v.p2||'',
-        v.p3||'',
-        exportDateText(v.nextDate||''),
-        v.comments||'',
-        v.conclusion||'',
-        v.collection||'',
-        v.feedback||''
-      ];
-      out+='<Row>'+vals.map(x=>xcell(x,'Body')).join('')+'</Row>';
-    });
-  });
-  return out;
+ const headers=['Date of Visit','Visit #','Governorate','Area','Customer Name','Potentiality','Loyalty','Meted Person','Job Title','Visit Objective','Product 1','Product 2','Product 3','Conclusion'];
+ let out='<Row ss:AutoFitHeight="0">'+headers.map(h=>xcell(h,'Header')).join('')+'</Row>';
+ const byDate={}; list.forEach(v=>(byDate[v.date]??=[]).push(v));
+ Object.keys(byDate).sort().forEach(dt=>{
+   const arr=byDate[dt].sort((a,b)=>Number(a.visitNo||999)-Number(b.visitNo||999));
+   arr.forEach((v,i)=>{const vals=[i===0?dt:'',v.visitNo||'',v.gov||'',v.area||'',v.customer||'',v.potential||'',v.loyalty||'',v.meted||'',v.jobTitle||'',v.objective||'',v.p1||'',v.p2||'',v.p3||'',v.conclusion||''];out+='<Row>'+vals.map(x=>xcell(x,'Body')).join('')+'</Row>'})
+ });
+ return out;
 }
 function exportHRExcel(){
-  const f=$("exportFrom").value,t=$("exportTo").value,p=profile();
-  if(!f||!t||f>t){toast('Please select a valid date range');return}
-  const list=visits().filter(v=>v.rep===p.rep&&v.date>=f&&v.date<=t);
-  if(!list.length){toast('No visits found in selected range');return}
-  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const byMonth={};list.forEach(v=>{const m=String(v.date).slice(0,7);(byMonth[m]??=[]).push(v)});
-  let sheets='';
-  Object.keys(byMonth).sort().forEach(key=>{
-    const idx=Math.max(0,Number(key.slice(5,7))-1);
-    const monthRows=byMonth[key];
-    sheets+='<Worksheet ss:Name="'+months[idx]+'"><Table ss:ExpandedColumnCount="21" ss:ExpandedRowCount="'+(monthRows.length+1)+'">'+hrSheetRows(monthRows)+'</Table></Worksheet>';
-  });
-  const wb='<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Styles>'+
-    '<Style ss:ID="Header"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#063B91" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/></Style>'+
-    '<Style ss:ID="Body"><Alignment ss:Vertical="Top" ss:WrapText="1"/></Style></Styles>'+sheets+'</Workbook>';
-  const fileName='2026_Field_Visit_Report_'+f+'_to_'+t+'.xls';
-  const blob=new Blob([wb],{type:'application/vnd.ms-excel;charset=utf-8'});
-  if(window.Android && typeof window.Android.downloadExcel==='function'){
-    const reader=new FileReader();
-    reader.onloadend=()=>{
-      try{window.Android.downloadExcel(fileName,String(reader.result).split(',')[1]);toast('Excel saved to device ✓')}
-      catch(e){browserExcelDownload(blob,fileName)}
-    };
-    reader.readAsDataURL(blob);
-    return;
-  }
-  browserExcelDownload(blob,fileName);
+ const f=$('exportFrom').value,t=$('exportTo').value,p=profile();
+ if(!f||!t||f>t){toast('Please select a valid date range');return}
+ const list=visits().filter(v=>v.rep===p.rep&&v.date>=f&&v.date<=t);
+ if(!list.length){toast('No visits found in selected range');return}
+ const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+ const byMonth={};list.forEach(v=>{const m=String(v.date).slice(0,7);(byMonth[m]??=[]).push(v)});
+ const sheets=Object.keys(byMonth).sort().map(key=>{const idx=Math.max(0,Number(key.slice(5,7))-1);return {name:months[idx],rows:rowsFromVisits(byMonth[key].sort((a,b)=>String(a.date).localeCompare(String(b.date))||Number(a.visitNo||999)-Number(b.visitNo||999)))};});
+ const blob=buildXlsxBlob(sheets); const fileName='2026_Field_Visit_Report_'+f+'_to_'+t+'.xlsx';
+ if(window.Android && typeof window.Android.downloadExcel==='function'){
+   const reader=new FileReader(); reader.onloadend=()=>{try{window.Android.downloadExcel(fileName,String(reader.result).split(',')[1]);toast('Excel saved to device ✓')}catch(e){browserExcelDownload(blob,fileName)}}; reader.readAsDataURL(blob); return;
+ }
+ browserExcelDownload(blob,fileName);
 }
 function browserExcelDownload(blob,fileName){
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download=fileName;a.rel='noopener';a.style.display='none';
-  document.body.appendChild(a);a.click();
-  setTimeout(()=>{try{URL.revokeObjectURL(url);a.remove()}catch(e){}},8000);
-  toast('Excel download started ✓');
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');
+ a.href=url; a.download=fileName; a.rel='noopener'; a.style.display='none';
+ document.body.appendChild(a);
+ a.click();
+ setTimeout(()=>{try{URL.revokeObjectURL(url);a.remove()}catch(e){}},8000);
+ toast('Excel download started ✓');
 }
 // ===== Innoval App Update Checker =====
 // Web/PWA updater. Native Android uses the Android bridge for the actual APK installation.
-const APP_VERSION = "1.9.57";
+const APP_VERSION = "1.9.61";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 let innovalSwRegistration=null;
 
@@ -4166,15 +4474,12 @@ loadNotifications();
   if (current) current.textContent = APP_VERSION;
 })();
 
-  // V12: keep the existing Service Worker / update flow, but also allow
-  // registration inside Android WebView when the WebView exposes Service Worker.
-  // This is additive: if the native wrapper does not support it, the existing
-  // Android flow remains untouched.
-  if('serviceWorker' in navigator){
+  // Service worker registration for iOS / PWA updates.
+  if(!window.Android && 'serviceWorker' in navigator){
     window.addEventListener('load',()=>{
       navigator.serviceWorker.register('./sw.js').then(reg=>{
         innovalSwRegistration=reg;
-        try{ reg.update().catch(()=>{}); }catch(e){}
+        reg.update().catch(()=>{});
       }).catch(()=>{});
     });
   }
@@ -4207,7 +4512,7 @@ function customerFormFields1947(prefix){
   return '<div class="field"><label>Customer Name *</label><input id="'+prefix+'Name" style="padding-left:12px" required></div>'+ 
     '<div class="field"><label>Area *</label><select id="'+prefix+'Area" required style="padding-left:12px"></select><small class="add-customer-area-note">Area is automatically tied to the logged-in official Outlook account.</small></div>'+ 
     '<div class="field"><label>Governorate / Center *</label><select id="'+prefix+'Gov" required style="padding-left:12px"></select></div>'+ 
-    '<div class="field"><label>Customer Type *</label><select id="'+prefix+'Type" required style="padding-left:12px"><option value="">Select Type</option><option>Veterinarian</option><option>Pharmacist</option><option>Farm Owner</option><option>Farm Manager</option><option>Accountant / محاسب</option><option>Engineering Office</option><option>Distributor</option><option>Other</option></select></div>'+ 
+    '<div class="field"><label>Customer Type *</label><select id="'+prefix+'Type" required style="padding-left:12px"><option value="">Select Type</option><option>مشرف</option><option>مربي</option><option>موزع</option><option>مكتب فني</option><option>محاسب</option><option>مهندس</option></select></div>'+ 
     '<div class="field"><label>Responsible</label><input id="'+prefix+'Responsible" style="padding-left:12px" placeholder="Enter Responsible"></div>'+ 
     '<div class="field"><label>Phone</label><input id="'+prefix+'Phone" type="tel" style="padding-left:12px" placeholder="Enter Phone"></div>'+ 
     '<div class="field"><label>Potentiality</label><select id="'+prefix+'Potential" style="padding-left:12px">'+DATA.potential.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select></div>'+ 
@@ -4889,7 +5194,7 @@ window.syncAndroidFcmToken = function(){
  * Supabase key in the client.
  */
 (function InnovalReliabilityV7(){
-  const V7_VERSION='8.1.0';
+  const V7_VERSION='7.1.0';
   const QUEUE_KEY='innovalSyncQueueV7';
   const LAST_SYNC_KEY='innovalLastSuccessfulCloudSyncV7';
   const MAX_QUEUE=1000;
@@ -4991,15 +5296,6 @@ window.syncAndroidFcmToken = function(){
       const localVs=visits().filter(v=>v.rep===p?.name);
       const localWp=weeklyPlanRows();
       let failed=0;
-      // Push locally-created customers owned by this user. Existing shared master
-      // customers are pulled above; only extras are pushed here.
-      try{
-        const extras=JSON.parse(localStorage.getItem('innovalExtraCustomersV17')||'[]');
-        for(const c of (Array.isArray(extras)?extras:[])){
-          if(String(c.createdBy||c.created_by||p?.id||'')!==String(p?.id||'')) continue;
-          try{const r=await directCustomer(c,true);if(r?.ok)markSynced('customer',c.customerId,p?.id);else{upsertQueue('customer',c.customerId,c,r?.error);failed++}}catch(e){upsertQueue('customer',c.customerId,c,e?.message||e);failed++}
-        }
-      }catch(e){}
       for(const v of localVs){
         try{const r=await directVisit(v);if(r?.ok)markSynced('visit',v.id,p?.id);else{upsertQueue('visit',v.id,v,r?.error);failed++}}catch(e){upsertQueue('visit',v.id,v,e?.message||e);failed++}
       }
@@ -5134,18 +5430,19 @@ window.syncAndroidFcmToken = function(){
   window.innovalReliabilityV7={version:'8.0.0',stats,drain,fullSync,backup:()=>backupLocalData(),queueKey:QUEUE_KEY,queueVisit:(v,error)=>upsertQueue('visit',v?.id,v,error),queueProfilePhoto};
 
   function backupLocalData(){
-    const p=currentUserRecord?.()||{}, uid=String(p.id||'');
-    const allVisits=visits().filter(v=>!uid || String(v.userId||v.repId||'')===uid || String(v.rep||'')===String(p.name||''));
-    const allWeekly=weeklyPlanRows().filter(x=>String(x.rep||'')===String(p.name||''));
-    const extras=(()=>{try{return JSON.parse(localStorage.getItem('innovalExtraCustomersV17')||'[]')}catch(e){return[]}})();
-    const overrides=(()=>{try{return JSON.parse(localStorage.getItem('innovalCustomerOverridesV1947')||'{}')}catch(e){return{}}})();
-    const queue=(()=>{try{return JSON.parse(localStorage.getItem('innovalSyncQueueV7')||'[]').filter(x=>String(x.userId)===uid)}catch(e){return[]}})();
-    const data={backupVersion:'8.1.0',createdAt:now(),appVersion:typeof APP_VERSION!=='undefined'?APP_VERSION:'',userId:uid,userName:p.name||p.rep||'',data:{
-      visits:allVisits,weeklyPlan:allWeekly,extraCustomers:extras,customerOverrides:overrides,cloudCustomerCache:JSON.parse(localStorage.getItem('innovalCloudCustomerCacheV1')||'[]'),syncQueue:queue,lastSuccessfulCloudSync:localStorage.getItem(LAST_SYNC_KEY)||''
-    }};
+    const p=currentUserRecord?.()||{};
+    const allow=[
+      'innovalVisitsFinal','innovalExtraCustomersV17','innovalCustomerOverridesV1947',
+      'innovalWeeklyPlan_'+String(p.rep||'guest'),'innovalSyncQueueV7','innovalLastSuccessfulCloudSyncV7',
+      'innovalProfile_'+String(p.rep||'guest'),'innovalHomeLayout','innovalProfilePhoto_uid_'+String(p.id||''),'innovalProfilePhoto_uid_'+String(p.id||'')+'_updatedAt','innovalProfilePhotoCloudPath_'+String(p.id||''),'innovalPasswordUpdatedAt_'+String(p.id||p.rep||'')
+    ];
+    const data={backupVersion:'8.0.0',createdAt:now(),appVersion:typeof APP_VERSION!=='undefined'?APP_VERSION:'',userId:p.id||'',userName:p.name||p.rep||'',data:{}};
+    allow.forEach(k=>{try{const v=localStorage.getItem(k);if(v!==null)data.data[k]=JSON.parse(v)}catch(e){}});
+    // Never export local employee passwords or Supabase auth/session tokens.
     const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Innoval-User-Backup-'+new Date().toISOString().slice(0,10)+'-'+uid+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
-    toast('User backup created ✓'); return true;
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Innoval-Local-Backup-'+new Date().toISOString().slice(0,10)+'-'+String(p.id||'user')+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);
+    toast('Local backup created ✓');
+    return true;
   }
   window.innovalCreateLocalBackup=backupLocalData;
 
@@ -5264,447 +5561,4 @@ window.syncAndroidFcmToken = function(){
 })();
 </script>
 
-
-<script id="v11-conclusion-voice-js">
-(function(){
-  let conclusionRecognition=null;
-  let conclusionRecording=false;
-  let conclusionVoiceBase="";
-  let conclusionVoiceLang="ar-EG";
-
-  function conclusionVoiceElements(){
-    return {
-      textarea:document.getElementById("conclusion"),
-      mic:document.getElementById("conclusionMicBtn"),
-      lang:document.getElementById("conclusionLangBtn"),
-      status:document.getElementById("conclusionVoiceStatus")
-    };
-  }
-
-  function setConclusionVoiceStatus(message,mode){
-    const el=conclusionVoiceElements().status;
-    if(!el)return;
-    el.textContent=message;
-    el.classList.remove("recording","ready");
-    if(mode)el.classList.add(mode);
-  }
-
-  function stopConclusionVoice(){
-    if(conclusionRecognition){
-      try{conclusionRecognition.stop();}catch(e){}
-    }
-  }
-
-  function initConclusionVoice(){
-    const els=conclusionVoiceElements();
-    if(!els.mic||!els.textarea)return;
-
-    const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!SpeechRecognition){
-      els.mic.disabled=true;
-      els.mic.title="Voice-to-text is not supported on this device/browser";
-      setConclusionVoiceStatus("Voice-to-text is not available on this device. You can type the conclusion normally.");
-      return;
-    }
-
-    conclusionRecognition=new SpeechRecognition();
-    conclusionRecognition.continuous=true;
-    conclusionRecognition.interimResults=true;
-    conclusionRecognition.maxAlternatives=1;
-    conclusionRecognition.lang=conclusionVoiceLang;
-
-    conclusionRecognition.onstart=function(){
-      conclusionRecording=true;
-      els.mic.classList.add("recording");
-      els.mic.textContent="⏹";
-      els.mic.title="Stop recording";
-      setConclusionVoiceStatus("Recording... speak naturally, then tap the microphone to stop.","recording");
-    };
-
-    conclusionRecognition.onresult=function(event){
-      let finalText="";
-      let interimText="";
-      for(let i=event.resultIndex;i<event.results.length;i++){
-        const text=String(event.results[i][0]?.transcript||"").trim();
-        if(event.results[i].isFinal)finalText+=(finalText?" ":"")+text;
-        else interimText+=(interimText?" ":"")+text;
-      }
-      const base=String(conclusionVoiceBase||"").trim();
-      const finalCombined=[base,finalText].filter(Boolean).join(base&&finalText?" ":"");
-      els.textarea.value=[finalCombined,interimText].filter(Boolean).join(finalCombined&&interimText?" ":"");
-      els.textarea.dispatchEvent(new Event("input",{bubbles:true}));
-    };
-
-    conclusionRecognition.onerror=function(event){
-      const code=event?.error||"unknown";
-      if(code==="not-allowed"||code==="service-not-allowed")
-        setConclusionVoiceStatus("Microphone permission was denied. Allow microphone access and try again.");
-      else if(code==="no-speech")
-        setConclusionVoiceStatus("No speech detected. Tap the microphone and try again.");
-      else if(code==="network")
-        setConclusionVoiceStatus("Speech recognition needs an internet connection on this device.");
-      else
-        setConclusionVoiceStatus("Voice recognition stopped. You can try again or type the conclusion.");
-    };
-
-    conclusionRecognition.onend=function(){
-      conclusionRecording=false;
-      els.mic.classList.remove("recording");
-      els.mic.textContent="🎙️";
-      els.mic.title="Speak to type your conclusion";
-      if(!els.status?.classList.contains("recording"))
-        setConclusionVoiceStatus("Voice input ready. You can edit the text before saving.","ready");
-    };
-
-    els.mic.addEventListener("click",function(){
-      if(conclusionRecording){
-        stopConclusionVoice();
-        return;
-      }
-      conclusionVoiceBase=String(els.textarea.value||"").trim();
-      conclusionRecognition.lang=conclusionVoiceLang;
-      try{conclusionRecognition.start();}
-      catch(e){setConclusionVoiceStatus("Voice recognition is already starting. Please try again in a moment.");}
-    });
-
-    if(els.lang){
-      els.lang.addEventListener("click",function(){
-        if(conclusionRecording)stopConclusionVoice();
-        conclusionVoiceLang=conclusionVoiceLang==="ar-EG"?"en-US":"ar-EG";
-        els.lang.textContent=conclusionVoiceLang==="ar-EG"?"AR":"EN";
-        els.lang.classList.toggle("en",conclusionVoiceLang==="en-US");
-        setConclusionVoiceStatus(conclusionVoiceLang==="ar-EG"?"Voice language: Arabic (Egypt).":"Voice language: English (US).","ready");
-      });
-    }
-
-    const form=document.getElementById("visitForm");
-    if(form){
-      form.addEventListener("submit",function(){stopConclusionVoice();},true);
-    }
-  }
-
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initConclusionVoice);
-  else initConclusionVoice();
-})();
-</script>
-
-<script id="v10-first-login-and-voice-fix">
-(function(){
-  const INITIAL_PASSWORD="1234";
-  let forcedFirstLogin=false;
-  let firstLoginBusy=false;
-
-  function showFirstLoginPasswordModal(){
-    forcedFirstLogin=true;
-    const p=profile();
-    const email=String(p.email||"");
-    $("modalTitle").textContent="Create Your Password";
-    $("modalBody").innerHTML=
-      '<div class="password-page-intro"><div class="password-title">🔐 First Login Security</div><p>For your first login, please replace the temporary password with your personal password. Your new password will be saved and synchronized with your cloud account.</p>'+(
-        email?'<div style="margin-top:8px;font-size:11px;color:#6b7d93"><b>Account:</b> '+esc(email)+'</div>':''
-      )+'</div>'+ 
-      '<div class="password-fields-card">'+
-        '<div class="field"><label>New Password</label><span class="password-icon">🛡️</span><input id="firstNewPass" type="password" autocomplete="new-password" placeholder="Enter your new password"><button class="password-toggle" type="button" onclick="togglePasswordField(\'firstNewPass\',this)" aria-label="Show password">◉</button></div>'+ 
-        '<div class="field"><label>Confirm New Password</label><span class="password-icon">✓</span><input id="firstConfirmPass" type="password" autocomplete="new-password" placeholder="Confirm your new password"><button class="password-toggle" type="button" onclick="togglePasswordField(\'firstConfirmPass\',this)" aria-label="Show password">◉</button></div>'+ 
-        '<div id="firstPasswordError" style="display:none;margin-top:8px;padding:10px 12px;border:1px solid #ffd0d0;background:#fff5f5;color:#d33b3b;border-radius:10px;font-size:12px"></div>'+ 
-      '</div>'+ 
-      '<button id="firstPasswordSave" class="save password-save" onclick="completeFirstLoginPassword()">Update Password & Continue</button>';
-    openModalLayer("modal");
-    setBottomActive("bnSettings");
-    setTimeout(()=>$("firstNewPass")?.focus(),100);
-  }
-
-  async function completeFirstLoginPassword(){
-    if(firstLoginBusy)return;
-    const p1=String($("firstNewPass")?.value||"");
-    const p2=String($("firstConfirmPass")?.value||"");
-    const err=$("firstPasswordError"),btn=$("firstPasswordSave");
-    const showErr=m=>{if(err){err.textContent=m;err.style.display="block";}};
-    if(!p1){showErr("Please enter a new password.");return;}
-    if(p1===INITIAL_PASSWORD){showErr("Please choose a password different from the temporary password.");return;}
-    if(p1.length<6){showErr("New password must be at least 6 characters.");return;}
-    if(p1!==p2){showErr("New passwords do not match.");return;}
-    firstLoginBusy=true;
-    if(btn){btn.disabled=true;btn.textContent="Updating…";}
-    try{
-      const session=await cloudSession();
-      if(!session||!innovalSupabase)throw new Error("Cloud account is not connected. Please connect to the internet and try again.");
-      const {error}=await innovalSupabase.auth.updateUser({password:p1});
-      if(error)throw error;
-      const email=String(session?.user?.email||profile().email||"").trim().toLowerCase();
-      const list=employeeList();
-      const emp=list.find(x=>String(x.email||"").trim().toLowerCase()===email);
-      if(emp){
-        emp.password=p1;
-        localStorage.setItem("innovalEmployeesFinal",JSON.stringify(list));
-        localStorage.setItem("innovalPasswordUpdatedAt_"+String(emp.id||emp.userId||email),new Date().toISOString());
-      }
-      // Best-effort clear of the server-side onboarding flag. The app does not
-      // depend on this write: a non-temporary password is itself enough to
-      // prevent the first-login gate on later devices.
-      try{await innovalSupabase.from("app_users").update({must_change_password:false}).eq("auth_user_id",session.user.id);}catch(e){console.warn("Could not clear must_change_password flag:",e?.message||e)}
-      forcedFirstLogin=false;
-      closeModal();
-      showPasswordUpdateSuccess();
-    }catch(e){
-      console.warn("First-login password update failed:",e?.message||e);
-      showErr(e?.message||"Password could not be updated. Please try again.");
-    }finally{
-      firstLoginBusy=false;
-      if(btn){btn.disabled=false;btn.textContent="Update Password & Continue";}
-    }
-  }
-  window.completeFirstLoginPassword=completeFirstLoginPassword;
-
-  // Harden the login flow: a user authenticating with the temporary password
-  // must replace it before entering Home. This keeps the existing cloud-auth
-  // session and all existing sync behavior unchanged.
-  const originalLoginHandler=document.getElementById("loginForm") ? null : null;
-  const originalShowHome=window.showHome;
-  window.__innovalInitialPassword=INITIAL_PASSWORD;
-
-  // Patch the existing submit listener indirectly by wrapping cloudSignIn is
-  // not safe, so use a capture listener after authentication state is created.
-  document.getElementById("loginForm")?.addEventListener("submit",function(){
-    const pass=String($("loginPassword")?.value||"");
-    if(pass!==INITIAL_PASSWORD)return;
-    // The original async handler authenticates with Supabase. Poll briefly for
-    // that session instead of assuming a fixed network response time.
-    const started=Date.now();
-    const waitForLogin=()=>{
-      try{
-        if(forcedFirstLogin)return;
-        if(isLoggedIn()){
-          const shell=$("appShell"),login=$("loginScreen");
-          if(login){login.classList.add("hidden");login.style.setProperty("display","none","important");}
-          if(shell){shell.classList.remove("hidden");shell.style.setProperty("display","block","important");}
-          showFirstLoginPasswordModal();
-          return;
-        }
-      }catch(e){}
-      if(Date.now()-started<8000)setTimeout(waitForLogin,150);
-    };
-    setTimeout(waitForLogin,150);
-  },true);
-
-  // Also guard sessions restored by the app when the cached credential is the
-  // temporary one. Do not force a change on an already-updated password.
-  setTimeout(()=>{
-    try{
-      const e=currentUserRecord();
-      if(e && String(e.password||"")===INITIAL_PASSWORD && !innovalRecoveryMode){
-        setTimeout(()=>showFirstLoginPasswordModal(),250);
-      }
-    }catch(e){}
-  },1900);
-
-  // Microphone reliability: request the browser/WebView audio permission first,
-  // recreate SpeechRecognition when a previous instance is stuck, and avoid
-  // the "already starting" state that can leave the button apparently dead.
-  const oldInit=window.initConclusionVoice;
-  function patchConclusionVoice(){
-    const mic=$("conclusionMicBtn");
-    if(!mic || mic.dataset.v10VoicePatched==="1")return;
-    mic.dataset.v10VoicePatched="1";
-    const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!Recognition)return;
-    let rec=null,recording=false,starting=false,base="",lang="ar-EG";
-    const ta=$("conclusion"),status=$("conclusionVoiceStatus"),langBtn=$("conclusionLangBtn");
-    const statusSet=(m,c)=>{if(status){status.textContent=m;status.classList.remove("recording","ready");if(c)status.classList.add(c)}};
-    const cleanup=()=>{recording=false;starting=false;mic.classList.remove("recording");mic.textContent="🎙️";mic.title="Speak to type your conclusion";};
-    const build=()=>{
-      rec=new Recognition();rec.continuous=true;rec.interimResults=true;rec.maxAlternatives=1;rec.lang=lang;
-      rec.onstart=()=>{starting=false;recording=true;mic.classList.add("recording");mic.textContent="⏹";mic.title="Stop recording";statusSet("Recording... speak naturally, then tap the microphone to stop.","recording")};
-      rec.onresult=(ev)=>{let f="",i="";for(let n=ev.resultIndex;n<ev.results.length;n++){const t=String(ev.results[n][0]?.transcript||"").trim();if(ev.results[n].isFinal)f+=(f?" ":"")+t;else i+=(i?" ":"")+t}const out=[base,f].filter(Boolean).join(base&&f?" ":"");if(ta){ta.value=[out,i].filter(Boolean).join(out&&i?" ":"");ta.dispatchEvent(new Event("input",{bubbles:true}))}};
-      rec.onerror=(ev)=>{const c=ev?.error||"unknown";cleanup();if(c==="not-allowed"||c==="service-not-allowed")statusSet("Microphone permission was denied. Allow microphone access for Innoval and try again.");else if(c==="network")statusSet("Speech recognition needs an internet connection on this device.");else if(c==="no-speech")statusSet("No speech detected. Tap the microphone and try again.");else statusSet("Voice recognition stopped. Tap the microphone to try again.")};
-      rec.onend=()=>{cleanup();if(status&&!status.classList.contains("recording"))statusSet("Voice input ready. You can edit the text before saving.","ready")};
-    };
-    const requestMic=async()=>{
-      if(!navigator.mediaDevices?.getUserMedia)return true;
-      try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});stream.getTracks().forEach(t=>t.stop());return true}
-      catch(e){statusSet("Microphone permission is required. Allow microphone access for Innoval and try again.");return false}
-    };
-    mic.onclick=async(ev)=>{
-      ev.preventDefault();ev.stopPropagation();
-      if(recording||starting){try{rec?.stop()}catch(e){try{rec?.abort()}catch(_){}}cleanup();return}
-      if(starting)return;
-      const ok=await requestMic();if(!ok)return;
-      base=String(ta?.value||"").trim();starting=true;
-      try{try{rec?.abort()}catch(e){};build();rec.start()}catch(e){cleanup();statusSet("Voice recognition could not start. Tap the microphone again.")}
-    };
-    if(langBtn){langBtn.onclick=(ev)=>{ev.preventDefault();if(recording){try{rec?.stop()}catch(e){}cleanup()}lang=lang==="ar-EG"?"en-US":"ar-EG";langBtn.textContent=lang==="ar-EG"?"AR":"EN";langBtn.classList.toggle("en",lang==="en-US");statusSet(lang==="ar-EG"?"Voice language: Arabic (Egypt).":"Voice language: English (US).","ready")};}
-    statusSet("Voice input ready. Tap the microphone to speak.","ready");
-  }
-  const observer=new MutationObserver(()=>patchConclusionVoice());
-  observer.observe(document.body,{childList:true,subtree:true});
-  setTimeout(patchConclusionVoice,300);
-})();
-</script>
-
-
-<script id="v11-offline-sync-home-status">
-(function(){
-  'use strict';
-  /* V11 ADDITIVE LAYER — Home Cloud Sync status only.
-   * The existing V10/V7 reliability, queue, local-first save and cloud functions
-   * remain untouched. This layer only exposes their state on the Home screen.
-   */
-  const $v11=id=>document.getElementById(id);
-  const pad=n=>String(n).padStart(2,'0');
-  function formatLastSync(iso){
-    if(!iso)return '—';
-    const d=new Date(iso); if(Number.isNaN(d.getTime()))return '—';
-    let h=d.getHours(),m=d.getMinutes(),ap=h>=12?'PM':'AM';h=h%12||12;
-    return h+':'+pad(m)+' '+ap;
-  }
-  function setState(state,sub,pillClass,note){
-    const stateEl=$v11('homeSyncState'),pill=$v11('homeSyncPill'),noteEl=$v11('homeSyncNote'),icon=$v11('homeSyncCloudIcon');
-    if(stateEl)stateEl.textContent=sub;
-    if(pill){pill.textContent=state;pill.className='home-sync-status-pill '+pillClass;}
-    if(noteEl)noteEl.textContent=note||'';
-    if(icon)icon.textContent=state==='Connected'?'☁️':state==='Offline'?'☁️':'⟳';
-  }
-  async function render(){
-    const card=$v11('homeSyncStatusCard');
-    if(!card)return;
-    if(typeof isLoggedIn==='function'&&!isLoggedIn()){card.style.display='none';return;}
-    card.style.display='block';
-    const api=window.innovalReliabilityV7;
-    const s=api?.stats?api.stats():{pending:0,failed:0,lastSync:''};
-    const pending=Number(s.pending||0)+Number(s.failed||0);
-    const last=$v11('homeSyncLast'), pendingEl=$v11('homeSyncPending');
-    if(last)last.textContent=formatLastSync(s.lastSync);
-    if(pendingEl)pendingEl.textContent=String(pending);
-
-    if(navigator.onLine===false){
-      setState('Offline','No internet connection','offline','Data is still saved locally. Pending changes will retry automatically when Internet returns.');
-      return;
-    }
-    try{
-      const session=typeof cloudSession==='function'?await cloudSession():null;
-      if(session){
-        if(pending>0)setState('Connected','Internet and Cloud are available','connected','Cloud is connected. Pending changes are being retried automatically.');
-        else setState('Connected','Internet and Cloud are available','connected','All local changes are synchronized with Cloud.');
-      }else{
-        setState('Connecting','Cloud session is not ready yet','checking','Your data remains safe locally while the Cloud connection is being restored.');
-      }
-    }catch(e){
-      setState('Connecting','Checking Cloud connection…','checking','Your data remains safe locally. The app will retry automatically.');
-    }
-  }
-
-  const oldRefresh=window.__innovalV7RefreshSyncCenter;
-  window.__innovalV7RefreshSyncCenter=function(){
-    try{oldRefresh?.();}catch(e){}
-    render();
-  };
-
-  window.addEventListener('online',()=>setTimeout(render,250));
-  window.addEventListener('offline',()=>render());
-  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(render,100);});
-  setTimeout(render,1200);
-  setInterval(()=>{if(document.visibilityState==='visible')render();},5000);
-})();
-</script>
-
-
-<!-- V12 ADDITIVE RELIABILITY LAYER: offline launch + microphone permission UX.
-     Existing V10/V11 flows are intentionally left in place. -->
-<style id="v12-offline-mic-css">
-.v12-offline-banner{position:fixed;left:14px;right:14px;top:calc(74px + env(safe-area-inset-top));z-index:9000;display:none;align-items:center;gap:10px;padding:11px 13px;border:1px solid #f0d7b9;border-radius:14px;background:#fff8ef;color:#80521e;box-shadow:0 8px 24px rgba(50,60,80,.12);font-size:11px;font-weight:700}
-.v12-offline-banner.show{display:flex}.v12-offline-banner .v12-offline-icon{font-size:18px}.v12-offline-banner small{display:block;margin-top:2px;color:#92765b;font-weight:500;font-size:9px;line-height:1.35}
-.v12-mic-help{margin-top:7px;padding:9px 10px;border:1px solid #dbe7f4;border-radius:11px;background:#f7fbff;color:#5d7189;font-size:9px;line-height:1.45}
-.v12-mic-help b{color:#17477e}.v12-mic-help button{margin-top:7px;border:0;border-radius:9px;padding:7px 10px;background:#0b66d1;color:#fff;font-size:9px;font-weight:800;cursor:pointer}
-</style>
-<div id="v12OfflineBanner" class="v12-offline-banner" role="status" aria-live="polite">
-  <div class="v12-offline-icon">📴</div><div><b>Offline Mode</b><small>No Internet connection. Your saved data remains available locally and new changes will be queued for Cloud synchronization.</small></div>
-</div>
-<script id="v12-offline-mic-js">
-(function(){
-  'use strict';
-  const CACHE_KEY='innoval-v12-shell-cache-v1';
-  const $=id=>document.getElementById(id);
-
-  function setOfflineBanner(){
-    const el=$('v12OfflineBanner');
-    if(!el)return;
-    el.classList.toggle('show',navigator.onLine===false);
-  }
-
-  // Cache the currently loaded HTML document after a successful online load.
-  // This does not replace the existing Service Worker; it simply gives the
-  // browser/WebView a warm cache entry for the application shell.
-  async function warmShellCache(){
-    if(navigator.onLine===false || !('caches' in window))return;
-    try{
-      const cache=await caches.open(CACHE_KEY);
-      const url=location.href.split('#')[0];
-      await cache.add(url);
-    }catch(e){/* best effort only */}
-  }
-
-  async function requestNativeMicPermission(){
-    try{
-      if(window.Android && typeof window.Android.requestMicrophonePermission==='function'){
-        const r=window.Android.requestMicrophonePermission();
-        if(r && typeof r.then==='function')return !!(await r);
-        return r===false?false:true;
-      }
-    }catch(e){}
-    return null;
-  }
-
-  async function requestBrowserMicPermission(){
-    try{
-      if(!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia!=='function')return null;
-      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-      stream.getTracks().forEach(t=>{try{t.stop()}catch(e){}});
-      return true;
-    }catch(e){
-      return false;
-    }
-  }
-
-  window.innovalV12RequestMicrophone=async function(){
-    const nativeResult=await requestNativeMicPermission();
-    if(nativeResult!==null)return nativeResult;
-    return await requestBrowserMicPermission();
-  };
-
-  // Patch the existing V11 voice permission helper without replacing its
-  // speech-recognition flow. The original button remains the source of truth.
-  function enhanceMic(){
-    const mic=$('conclusionMicBtn'), status=$('conclusionVoiceStatus');
-    if(!mic || mic.dataset.v12PermissionUx==='1')return;
-    mic.dataset.v12PermissionUx='1';
-    const wrap=mic.closest('.conclusion-input-wrap')?.parentElement || mic.parentElement?.parentElement;
-    if(wrap && !wrap.querySelector('.v12-mic-help')){
-      const help=document.createElement('div');
-      help.className='v12-mic-help';
-      help.innerHTML='<b>🎙️ Microphone access</b><br>For voice-to-text, Innoval needs microphone permission on this phone. Tap the microphone and choose <b>Allow</b> when Android asks.'+
-        '<br><button type="button" id="v12MicPermissionBtn">Allow Microphone Access</button>';
-      wrap.appendChild(help);
-      help.querySelector('#v12MicPermissionBtn')?.addEventListener('click',async()=>{
-        const ok=await window.innovalV12RequestMicrophone();
-        if(status)status.textContent=ok?'Microphone access granted. Tap 🎙️ to start voice input.':'Microphone permission is still required. Please choose Allow for Innoval.';
-      });
-    }
-  }
-
-  function boot(){
-    setOfflineBanner();
-    warmShellCache();
-    enhanceMic();
-  }
-  window.addEventListener('online',()=>{setOfflineBanner();warmShellCache();});
-  window.addEventListener('offline',setOfflineBanner);
-  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){setOfflineBanner();enhanceMic();}});
-  const mo=new MutationObserver(enhanceMic);
-  if(document.body)mo.observe(document.body,{childList:true,subtree:true});
-  setTimeout(boot,600);
-})();
-</script>
-
-<!-- V12 notes: no existing navigation, login, visit save, customer, sync, update,
-     notification, export, or password handlers are replaced by this layer. -->
 </body></html>
