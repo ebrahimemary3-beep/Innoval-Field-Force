@@ -6783,4 +6783,585 @@ window.syncAndroidFcmToken = function(){
   setTimeout(installVoiceButton, 3000);
 })();
 </script>
+  <!-- =========================================================
+     INNOVAL v1.9.61 — iOS VOICE FIX
+     iOS ONLY — Does not change Android Voice
+     Place immediately before </body>
+     ========================================================= -->
+
+<script id="innoval-ios-voice-fix-v1961">
+(function () {
+  'use strict';
+
+  /* ---------------------------------------------------------
+     Detect iOS / iPadOS
+     --------------------------------------------------------- */
+  function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+
+  if (!isIOS()) return;
+
+  let recognition = null;
+  let recording = false;
+  let starting = false;
+  let userStopped = false;
+  let baseText = '';
+  let language = 'ar-EG';
+
+  const MIC_ID = 'conclusionMicBtn';
+  const TEXT_ID = 'conclusion';
+  const STATUS_ID = 'conclusionVoiceStatus';
+  const LANG_ID = 'conclusionLangBtn';
+
+  function $(id) {
+    return document.getElementById(id);
+  }
+
+  function setStatus(message, mode) {
+    const el = $(STATUS_ID);
+    if (!el) return;
+
+    el.textContent = message;
+    el.classList.remove('recording', 'ready');
+
+    if (mode) {
+      el.classList.add(mode);
+    }
+  }
+
+  function setMic(active) {
+    const mic = $(MIC_ID);
+    if (!mic) return;
+
+    mic.classList.toggle('recording', !!active);
+
+    if (active) {
+      mic.textContent = '⏹';
+      mic.title = 'Stop recording';
+      mic.setAttribute('aria-label', 'Stop recording');
+    } else {
+      mic.textContent = '🎙️';
+      mic.title = 'Speak to type your conclusion';
+      mic.setAttribute('aria-label', 'Speak to type your conclusion');
+    }
+  }
+
+  function cleanup() {
+    recording = false;
+    starting = false;
+    setMic(false);
+
+    recognition = null;
+
+    setStatus(
+      'Voice input ready. Tap the microphone to speak.',
+      'ready'
+    );
+  }
+
+  function stopVoice() {
+    userStopped = true;
+
+    if (!recognition) {
+      cleanup();
+      return;
+    }
+
+    try {
+      recognition.stop();
+    } catch (e) {
+      try {
+        recognition.abort();
+      } catch (_) {}
+      cleanup();
+    }
+  }
+
+  function createRecognition() {
+
+    const Recognition =
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
+
+    if (!Recognition) {
+      setStatus(
+        'Voice-to-text is not available on this iPhone/browser. You can type the conclusion normally.'
+      );
+      return null;
+    }
+
+    const rec = new Recognition();
+
+    /*
+     * iOS settings
+     */
+    rec.lang = language;
+
+    /*
+     * Keep continuous mode enabled.
+     * iOS may still end the session automatically.
+     */
+    rec.continuous = true;
+
+    rec.interimResults = true;
+
+    rec.maxAlternatives = 1;
+
+    /* -------------------------------------------------------
+       START
+       ------------------------------------------------------- */
+    rec.onstart = function () {
+
+      starting = false;
+      recording = true;
+      userStopped = false;
+
+      setMic(true);
+
+      setStatus(
+        'Recording... speak naturally, then tap the microphone to stop.',
+        'recording'
+      );
+    };
+
+    /* -------------------------------------------------------
+       RESULT
+       ------------------------------------------------------- */
+    rec.onresult = function (event) {
+
+      const textarea = $(TEXT_ID);
+
+      if (!textarea) return;
+
+      let finalText = '';
+      let interimText = '';
+
+      for (
+        let i = event.resultIndex;
+        i < event.results.length;
+        i++
+      ) {
+
+        const result = event.results[i];
+
+        if (!result || !result[0]) continue;
+
+        const transcript =
+          String(result[0].transcript || '').trim();
+
+        if (!transcript) continue;
+
+        if (result.isFinal) {
+
+          finalText +=
+            (finalText ? ' ' : '') +
+            transcript;
+
+        } else {
+
+          interimText +=
+            (interimText ? ' ' : '') +
+            transcript;
+        }
+      }
+
+      /*
+       * Final text
+       */
+      const finalCombined =
+        [baseText, finalText]
+          .filter(Boolean)
+          .join(' ');
+
+      /*
+       * Show interim result temporarily.
+       */
+      textarea.value =
+        [finalCombined, interimText]
+          .filter(Boolean)
+          .join(
+            finalCombined && interimText
+              ? ' '
+              : ''
+          );
+
+      textarea.dispatchEvent(
+        new Event('input', { bubbles: true })
+      );
+
+      /*
+       * Important:
+       * Save final text as the new base so iOS does not
+       * duplicate previous speech on the next result event.
+       */
+      if (finalText) {
+        baseText = finalCombined;
+      }
+    };
+
+    /* -------------------------------------------------------
+       ERROR
+       ------------------------------------------------------- */
+    rec.onerror = function (event) {
+
+      const code =
+        String(event && event.error || '');
+
+      recording = false;
+      starting = false;
+
+      setMic(false);
+
+      if (
+        code === 'not-allowed' ||
+        code === 'service-not-allowed'
+      ) {
+
+        setStatus(
+          'Microphone or speech permission was denied. Please allow microphone access for Innoval and try again.'
+        );
+
+        return;
+      }
+
+      if (code === 'audio-capture') {
+
+        setStatus(
+          'The iPhone microphone is not available. Please check microphone access and try again.'
+        );
+
+        return;
+      }
+
+      if (code === 'network') {
+
+        setStatus(
+          'Speech recognition needs an internet connection on this iPhone.'
+        );
+
+        return;
+      }
+
+      if (code === 'no-speech') {
+
+        setStatus(
+          'No speech detected. Tap the microphone and speak again.'
+        );
+
+        return;
+      }
+
+      setStatus(
+        'Voice recognition stopped. Tap the microphone to try again.'
+      );
+    };
+
+    /* -------------------------------------------------------
+       END
+       ------------------------------------------------------- */
+    rec.onend = function () {
+
+      /*
+       * If user explicitly stopped:
+       * finish normally.
+       */
+      if (userStopped) {
+        cleanup();
+        return;
+      }
+
+      /*
+       * iOS can terminate SpeechRecognition automatically.
+       * DO NOT immediately restart it.
+       *
+       * This prevents:
+       * - already starting
+       * - microphone lock
+       * - duplicate sessions
+       * - unstable iOS behavior
+       */
+
+      recording = false;
+      starting = false;
+
+      setMic(false);
+
+      setStatus(
+        'Voice recognition stopped. Tap the microphone to speak again.',
+        'ready'
+      );
+
+      recognition = null;
+    };
+
+    return rec;
+  }
+
+  /* ---------------------------------------------------------
+     START VOICE
+     --------------------------------------------------------- */
+  function startVoice() {
+
+    if (recording || starting) return;
+
+    const textarea = $(TEXT_ID);
+
+    if (!textarea) return;
+
+    const Recognition =
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
+
+    if (!Recognition) {
+
+      setStatus(
+        'Voice-to-text is not available on this iPhone/browser. You can type the conclusion normally.'
+      );
+
+      return;
+    }
+
+    /*
+     * Capture existing text before starting.
+     */
+    baseText =
+      String(textarea.value || '').trim();
+
+    userStopped = false;
+    starting = true;
+
+    setMic(true);
+
+    setStatus(
+      'Starting microphone...',
+      'recording'
+    );
+
+    /*
+     * Always create a NEW recognition object.
+     * This is important for iOS.
+     */
+    try {
+
+      if (recognition) {
+        try {
+          recognition.abort();
+        } catch (_) {}
+      }
+
+      recognition = createRecognition();
+
+      if (!recognition) {
+        starting = false;
+        setMic(false);
+        return;
+      }
+
+      /*
+       * IMPORTANT:
+       * Do NOT call getUserMedia().
+       *
+       * Do NOT open a microphone stream first.
+       *
+       * SpeechRecognition itself owns the microphone.
+       */
+      recognition.start();
+
+    } catch (error) {
+
+      recognition = null;
+
+      starting = false;
+      recording = false;
+
+      setMic(false);
+
+      setStatus(
+        'Voice recognition could not start. Tap the microphone again.'
+      );
+    }
+  }
+
+  /* ---------------------------------------------------------
+     INSTALL iOS BUTTON
+     --------------------------------------------------------- */
+  function installIOSVoice() {
+
+    const oldMic = $(MIC_ID);
+
+    if (!oldMic) return;
+
+    /*
+     * Prevent installing twice.
+     */
+    if (oldMic.dataset.innovalIOSVoiceFix === '1') {
+      return;
+    }
+
+    /*
+     * Clone the button.
+     *
+     * This removes old click listeners attached by the
+     * previous V11 / V15 / V18 voice layers.
+     */
+    const mic = oldMic.cloneNode(true);
+
+    mic.dataset.innovalIOSVoiceFix = '1';
+
+    /*
+     * Mark previous voice layers as already handled.
+     */
+    mic.dataset.v10VoicePatched = '1';
+    mic.dataset.v13NativeMic = '1';
+    mic.dataset.v14Voice = '1';
+    mic.dataset.v15Voice = '1';
+    mic.dataset.v18UnifiedVoice = '1';
+
+    mic.style.touchAction = 'manipulation';
+    mic.style.userSelect = 'none';
+    mic.style.webkitUserSelect = 'none';
+
+    mic.onclick = function (event) {
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (recording || starting) {
+
+        stopVoice();
+
+      } else {
+
+        startVoice();
+
+      }
+
+      return false;
+    };
+
+    oldMic.replaceWith(mic);
+
+    /* -------------------------------------------------------
+       LANGUAGE BUTTON
+       ------------------------------------------------------- */
+    const langBtn = $(LANG_ID);
+
+    if (langBtn) {
+
+      const newLangBtn =
+        langBtn.cloneNode(true);
+
+      newLangBtn.dataset.innovalIOSVoiceLanguage = '1';
+
+      newLangBtn.onclick = function (event) {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (recording || starting) {
+          stopVoice();
+        }
+
+        if (language === 'ar-EG') {
+
+          language = 'en-US';
+
+          newLangBtn.textContent = 'EN';
+
+          setStatus(
+            'Voice language: English (US).',
+            'ready'
+          );
+
+        } else {
+
+          language = 'ar-EG';
+
+          newLangBtn.textContent = 'AR';
+
+          setStatus(
+            'Voice language: Arabic (Egypt).',
+            'ready'
+          );
+        }
+
+        return false;
+      };
+
+      langBtn.replaceWith(newLangBtn);
+    }
+
+    setMic(false);
+
+    setStatus(
+      'Voice input ready. Tap the microphone to speak.',
+      'ready'
+    );
+  }
+
+  /* ---------------------------------------------------------
+     WAIT UNTIL CONCLUSION UI EXISTS
+     --------------------------------------------------------- */
+  function boot() {
+
+    if (!isIOS()) return;
+
+    if ($(MIC_ID)) {
+      installIOSVoice();
+      return;
+    }
+
+    setTimeout(boot, 300);
+  }
+
+  /*
+   * Initial boot
+   */
+  if (document.readyState === 'loading') {
+
+    document.addEventListener(
+      'DOMContentLoaded',
+      boot
+    );
+
+  } else {
+
+    boot();
+  }
+
+  /*
+   * The app dynamically creates/opens the Visit screen.
+   * Watch for the microphone button.
+   */
+  const observer =
+    new MutationObserver(function () {
+
+      if (!isIOS()) return;
+
+      const mic = $(MIC_ID);
+
+      if (
+        mic &&
+        mic.dataset.innovalIOSVoiceFix !== '1'
+      ) {
+        installIOSVoice();
+      }
+
+    });
+
+  if (document.body) {
+
+    observer.observe(
+      document.body,
+      {
+        childList: true,
+        subtree: true
+      }
+    );
+  }
+
+})();
+</script>
 </body></html>
