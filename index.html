@@ -6795,7 +6795,7 @@ window.syncAndroidFcmToken = function(){
      Android voice is NOT modified
      ========================================================= -->
 
-<script id="innoval-ios-voice-fix-v1961">
+<script id="innoval-ios-voice-fix-v1962">
 (function () {
   'use strict';
 
@@ -7225,7 +7225,7 @@ window.syncAndroidFcmToken = function(){
      START VOICE
      ========================================================= */
 
-  async function startVoice() {
+  function startVoice() {
 
     if (recording || starting) {
       return;
@@ -7275,22 +7275,10 @@ window.syncAndroidFcmToken = function(){
 
     /*
       STEP 1
-      Get microphone permission first.
+      Do NOT call getUserMedia() here on iOS.
+      SpeechRecognition.start() must remain inside the original
+      microphone button user-gesture call stack.
     */
-
-    const permission =
-      await requestMicrophonePermission();
-
-
-    if (!permission) {
-
-      starting = false;
-
-      visual(false);
-
-      return;
-    }
-
 
     /*
       STEP 2
@@ -7621,6 +7609,5 @@ window.syncAndroidFcmToken = function(){
   }
 
 })();
-</script>
 </script>
 </body></html>
