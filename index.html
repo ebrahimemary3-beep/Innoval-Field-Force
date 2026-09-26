@@ -6414,38 +6414,15 @@ window.syncAndroidFcmToken = function(){
 (function () {
   'use strict';
 
-  /*
-   * V18 UNIFIED VOICE ENGINE
-   * Android  -> existing native Android SpeechRecognizer
-   * iOS/Web  -> Web Speech API (SpeechRecognition / webkitSpeechRecognition)
-   *
-   * This block owns the final microphone button so earlier voice patches
-   * cannot replace its click handler.
-   */
-
   let recording = false;
   let starting = false;
   let baseText = '';
   let browserRecognition = null;
+  let browserUserStopped = false;
   let browserMode = false;
-  let userStopped = false;
 
   function get(id) {
     return document.getElementById(id);
-  }
-
-  function isAndroidNative() {
-    return !!(
-      window.Android &&
-      typeof window.Android.startNativeSpeechRecognition === 'function'
-    );
-  }
-
-  function getLanguage() {
-    const btn = get('conclusionLangBtn');
-    return btn && btn.textContent.trim() === 'EN'
-      ? 'en-US'
-      : 'ar-EG';
   }
 
   function setStatus(message, mode) {
@@ -6455,427 +6432,251 @@ window.syncAndroidFcmToken = function(){
     el.textContent = message;
     el.classList.remove('recording', 'ready');
 
-    if (mode) {
-      el.classList.add(mode);
-    }
+    if (mode) el.classList.add(mode);
   }
 
   function setMicVisual(active) {
     const mic = get('conclusionMicBtn');
     if (!mic) return;
 
-    mic.classList.toggle('recording', !!active);
+    mic.classList.toggle('recording', active);
     mic.textContent = active ? '⏹' : '🎙️';
-    mic.title = active
-      ? 'Stop recording'
-      : 'Speak to type your conclusion';
+    mic.title = active ? 'Stop recording' : 'Speak to type your conclusion';
+    mic.setAttribute('aria-pressed', active ? 'true' : 'false');
   }
 
-  function getBaseText() {
-    const textarea = get('conclusion');
-    return textarea
-      ? String(textarea.value || '').trim()
-      : '';
+  function getLanguage() {
+    const btn = get('conclusionLangBtn');
+    return btn && btn.textContent.trim() === 'EN' ? 'en-US' : 'ar-EG';
   }
 
-  function setConclusion(text) {
+  function isAndroidNative() {
+    return !!(
+      window.Android &&
+      typeof window.Android.startNativeSpeechRecognition === 'function'
+    );
+  }
+
+  function hasBrowserSpeechRecognition() {
+    return !!(
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition
+    );
+  }
+
+  function writeText(text, replaceBase) {
     const textarea = get('conclusion');
     if (!textarea) return;
 
-    textarea.value = String(text || '');
+    const spoken = String(text || '').trim();
+    if (!spoken) return;
 
-    textarea.dispatchEvent(
-      new Event('input', { bubbles: true })
-    );
+    const combined = replaceBase
+      ? spoken
+      : (baseText ? baseText + ' ' + spoken : spoken);
 
-    textarea.dispatchEvent(
-      new Event('change', { bubbles: true })
-    );
+    textarea.value = combined.trim();
+
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    textarea.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
-  function stopBrowserRecognition() {
-    const rec = browserRecognition;
+  function startAndroidVoice() {
+    if (starting || recording) return;
 
-    browserRecognition = null;
-    userStopped = true;
-
-    if (!rec) return;
-
-    try {
-      rec.onstart = null;
-      rec.onresult = null;
-      rec.onerror = null;
-      rec.onend = null;
-    } catch (_) {}
-
-    try {
-      rec.stop();
-    } catch (_) {}
-
-    try {
-      rec.abort();
-    } catch (_) {}
-  }
-
-  function cleanupVoice() {
-    recording = false;
-    starting = false;
+    const textarea = get('conclusion');
+    baseText = textarea ? String(textarea.value || '').trim() : '';
+    starting = true;
     browserMode = false;
-    setMicVisual(false);
+
+    setMicVisual(true);
+    setStatus('Starting microphone...', 'recording');
+
+    try {
+      window.Android.startNativeSpeechRecognition(getLanguage());
+    } catch (error) {
+      starting = false;
+      recording = false;
+      setMicVisual(false);
+      setStatus('Unable to start microphone. Please try again.');
+    }
   }
 
-  function startBrowserVoice() {
+  async function startBrowserVoice() {
+    if (starting || recording) return;
 
-    const Recognition =
-      window.SpeechRecognition ||
-      window.webkitSpeechRecognition;
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!Recognition) {
-      cleanupVoice();
-      setStatus(
-        'Voice recognition is not available in this iPhone browser. Please open the app in Safari and try again.'
-      );
+      setStatus('Voice recognition is not supported in this browser. Please use Safari or the Android app.');
       return;
     }
 
     const textarea = get('conclusion');
-
-    if (!textarea) {
-      cleanupVoice();
-      return;
-    }
-
-    baseText = String(textarea.value || '').trim();
-    userStopped = false;
+    baseText = textarea ? String(textarea.value || '').trim() : '';
+    browserUserStopped = false;
     browserMode = true;
     starting = true;
 
-    /*
-     * IMPORTANT:
-     * Do NOT call getUserMedia() before SpeechRecognition on iOS.
-     * WebKit handles speech/microphone authorization through the
-     * SpeechRecognition start itself. Calling getUserMedia first can
-     * interfere with the recognition session in Safari/PWA.
-     */
-
-    let rec;
+    setMicVisual(true);
+    setStatus('Starting microphone...', 'recording');
 
     try {
-      rec = new Recognition();
-    } catch (error) {
-      cleanupVoice();
-      setStatus(
-        'Unable to start voice recognition. Please try again.'
-      );
-      return;
-    }
-
-    browserRecognition = rec;
-
-    rec.continuous = true;
-    rec.interimResults = true;
-    rec.maxAlternatives = 1;
-    rec.lang = getLanguage();
-
-    rec.onstart = function () {
-
-      starting = false;
-      recording = true;
-
-      setMicVisual(true);
-
-      setStatus(
-        'Recording... speak naturally, then tap the microphone to stop.',
-        'recording'
-      );
-    };
-
-    rec.onresult = function (event) {
-
-      let finalText = '';
-      let interimText = '';
-
-      for (
-        let i = event.resultIndex;
-        i < event.results.length;
-        i++
-      ) {
-
-        const result = event.results[i];
-
-        const transcript =
-          String(
-            result &&
-            result[0] &&
-            result[0].transcript
-              ? result[0].transcript
-              : ''
-          ).trim();
-
-        if (!transcript) continue;
-
-        if (result.isFinal) {
-          finalText +=
-            (finalText ? ' ' : '') +
-            transcript;
-        } else {
-          interimText +=
-            (interimText ? ' ' : '') +
-            transcript;
+      /*
+       * On iOS/Safari, asking for microphone access from the same user
+       * gesture helps WebKit unlock the audio input before recognition.
+       * The stream is immediately released; SpeechRecognition owns the
+       * actual recognition session.
+       */
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          stream.getTracks().forEach(function (track) { track.stop(); });
+        } catch (permissionError) {
+          starting = false;
+          recording = false;
+          setMicVisual(false);
+          setStatus('Microphone permission is required. Please allow microphone access and try again.');
+          return;
         }
       }
 
-      /*
-       * Keep the original manually typed conclusion and append
-       * recognized speech to it.
-       */
-      const finalCombined = [
-        baseText,
-        finalText
-      ].filter(Boolean).join(' ');
+      browserRecognition = new Recognition();
+      browserRecognition.lang = getLanguage();
+      browserRecognition.continuous = true;
+      browserRecognition.interimResults = true;
+      browserRecognition.maxAlternatives = 1;
 
-      const displayText = [
-        finalCombined,
-        interimText
-      ].filter(Boolean).join(' ');
+      browserRecognition.onstart = function () {
+        starting = false;
+        recording = true;
+        setMicVisual(true);
+        setStatus('Recording... speak naturally, then tap the microphone to stop.', 'recording');
+      };
 
-      if (displayText) {
-        setConclusion(displayText);
-      }
+      browserRecognition.onresult = function (event) {
+        let finalText = '';
+        let interimText = '';
 
-      if (finalText) {
-        baseText = finalCombined;
-      }
-    };
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const result = event.results[i];
+          const transcript = result && result[0]
+            ? String(result[0].transcript || '').trim()
+            : '';
 
-    rec.onerror = function (event) {
+          if (result.isFinal) finalText += (finalText ? ' ' : '') + transcript;
+          else interimText += (interimText ? ' ' : '') + transcript;
+        }
 
-      const code =
-        event && event.error
-          ? String(event.error)
-          : 'unknown';
+        if (finalText) {
+          baseText = baseText
+            ? baseText + ' ' + finalText
+            : finalText;
+          writeText(baseText, true);
+        } else if (interimText) {
+          writeText(interimText, false);
+        }
+      };
 
-      cleanupVoice();
+      browserRecognition.onerror = function (event) {
+        const code = String(event && event.error || '');
 
-      if (code === 'not-allowed' ||
-          code === 'service-not-allowed') {
+        starting = false;
+        recording = false;
+        setMicVisual(false);
 
-        setStatus(
-          'Microphone or speech permission was denied. Please allow access and try again.'
-        );
+        if (code === 'not-allowed' || code === 'service-not-allowed') {
+          setStatus('Microphone or speech permission was denied. Please allow access and try again.');
+        } else if (code === 'audio-capture') {
+          setStatus('Microphone is not available. Please check microphone access and try again.');
+        } else if (code === 'network') {
+          setStatus('Speech recognition needs an available network connection on this device.');
+        } else if (code === 'no-speech') {
+          setStatus('No speech detected. Tap the microphone and speak again.');
+        } else {
+          setStatus('Voice recognition stopped. Tap the microphone to try again.');
+        }
+      };
 
-      } else if (code === 'no-speech') {
+      browserRecognition.onend = function () {
+        browserRecognition = null;
+        starting = false;
+        recording = false;
+        setMicVisual(false);
 
-        setStatus(
-          'No speech detected. Tap the microphone and speak clearly.'
-        );
+        if (!browserUserStopped) {
+          setStatus('Voice recognition stopped. Tap the microphone to speak again.', 'ready');
+        }
+      };
 
-      } else if (code === 'audio-capture') {
-
-        setStatus(
-          'The microphone could not be accessed. Please check microphone permission.'
-        );
-
-      } else if (code === 'network') {
-
-        setStatus(
-          'Speech recognition needs an internet connection on this device.'
-        );
-
-      } else {
-
-        setStatus(
-          'Voice recognition stopped. Tap the microphone to try again.'
-        );
-      }
-
-      browserRecognition = null;
-    };
-
-    rec.onend = function () {
-
-      /*
-       * iOS Safari may fire onend after a short pause. Do not
-       * automatically restart here because that can create an
-       * endless permission/start loop in iOS PWA.
-       */
-      browserRecognition = null;
-
-      if (!userStopped) {
-        cleanupVoice();
-
-        setStatus(
-          'Voice recognition ended. Tap the microphone to try again.',
-          'ready'
-        );
-      } else {
-        cleanupVoice();
-
-        setStatus(
-          'Voice input ready. You can edit the text before saving.',
-          'ready'
-        );
-      }
-    };
-
-    setMicVisual(true);
-
-    setStatus(
-      'Starting microphone...',
-      'recording'
-    );
-
-    try {
-
-      /*
-       * This call is executed directly from the microphone click
-       * event, which is important for iOS user-gesture permission.
-       */
-      rec.start();
+      browserRecognition.start();
 
     } catch (error) {
-
       browserRecognition = null;
-      cleanupVoice();
-
-      setStatus(
-        'Unable to start voice recognition. Tap the microphone again.'
-      );
+      starting = false;
+      recording = false;
+      setMicVisual(false);
+      setStatus('Unable to start voice recognition. Please try again.');
     }
   }
 
-  function startNativeVoice() {
-
-    if (starting || recording) {
-      return;
-    }
-
-    const textarea = get('conclusion');
-
-    baseText = textarea
-      ? String(textarea.value || '').trim()
-      : '';
-
-    starting = true;
-    browserMode = false;
-    userStopped = false;
-
-    setMicVisual(true);
-
-    setStatus(
-      'Starting microphone...',
-      'recording'
-    );
+  function stopBrowserVoice() {
+    browserUserStopped = true;
 
     try {
+      if (browserRecognition) {
+        browserRecognition.stop();
+      }
+    } catch (error) {}
 
-      window.Android.startNativeSpeechRecognition(
-        getLanguage()
-      );
-
-    } catch (error) {
-
-      cleanupVoice();
-
-      setStatus(
-        'Unable to start microphone. Please try again.'
-      );
-    }
+    browserRecognition = null;
+    starting = false;
+    recording = false;
+    setMicVisual(false);
+    setStatus('Voice input ready. You can edit the text before saving.', 'ready');
   }
 
   function startVoice() {
-
-    if (starting || recording) {
-      return;
-    }
-
-    /*
-     * Android keeps the existing native implementation.
-     * iPhone/iPad/Safari/PWA uses the Web Speech API.
-     */
     if (isAndroidNative()) {
-      startNativeVoice();
+      startAndroidVoice();
     } else {
       startBrowserVoice();
     }
   }
 
   function stopVoice() {
+    if (isAndroidNative() && !browserMode) {
+      try {
+        if (window.Android && typeof window.Android.stopNativeSpeechRecognition === 'function') {
+          window.Android.stopNativeSpeechRecognition();
+        }
+      } catch (error) {}
 
-    userStopped = true;
-
-    if (browserMode || browserRecognition) {
-
-      stopBrowserRecognition();
-
-      cleanupVoice();
-
-      setStatus(
-        'Voice input ready. You can edit the text before saving.',
-        'ready'
-      );
-
-      return;
+      starting = false;
+      recording = false;
+      setMicVisual(false);
+      setStatus('Voice input ready. You can edit the text before saving.', 'ready');
+    } else {
+      stopBrowserVoice();
     }
-
-    try {
-
-      if (
-        window.Android &&
-        typeof window.Android.stopNativeSpeechRecognition === 'function'
-      ) {
-        window.Android.stopNativeSpeechRecognition();
-      }
-
-    } catch (_) {}
-
-    cleanupVoice();
-
-    setStatus(
-      'Voice input ready. You can edit the text before saving.',
-      'ready'
-    );
   }
 
   function installVoiceButton() {
-
     const oldMic = get('conclusionMicBtn');
+    if (!oldMic) return;
+    if (oldMic.dataset.v18UnifiedVoice === '1') return;
 
-    if (!oldMic) {
-      return;
-    }
-
-    if (oldMic.dataset.v18UnifiedVoice === '1') {
-      return;
-    }
-
-    /*
-     * Clone the button to remove all older click handlers.
-     * Mark every previous voice patch as already handled so their
-     * MutationObservers cannot take control of the button again.
-     */
     const mic = oldMic.cloneNode(true);
 
-    mic.dataset.v18UnifiedVoice = '1';
-    mic.dataset.v18NativeVoice = '1';
-    mic.dataset.v15Voice = '1';
-    mic.dataset.v14Voice = '1';
-    mic.dataset.v13NativeMic = '1';
+    /* Block older voice layers from taking the button back. */
     mic.dataset.v10VoicePatched = '1';
-
-    mic.style.touchAction = 'manipulation';
-    mic.style.userSelect = 'none';
-
-    mic.setAttribute(
-      'aria-label',
-      'Speak to type Visit Conclusion'
-    );
-
-    mic.title =
-      'Tap to start or stop voice input';
+    mic.dataset.v13NativeMic = '1';
+    mic.dataset.v14Voice = '1';
+    mic.dataset.v15Voice = '1';
+    mic.dataset.v18NativeVoice = '1';
+    mic.dataset.v18UnifiedVoice = '1';
 
     mic.onclick = function (event) {
-
       event.preventDefault();
       event.stopPropagation();
 
@@ -6890,31 +6691,18 @@ window.syncAndroidFcmToken = function(){
 
     oldMic.replaceWith(mic);
 
-    /*
-     * AR / EN language switch.
-     */
     const langBtn = get('conclusionLangBtn');
 
-    if (
-      langBtn &&
-      langBtn.dataset.v18UnifiedLanguage !== '1'
-    ) {
-
+    if (langBtn && langBtn.dataset.v18UnifiedLanguage !== '1') {
       langBtn.dataset.v18UnifiedLanguage = '1';
 
       langBtn.onclick = function (event) {
-
         event.preventDefault();
         event.stopPropagation();
 
-        if (recording || starting) {
-          stopVoice();
-        }
+        if (recording || starting) stopVoice();
 
-        langBtn.textContent =
-          langBtn.textContent.trim() === 'AR'
-            ? 'EN'
-            : 'AR';
+        langBtn.textContent = langBtn.textContent.trim() === 'AR' ? 'EN' : 'AR';
 
         setStatus(
           langBtn.textContent.trim() === 'AR'
@@ -6927,117 +6715,72 @@ window.syncAndroidFcmToken = function(){
       };
     }
 
-    setStatus(
-      'Voice input ready. Tap the microphone to speak.',
-      'ready'
-    );
+    setStatus('Voice input ready. Tap the microphone to speak.', 'ready');
   }
 
-  /*
-   * Android Native SpeechRecognizer callbacks.
-   * These remain unchanged in behavior.
-   */
-
+  /* Android Native SpeechRecognizer callbacks */
   window.onNativeSpeechStarted = function () {
+    if (browserMode) return;
 
     starting = false;
     recording = true;
-    browserMode = false;
-
     setMicVisual(true);
-
-    setStatus(
-      'Recording... speak naturally, then tap the microphone to stop.',
-      'recording'
-    );
+    setStatus('Recording... speak naturally, then tap the microphone to stop.', 'recording');
   };
 
   window.onNativeSpeechResult = function (text, isFinal) {
+    if (browserMode) return;
 
     const spoken = String(text || '').trim();
-
-    if (!spoken) {
-      return;
-    }
+    if (!spoken) return;
 
     const combined = baseText
       ? baseText + ' ' + spoken
       : spoken;
 
-    setConclusion(combined);
+    writeText(combined, true);
 
-    if (isFinal) {
-      baseText = combined;
-    }
+    if (isFinal) baseText = combined;
   };
 
   window.onNativeSpeechStopped = function () {
+    if (browserMode) return;
 
     starting = false;
     recording = false;
-    browserMode = false;
-
     setMicVisual(false);
-
-    setStatus(
-      'Voice input ready. You can edit the text before saving.',
-      'ready'
-    );
+    setStatus('Voice input ready. You can edit the text before saving.', 'ready');
   };
 
   window.onNativeSpeechError = function (error) {
+    if (browserMode) return;
 
     starting = false;
     recording = false;
-    browserMode = false;
-
     setMicVisual(false);
 
     const code = String(error || '');
 
     if (code === 'not-allowed') {
-
-      setStatus(
-        'Microphone permission was denied. Please allow microphone access for Innoval Field Visit.'
-      );
-
+      setStatus('Microphone permission was denied. Please allow microphone access for Innoval Field Visit.');
     } else if (code === 'unavailable') {
-
-      setStatus(
-        'Speech recognition is not available on this device.'
-      );
-
+      setStatus('Speech recognition is not available on this device.');
     } else {
-
-      setStatus(
-        'Voice recognition stopped. Tap the microphone to try again.'
-      );
+      setStatus('Voice recognition stopped. Tap the microphone to try again.');
     }
   };
 
-  /*
-   * Wait until Visit Conclusion exists.
-   */
   const observer = new MutationObserver(function () {
     installVoiceButton();
   });
 
   if (document.body) {
-
-    observer.observe(
-      document.body,
-      {
-        childList: true,
-        subtree: true
-      }
-    );
+    observer.observe(document.body, { childList: true, subtree: true });
   }
 
-  setTimeout(installVoiceButton, 300);
-  setTimeout(installVoiceButton, 1000);
-  setTimeout(installVoiceButton, 2000);
-  setTimeout(installVoiceButton, 4000);
-
+  setTimeout(installVoiceButton, 500);
+  setTimeout(installVoiceButton, 1500);
+  setTimeout(installVoiceButton, 3000);
 })();
 </script>
 </body></html>
