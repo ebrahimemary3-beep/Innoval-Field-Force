@@ -2334,8 +2334,39 @@ async function cloudPullMyData(){
         localStorage.setItem('innovalCustomerOverridesV1947',JSON.stringify(ov));
       }
     }
+    // 5) Pull the current user's profile photo from Supabase Storage.
+    //    Storage is best-effort here: a missing photo must never block the
+    //    normal Cloud pull for visits/customers/weekly plans.
+    try{ await cloudPullProfilePhoto(p); }catch(e){}
+
     return true;
   }catch(error){ console.warn("Innoval cloud pull failed:",error?.message||error); return false; }
+}
+
+async function cloudPullProfilePhoto(p){
+  const userId=String(p?.id||"").trim();
+  if(!userId || !innovalSupabase) return false;
+  const path=userId+"/profile.png";
+  try{
+    const {data,error}=await innovalSupabase.storage.from("profile-photos").download(path);
+    if(error || !data) return false;
+    const reader=new FileReader();
+    const dataUrl=await new Promise((resolve,reject)=>{
+      reader.onload=()=>resolve(String(reader.result||""));
+      reader.onerror=()=>reject(reader.error||new Error("Profile photo read failed."));
+      reader.readAsDataURL(data);
+    });
+    if(!dataUrl) return false;
+    const key="innovalProfilePhoto_uid_"+userId;
+    localStorage.setItem(key,dataUrl);
+    localStorage.setItem(key+"_updatedAt",new Date().toISOString());
+    applyProfilePhoto(dataUrl);
+    localStorage.setItem("innovalProfilePhotoCloudPath_"+userId,path);
+    return true;
+  }catch(e){
+    console.warn("Innoval profile photo cloud pull skipped:",e?.message||e);
+    return false;
+  }
 }
 
 async function cloudBootstrapMasterData(){
