@@ -2062,6 +2062,43 @@ function cloudVisitRow(v,appUserId){
   };
 }
 
+async function cloudEnsureVisitCustomer(v){
+  if(!innovalSupabase || !v) return {ok:false,error:"Cloud customer check unavailable."};
+  const customerId=String(v.customerId||"").trim();
+  if(!customerId) return {ok:false,error:"Visit customer ID is missing."};
+  try{
+    const {data:existing,error:findError}=await innovalSupabase
+      .from("customers")
+      .select("customer_id")
+      .eq("customer_id",customerId)
+      .maybeSingle();
+    if(findError) throw findError;
+    if(existing?.customer_id) return {ok:true,existing:true};
+
+    // The visit may be queued from an earlier local session where the customer
+    // was saved locally but never reached Cloud. Create the missing parent row
+    // before inserting the visit so the FK visits_customer_id_fk can succeed.
+    const customer={
+      customerId,
+      name:String(v.customer_name||v.customer||customerId),
+      gov:String(v.governorate||v.gov||""),
+      area:String(v.area||""),
+      areaId:String(v.area_id||v.areaId||""),
+      type:String(v.customer_type||v.type||"Other"),
+      potential:String(v.potential||"Medium"),
+      loyalty:String(v.loyalty||"Neutral"),
+      active:true
+    };
+    const created=await cloudSyncCustomer(customer,true);
+    if(!created?.ok) return {ok:false,error:created?.error||"Customer could not be created in Cloud."};
+    return {ok:true,created:true};
+  }catch(error){
+    const msg=error?.message || String(error);
+    console.warn("Innoval visit customer dependency failed:",msg);
+    return {ok:false,error:msg};
+  }
+}
+
 async function cloudSyncVisit(v){
   const session=await cloudSession();
   if(!session || !innovalSupabase || !v) return {ok:false,error:"No Supabase session."};
@@ -2070,6 +2107,8 @@ async function cloudSyncVisit(v){
     const appUserId=String((appUserForCloudSession(session)||currentUserRecord())?.id||"");
     if(!authUserId) return {ok:false,error:"Supabase Auth user ID is missing."};
     if(!appUserId) return {ok:false,error:"App user ID is missing."};
+    const dependency=await cloudEnsureVisitCustomer(v);
+    if(!dependency.ok) return {ok:false,error:dependency.error||"Visit customer is missing in Cloud."};
     const row=cloudVisitRow(v,appUserId);
     if(!row.id || !row.user_id) return {ok:false,error:"Visit ID or user ID is missing."};
     const {error}=await innovalSupabase.from("visits").upsert(row,{onConflict:"id"});
@@ -4478,7 +4517,7 @@ async function sendDailyVisitsReport(){
 
 // ===== Innoval App Update Checker =====
 // Web/PWA updater. Native Android uses the Android bridge for the actual APK installation.
-const APP_VERSION = "1.9.67";
+const APP_VERSION = "1.9.68";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 let innovalSwRegistration=null;
 
