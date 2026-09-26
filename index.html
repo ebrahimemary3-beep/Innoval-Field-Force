@@ -6789,79 +6789,124 @@ window.syncAndroidFcmToken = function(){
      Place immediately before </body>
      ========================================================= -->
 
+<!-- =========================================================
+     INNOVAL v1.9.61 — iOS VOICE ENGINE
+     iOS ONLY
+     Android voice is NOT modified
+     ========================================================= -->
+
 <script id="innoval-ios-voice-fix-v1961">
 (function () {
   'use strict';
 
-  /* ---------------------------------------------------------
-     Detect iOS / iPadOS
-     --------------------------------------------------------- */
+  /* =========================================================
+     iOS DETECTION
+     ========================================================= */
+
   function isIOS() {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    return (
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (
+        navigator.platform === 'MacIntel' &&
+        navigator.maxTouchPoints > 1
+      )
+    );
   }
 
   if (!isIOS()) return;
+
+
+  /* =========================================================
+     STATE
+     ========================================================= */
 
   let recognition = null;
   let recording = false;
   let starting = false;
   let userStopped = false;
-  let baseText = '';
+
   let language = 'ar-EG';
+  let baseText = '';
 
   const MIC_ID = 'conclusionMicBtn';
   const TEXT_ID = 'conclusion';
   const STATUS_ID = 'conclusionVoiceStatus';
   const LANG_ID = 'conclusionLangBtn';
 
+
+  /* =========================================================
+     HELPERS
+     ========================================================= */
+
   function $(id) {
     return document.getElementById(id);
   }
 
-  function setStatus(message, mode) {
+  function status(message, mode) {
     const el = $(STATUS_ID);
     if (!el) return;
 
     el.textContent = message;
-    el.classList.remove('recording', 'ready');
+
+    el.classList.remove(
+      'recording',
+      'ready'
+    );
 
     if (mode) {
       el.classList.add(mode);
     }
   }
 
-  function setMic(active) {
+
+  function visual(active) {
     const mic = $(MIC_ID);
     if (!mic) return;
 
-    mic.classList.toggle('recording', !!active);
+    mic.classList.toggle(
+      'recording',
+      !!active
+    );
 
     if (active) {
       mic.textContent = '⏹';
       mic.title = 'Stop recording';
-      mic.setAttribute('aria-label', 'Stop recording');
+      mic.setAttribute(
+        'aria-label',
+        'Stop recording'
+      );
     } else {
       mic.textContent = '🎙️';
       mic.title = 'Speak to type your conclusion';
-      mic.setAttribute('aria-label', 'Speak to type your conclusion');
+      mic.setAttribute(
+        'aria-label',
+        'Speak to type your conclusion'
+      );
     }
   }
+
 
   function cleanup() {
     recording = false;
     starting = false;
-    setMic(false);
+
+    visual(false);
 
     recognition = null;
 
-    setStatus(
+    status(
       'Voice input ready. Tap the microphone to speak.',
       'ready'
     );
   }
 
+
+  /* =========================================================
+     STOP
+     ========================================================= */
+
   function stopVoice() {
+
     userStopped = true;
 
     if (!recognition) {
@@ -6875,60 +6920,118 @@ window.syncAndroidFcmToken = function(){
       try {
         recognition.abort();
       } catch (_) {}
+
       cleanup();
     }
   }
 
+
+  /* =========================================================
+     MICROPHONE PERMISSION PRIMING
+     
+     IMPORTANT:
+     Safari iOS sometimes needs the microphone permission
+     established before SpeechRecognition is started.
+     ========================================================= */
+
+  async function requestMicrophonePermission() {
+
+    if (!navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia) {
+
+      return true;
+    }
+
+    try {
+
+      const stream =
+        await navigator.mediaDevices.getUserMedia({
+          audio: true
+        });
+
+      stream.getTracks().forEach(function (track) {
+        try {
+          track.stop();
+        } catch (_) {}
+      });
+
+      return true;
+
+    } catch (error) {
+
+      status(
+        'Microphone permission is required. Please allow microphone access for Innoval.'
+      );
+
+      return false;
+    }
+  }
+
+
+  /* =========================================================
+     CREATE SPEECH RECOGNITION
+     ========================================================= */
+
   function createRecognition() {
 
-    const Recognition =
+    const SpeechRecognition =
       window.SpeechRecognition ||
       window.webkitSpeechRecognition;
 
-    if (!Recognition) {
-      setStatus(
+    if (!SpeechRecognition) {
+
+      status(
         'Voice-to-text is not available on this iPhone/browser. You can type the conclusion normally.'
       );
+
       return null;
     }
 
-    const rec = new Recognition();
+
+    const rec = new SpeechRecognition();
+
 
     /*
-     * iOS settings
-     */
-    rec.lang = language;
+      IMPORTANT FOR iOS
 
-    /*
-     * Keep continuous mode enabled.
-     * iOS may still end the session automatically.
-     */
-    rec.continuous = true;
+      Do NOT use continuous=true.
+
+      iOS Safari can terminate/restart Web Speech sessions
+      unpredictably. One clean session per tap is safer.
+    */
+
+    rec.continuous = false;
 
     rec.interimResults = true;
 
     rec.maxAlternatives = 1;
 
-    /* -------------------------------------------------------
+    rec.lang = language;
+
+
+    /* =======================================================
        START
-       ------------------------------------------------------- */
+       ======================================================= */
+
     rec.onstart = function () {
 
       starting = false;
       recording = true;
       userStopped = false;
 
-      setMic(true);
+      visual(true);
 
-      setStatus(
-        'Recording... speak naturally, then tap the microphone to stop.',
+      status(
+        'Recording... speak now, then tap the microphone to stop.',
         'recording'
       );
     };
 
-    /* -------------------------------------------------------
+
+    /* =======================================================
        RESULT
-       ------------------------------------------------------- */
+       ======================================================= */
+
     rec.onresult = function (event) {
 
       const textarea = $(TEXT_ID);
@@ -6938,20 +7041,27 @@ window.syncAndroidFcmToken = function(){
       let finalText = '';
       let interimText = '';
 
+
       for (
         let i = event.resultIndex;
         i < event.results.length;
         i++
       ) {
 
-        const result = event.results[i];
+        const result =
+          event.results[i];
 
-        if (!result || !result[0]) continue;
+        if (!result || !result[0]) {
+          continue;
+        }
 
         const transcript =
-          String(result[0].transcript || '').trim();
+          String(
+            result[0].transcript || ''
+          ).trim();
 
         if (!transcript) continue;
+
 
         if (result.isFinal) {
 
@@ -6967,17 +7077,13 @@ window.syncAndroidFcmToken = function(){
         }
       }
 
-      /*
-       * Final text
-       */
+
       const finalCombined =
         [baseText, finalText]
           .filter(Boolean)
           .join(' ');
 
-      /*
-       * Show interim result temporarily.
-       */
+
       textarea.value =
         [finalCombined, interimText]
           .filter(Boolean)
@@ -6987,291 +7093,419 @@ window.syncAndroidFcmToken = function(){
               : ''
           );
 
+
       textarea.dispatchEvent(
-        new Event('input', { bubbles: true })
+        new Event(
+          'input',
+          { bubbles: true }
+        )
       );
 
-      /*
-       * Important:
-       * Save final text as the new base so iOS does not
-       * duplicate previous speech on the next result event.
-       */
+
       if (finalText) {
         baseText = finalCombined;
       }
     };
 
-    /* -------------------------------------------------------
+
+    /* =======================================================
        ERROR
-       ------------------------------------------------------- */
+       ======================================================= */
+
     rec.onerror = function (event) {
 
       const code =
-        String(event && event.error || '');
+        String(
+          event &&
+          event.error ||
+          ''
+        );
+
+
+      console.log(
+        '[Innoval iOS Voice] SpeechRecognition error:',
+        code,
+        event
+      );
+
 
       recording = false;
       starting = false;
 
-      setMic(false);
+      visual(false);
+
 
       if (
         code === 'not-allowed' ||
         code === 'service-not-allowed'
       ) {
 
-        setStatus(
-          'Microphone or speech permission was denied. Please allow microphone access for Innoval and try again.'
+        status(
+          'iPhone speech recognition permission was denied or unavailable.'
         );
 
         return;
       }
+
 
       if (code === 'audio-capture') {
 
-        setStatus(
-          'The iPhone microphone is not available. Please check microphone access and try again.'
+        status(
+          'The iPhone microphone is not available. Please check microphone access.'
         );
 
         return;
       }
+
 
       if (code === 'network') {
 
-        setStatus(
-          'Speech recognition needs an internet connection on this iPhone.'
+        status(
+          'Speech recognition needs an internet connection.'
         );
 
         return;
       }
 
+
       if (code === 'no-speech') {
 
-        setStatus(
+        status(
           'No speech detected. Tap the microphone and speak again.'
         );
 
         return;
       }
 
-      setStatus(
+
+      status(
         'Voice recognition stopped. Tap the microphone to try again.'
       );
     };
 
-    /* -------------------------------------------------------
+
+    /* =======================================================
        END
-       ------------------------------------------------------- */
+       ======================================================= */
+
     rec.onend = function () {
 
-      /*
-       * If user explicitly stopped:
-       * finish normally.
-       */
+      console.log(
+        '[Innoval iOS Voice] SpeechRecognition ended'
+      );
+
+
       if (userStopped) {
+
         cleanup();
         return;
       }
 
-      /*
-       * iOS can terminate SpeechRecognition automatically.
-       * DO NOT immediately restart it.
-       *
-       * This prevents:
-       * - already starting
-       * - microphone lock
-       * - duplicate sessions
-       * - unstable iOS behavior
-       */
 
       recording = false;
       starting = false;
 
-      setMic(false);
+      visual(false);
 
-      setStatus(
+      recognition = null;
+
+
+      status(
         'Voice recognition stopped. Tap the microphone to speak again.',
         'ready'
       );
-
-      recognition = null;
     };
+
 
     return rec;
   }
 
-  /* ---------------------------------------------------------
-     START VOICE
-     --------------------------------------------------------- */
-  function startVoice() {
 
-    if (recording || starting) return;
+  /* =========================================================
+     START VOICE
+     ========================================================= */
+
+  async function startVoice() {
+
+    if (recording || starting) {
+      return;
+    }
+
 
     const textarea = $(TEXT_ID);
 
-    if (!textarea) return;
+    if (!textarea) {
+      return;
+    }
 
-    const Recognition =
+
+    const SpeechRecognition =
       window.SpeechRecognition ||
       window.webkitSpeechRecognition;
 
-    if (!Recognition) {
 
-      setStatus(
-        'Voice-to-text is not available on this iPhone/browser. You can type the conclusion normally.'
+    if (!SpeechRecognition) {
+
+      status(
+        'Voice-to-text is not available on this iPhone/browser.'
       );
 
       return;
     }
 
-    /*
-     * Capture existing text before starting.
-     */
+
     baseText =
-      String(textarea.value || '').trim();
+      String(
+        textarea.value || ''
+      ).trim();
+
 
     userStopped = false;
+
     starting = true;
 
-    setMic(true);
 
-    setStatus(
+    visual(true);
+
+    status(
       'Starting microphone...',
       'recording'
     );
 
+
     /*
-     * Always create a NEW recognition object.
-     * This is important for iOS.
-     */
+      STEP 1
+      Get microphone permission first.
+    */
+
+    const permission =
+      await requestMicrophonePermission();
+
+
+    if (!permission) {
+
+      starting = false;
+
+      visual(false);
+
+      return;
+    }
+
+
+    /*
+      STEP 2
+      Create a completely fresh SpeechRecognition.
+    */
+
     try {
 
       if (recognition) {
+
         try {
           recognition.abort();
         } catch (_) {}
+
       }
 
-      recognition = createRecognition();
+
+      recognition =
+        createRecognition();
+
 
       if (!recognition) {
+
         starting = false;
-        setMic(false);
+
+        visual(false);
+
         return;
       }
 
+
+      recognition.lang =
+        language;
+
+
       /*
-       * IMPORTANT:
-       * Do NOT call getUserMedia().
-       *
-       * Do NOT open a microphone stream first.
-       *
-       * SpeechRecognition itself owns the microphone.
-       */
+        STEP 3
+
+        Start immediately after permission.
+      */
+
       recognition.start();
 
+
     } catch (error) {
+
+      console.log(
+        '[Innoval iOS Voice] start() error:',
+        error
+      );
+
 
       recognition = null;
 
       starting = false;
+
       recording = false;
 
-      setMic(false);
+      visual(false);
 
-      setStatus(
+
+      status(
         'Voice recognition could not start. Tap the microphone again.'
       );
     }
   }
 
-  /* ---------------------------------------------------------
-     INSTALL iOS BUTTON
-     --------------------------------------------------------- */
-  function installIOSVoice() {
 
-    const oldMic = $(MIC_ID);
+  /* =========================================================
+     MIC BUTTON
+     
+     IMPORTANT:
+     We clone the button again so all old onclick/
+     pointerdown/pointerup listeners attached to the
+     previous button are removed.
+     ========================================================= */
+
+  function installMic() {
+
+    const oldMic =
+      $(MIC_ID);
 
     if (!oldMic) return;
 
-    /*
-     * Prevent installing twice.
-     */
-    if (oldMic.dataset.innovalIOSVoiceFix === '1') {
+
+    if (
+      oldMic.dataset.innovalIOSVoiceFix === '2'
+    ) {
       return;
     }
 
-    /*
-     * Clone the button.
-     *
-     * This removes old click listeners attached by the
-     * previous V11 / V15 / V18 voice layers.
-     */
-    const mic = oldMic.cloneNode(true);
 
-    mic.dataset.innovalIOSVoiceFix = '1';
+    const mic =
+      oldMic.cloneNode(true);
+
 
     /*
-     * Mark previous voice layers as already handled.
-     */
+      Mark ALL previous voice layers as handled.
+    */
+
+    mic.dataset.innovalIOSVoiceFix = '2';
+
     mic.dataset.v10VoicePatched = '1';
+
     mic.dataset.v13NativeMic = '1';
+
     mic.dataset.v14Voice = '1';
+
     mic.dataset.v15Voice = '1';
+
+    mic.dataset.v18NativeVoice = '1';
+
     mic.dataset.v18UnifiedVoice = '1';
 
-    mic.style.touchAction = 'manipulation';
-    mic.style.userSelect = 'none';
-    mic.style.webkitUserSelect = 'none';
+
+    mic.style.touchAction =
+      'manipulation';
+
+    mic.style.userSelect =
+      'none';
+
+    mic.style.webkitUserSelect =
+      'none';
+
+
+    /*
+      ONLY ONE EVENT HANDLER
+    */
 
     mic.onclick = function (event) {
 
       event.preventDefault();
+
       event.stopPropagation();
 
-      if (recording || starting) {
+      if (
+        recording ||
+        starting
+      ) {
 
         stopVoice();
 
       } else {
 
         startVoice();
-
       }
 
       return false;
     };
 
+
     oldMic.replaceWith(mic);
 
-    /* -------------------------------------------------------
-       LANGUAGE BUTTON
-       ------------------------------------------------------- */
-    const langBtn = $(LANG_ID);
 
-    if (langBtn) {
+    visual(false);
 
-      const newLangBtn =
-        langBtn.cloneNode(true);
 
-      newLangBtn.dataset.innovalIOSVoiceLanguage = '1';
+    status(
+      'Voice input ready. Tap the microphone to speak.',
+      'ready'
+    );
+  }
 
-      newLangBtn.onclick = function (event) {
+
+  /* =========================================================
+     LANGUAGE BUTTON
+     ========================================================= */
+
+  function installLanguageButton() {
+
+    const oldLang =
+      $(LANG_ID);
+
+    if (!oldLang) return;
+
+
+    if (
+      oldLang.dataset.innovalIOSVoiceLang === '2'
+    ) {
+      return;
+    }
+
+
+    const langBtn =
+      oldLang.cloneNode(true);
+
+
+    langBtn.dataset.innovalIOSVoiceLang =
+      '2';
+
+
+    langBtn.onclick =
+      function (event) {
 
         event.preventDefault();
+
         event.stopPropagation();
 
-        if (recording || starting) {
+
+        if (
+          recording ||
+          starting
+        ) {
           stopVoice();
         }
+
 
         if (language === 'ar-EG') {
 
           language = 'en-US';
 
-          newLangBtn.textContent = 'EN';
+          langBtn.textContent = 'EN';
 
-          setStatus(
-            'Voice language: English (US).',
+          status(
+            'Voice language: English.',
             'ready'
           );
 
@@ -7279,47 +7513,56 @@ window.syncAndroidFcmToken = function(){
 
           language = 'ar-EG';
 
-          newLangBtn.textContent = 'AR';
+          langBtn.textContent = 'AR';
 
-          setStatus(
+          status(
             'Voice language: Arabic (Egypt).',
             'ready'
           );
         }
 
+
         return false;
       };
 
-      langBtn.replaceWith(newLangBtn);
-    }
 
-    setMic(false);
-
-    setStatus(
-      'Voice input ready. Tap the microphone to speak.',
-      'ready'
-    );
+    oldLang.replaceWith(langBtn);
   }
 
-  /* ---------------------------------------------------------
-     WAIT UNTIL CONCLUSION UI EXISTS
-     --------------------------------------------------------- */
+
+  /* =========================================================
+     BOOT
+     ========================================================= */
+
   function boot() {
 
     if (!isIOS()) return;
 
-    if ($(MIC_ID)) {
-      installIOSVoice();
+
+    const mic =
+      $(MIC_ID);
+
+    if (!mic) {
+
+      setTimeout(
+        boot,
+        300
+      );
+
       return;
     }
 
-    setTimeout(boot, 300);
+
+    installMic();
+
+    installLanguageButton();
   }
 
-  /*
-   * Initial boot
-   */
-  if (document.readyState === 'loading') {
+
+  if (
+    document.readyState ===
+    'loading'
+  ) {
 
     document.addEventListener(
       'DOMContentLoaded',
@@ -7331,25 +7574,40 @@ window.syncAndroidFcmToken = function(){
     boot();
   }
 
-  /*
-   * The app dynamically creates/opens the Visit screen.
-   * Watch for the microphone button.
-   */
+
+  /* =========================================================
+     DYNAMIC VISIT SCREEN
+     ========================================================= */
+
   const observer =
-    new MutationObserver(function () {
+    new MutationObserver(
+      function () {
 
-      if (!isIOS()) return;
+        if (!isIOS()) return;
 
-      const mic = $(MIC_ID);
+        const mic =
+          $(MIC_ID);
 
-      if (
-        mic &&
-        mic.dataset.innovalIOSVoiceFix !== '1'
-      ) {
-        installIOSVoice();
+        if (
+          mic &&
+          mic.dataset.innovalIOSVoiceFix !== '2'
+        ) {
+          installMic();
+        }
+
+
+        const langBtn =
+          $(LANG_ID);
+
+        if (
+          langBtn &&
+          langBtn.dataset.innovalIOSVoiceLang !== '2'
+        ) {
+          installLanguageButton();
+        }
       }
+    );
 
-    });
 
   if (document.body) {
 
@@ -7363,5 +7621,6 @@ window.syncAndroidFcmToken = function(){
   }
 
 })();
+</script>
 </script>
 </body></html>
