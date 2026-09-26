@@ -4426,7 +4426,7 @@ async function sendDailyVisitsReport(){
 
 // ===== Innoval App Update Checker =====
 // Web/PWA updater. Native Android uses the Android bridge for the actual APK installation.
-const APP_VERSION = "1.9.60";
+const APP_VERSION = "1.9.65";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 let innovalSwRegistration=null;
 
@@ -6795,363 +6795,1001 @@ window.syncAndroidFcmToken = function(){
      Android voice is NOT modified
      ========================================================= -->
 
-<script id="innoval-ios-voice-fix-v1963">
+<script id="innoval-ios-voice-fix-v1961">
 (function () {
   'use strict';
 
   /* =========================================================
-     INNOVAL v1.9.63 — iOS VOICE DIAGNOSTIC
-     iOS ONLY — Android/native voice is untouched.
-
-     Purpose of this version:
-     We stop guessing. This engine reports the exact WebKit
-     SpeechRecognition lifecycle/error on the screen.
-     It does NOT call getUserMedia() before SpeechRecognition.start().
+     iOS DETECTION
      ========================================================= */
 
   function isIOS() {
-    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    return (
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (
+        navigator.platform === 'MacIntel' &&
+        navigator.maxTouchPoints > 1
+      )
+    );
   }
 
   if (!isIOS()) return;
+
+
+  /* =========================================================
+     STATE
+     ========================================================= */
+
+  let recognition = null;
+  let recording = false;
+  let starting = false;
+  let userStopped = false;
+
+  let language = 'ar-EG';
+  let baseText = '';
 
   const MIC_ID = 'conclusionMicBtn';
   const TEXT_ID = 'conclusion';
   const STATUS_ID = 'conclusionVoiceStatus';
   const LANG_ID = 'conclusionLangBtn';
 
-  let recognition = null;
-  let recording = false;
-  let starting = false;
-  let userStopped = false;
-  let baseText = '';
-  let language = 'ar-EG';
-  let installed = false;
 
-  function $(id) { return document.getElementById(id); }
+  /* =========================================================
+     HELPERS
+     ========================================================= */
+
+  function $(id) {
+    return document.getElementById(id);
+  }
 
   function status(message, mode) {
     const el = $(STATUS_ID);
     if (!el) return;
+
     el.textContent = message;
-    el.classList.remove('recording', 'ready');
-    if (mode) el.classList.add(mode);
+
+    el.classList.remove(
+      'recording',
+      'ready'
+    );
+
+    if (mode) {
+      el.classList.add(mode);
+    }
   }
+
 
   function visual(active) {
     const mic = $(MIC_ID);
     if (!mic) return;
-    mic.classList.toggle('recording', !!active);
-    mic.textContent = active ? '⏹' : '🎙️';
-    mic.title = active ? 'Stop recording' : 'Speak to type your conclusion';
-    mic.setAttribute('aria-pressed', active ? 'true' : 'false');
+
+    mic.classList.toggle(
+      'recording',
+      !!active
+    );
+
+    if (active) {
+      mic.textContent = '⏹';
+      mic.title = 'Stop recording';
+      mic.setAttribute(
+        'aria-label',
+        'Stop recording'
+      );
+    } else {
+      mic.textContent = '🎙️';
+      mic.title = 'Speak to type your conclusion';
+      mic.setAttribute(
+        'aria-label',
+        'Speak to type your conclusion'
+      );
+    }
   }
 
-  function diag(step, extra) {
-    const msg = '[iOS Voice] ' + step + (extra ? ' → ' + extra : '');
-    console.log(msg);
-    status(msg, step === 'START' || step === 'AUDIO' || step === 'SOUND' || step === 'SPEECH' ? 'recording' : 'ready');
-  }
 
-  function cleanup(message) {
+  function cleanup() {
     recording = false;
     starting = false;
+
     visual(false);
-    if (message) status(message, 'ready');
+
+    recognition = null;
+
+    status(
+      'Voice input ready. Tap the microphone to speak.',
+      'ready'
+    );
   }
+
+
+  /* =========================================================
+     STOP
+     ========================================================= */
 
   function stopVoice() {
+
     userStopped = true;
-    diag('STOP_REQUESTED');
-    try {
-      if (recognition) recognition.stop();
-    } catch (e) {
-      try { recognition && recognition.abort(); } catch (_) {}
+
+    if (!recognition) {
+      cleanup();
+      return;
     }
-    cleanup('[iOS Voice] STOP_REQUESTED');
+
+    try {
+      recognition.stop();
+    } catch (e) {
+      try {
+        recognition.abort();
+      } catch (_) {}
+
+      cleanup();
+    }
   }
 
+
+  /* =========================================================
+     MICROPHONE PERMISSION PRIMING
+     
+     IMPORTANT:
+     Safari iOS sometimes needs the microphone permission
+     established before SpeechRecognition is started.
+     ========================================================= */
+
+  async function requestMicrophonePermission() {
+
+    if (!navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia) {
+
+      return true;
+    }
+
+    try {
+
+      const stream =
+        await navigator.mediaDevices.getUserMedia({
+          audio: true
+        });
+
+      stream.getTracks().forEach(function (track) {
+        try {
+          track.stop();
+        } catch (_) {}
+      });
+
+      return true;
+
+    } catch (error) {
+
+      status(
+        'Microphone permission is required. Please allow microphone access for Innoval.'
+      );
+
+      return false;
+    }
+  }
+
+
+  /* =========================================================
+     CREATE SPEECH RECOGNITION
+     ========================================================= */
+
   function createRecognition() {
-    /* Prefer WebKit's implementation explicitly on iOS. */
-    const Recognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-    if (!Recognition) {
-      status('[iOS Voice] NO_SPEECH_RECOGNITION_API');
+
+    const SpeechRecognition =
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+
+      status(
+        'Voice-to-text is not available on this iPhone/browser. You can type the conclusion normally.'
+      );
+
       return null;
     }
 
-    const rec = new Recognition();
+
+    const rec = new SpeechRecognition();
+
+
+    /*
+      IMPORTANT FOR iOS
+
+      Do NOT use continuous=true.
+
+      iOS Safari can terminate/restart Web Speech sessions
+      unpredictably. One clean session per tap is safer.
+    */
+
     rec.continuous = false;
+
     rec.interimResults = true;
+
     rec.maxAlternatives = 1;
+
     rec.lang = language;
 
+
+    /* =======================================================
+       START
+       ======================================================= */
+
     rec.onstart = function () {
+
       starting = false;
       recording = true;
-      diag('START');
+      userStopped = false;
+
+      visual(true);
+
+      status(
+        'Recording... speak now, then tap the microphone to stop.',
+        'recording'
+      );
     };
 
-    rec.onaudiostart = function () { diag('AUDIO'); };
-    rec.onsoundstart = function () { diag('SOUND'); };
-    rec.onspeechstart = function () { diag('SPEECH'); };
-    rec.onspeechend = function () { diag('SPEECH_END'); };
-    rec.onsoundend = function () { diag('SOUND_END'); };
-    rec.onaudioend = function () { diag('AUDIO_END'); };
+
+    /* =======================================================
+       RESULT
+       ======================================================= */
 
     rec.onresult = function (event) {
+
       const textarea = $(TEXT_ID);
+
       if (!textarea) return;
 
       let finalText = '';
       let interimText = '';
 
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i];
-        if (!result || !result[0]) continue;
-        const transcript = String(result[0].transcript || '').trim();
+
+      for (
+        let i = event.resultIndex;
+        i < event.results.length;
+        i++
+      ) {
+
+        const result =
+          event.results[i];
+
+        if (!result || !result[0]) {
+          continue;
+        }
+
+        const transcript =
+          String(
+            result[0].transcript || ''
+          ).trim();
+
         if (!transcript) continue;
-        if (result.isFinal) finalText += (finalText ? ' ' : '') + transcript;
-        else interimText += (interimText ? ' ' : '') + transcript;
+
+
+        if (result.isFinal) {
+
+          finalText +=
+            (finalText ? ' ' : '') +
+            transcript;
+
+        } else {
+
+          interimText +=
+            (interimText ? ' ' : '') +
+            transcript;
+        }
       }
 
-      const combined = [baseText, finalText].filter(Boolean).join(' ');
-      textarea.value = [combined, interimText].filter(Boolean).join(combined && interimText ? ' ' : '');
-      textarea.dispatchEvent(new Event('input', { bubbles: true }));
-      if (finalText) baseText = combined;
 
-      diag('RESULT', finalText || interimText || 'EMPTY');
+      const finalCombined =
+        [baseText, finalText]
+          .filter(Boolean)
+          .join(' ');
+
+
+      textarea.value =
+        [finalCombined, interimText]
+          .filter(Boolean)
+          .join(
+            finalCombined && interimText
+              ? ' '
+              : ''
+          );
+
+
+      textarea.dispatchEvent(
+        new Event(
+          'input',
+          { bubbles: true }
+        )
+      );
+
+
+      if (finalText) {
+        baseText = finalCombined;
+      }
     };
+
+
+    /* =======================================================
+       ERROR
+       ======================================================= */
 
     rec.onerror = function (event) {
-      const code = String(event && event.error || 'UNKNOWN');
-      const message = String(event && event.message || '');
-      console.error('[Innoval iOS Voice] ERROR', code, event);
+
+      const code =
+        String(
+          event &&
+          event.error ||
+          ''
+        );
+
+
+      console.log(
+        '[Innoval iOS Voice] SpeechRecognition error:',
+        code,
+        event
+      );
+
 
       recording = false;
       starting = false;
+
       visual(false);
 
-      /* Keep the exact error visible instead of hiding it behind a generic message. */
-      status('[iOS Voice] ERROR: ' + code + (message ? ' — ' + message : ''), 'ready');
+
+      if (
+        code === 'not-allowed' ||
+        code === 'service-not-allowed'
+      ) {
+
+        status(
+          'iPhone speech recognition permission was denied or unavailable.'
+        );
+
+        return;
+      }
+
+
+      if (code === 'audio-capture') {
+
+        status(
+          'The iPhone microphone is not available. Please check microphone access.'
+        );
+
+        return;
+      }
+
+
+      if (code === 'network') {
+
+        status(
+          'Speech recognition needs an internet connection.'
+        );
+
+        return;
+      }
+
+
+      if (code === 'no-speech') {
+
+        status(
+          'No speech detected. Tap the microphone and speak again.'
+        );
+
+        return;
+      }
+
+
+      status(
+        'Voice recognition stopped. Tap the microphone to try again.'
+      );
     };
+
+
+    /* =======================================================
+       END
+       ======================================================= */
 
     rec.onend = function () {
-      console.log('[Innoval iOS Voice] END', { userStopped: userStopped });
+
+      console.log(
+        '[Innoval iOS Voice] SpeechRecognition ended'
+      );
+
+
+      if (userStopped) {
+
+        cleanup();
+        return;
+      }
+
+
       recording = false;
       starting = false;
+
       visual(false);
 
-      if (!userStopped) {
-        status('[iOS Voice] END — session closed', 'ready');
-      }
       recognition = null;
+
+
+      status(
+        'Voice recognition stopped. Tap the microphone to speak again.',
+        'ready'
+      );
     };
+
 
     return rec;
   }
 
-  function startVoice() {
-    if (recording || starting) return;
 
-    const textarea = $(TEXT_ID);
-    if (!textarea) return;
+  /* =========================================================
+     START VOICE
+     ========================================================= */
 
-    const Recognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-    if (!Recognition) {
-      status('[iOS Voice] NO_SPEECH_RECOGNITION_API');
+  async function startVoice() {
+
+    if (recording || starting) {
       return;
     }
 
-    baseText = String(textarea.value || '').trim();
+
+    const textarea = $(TEXT_ID);
+
+    if (!textarea) {
+      return;
+    }
+
+
+    const SpeechRecognition =
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition;
+
+
+    if (!SpeechRecognition) {
+
+      status(
+        'Voice-to-text is not available on this iPhone/browser.'
+      );
+
+      return;
+    }
+
+
+    baseText =
+      String(
+        textarea.value || ''
+      ).trim();
+
+
     userStopped = false;
+
     starting = true;
 
+
     visual(true);
-    diag('START_REQUESTED', 'lang=' + language);
+
+    status(
+      'Starting microphone...',
+      'recording'
+    );
+
+
+    /*
+      STEP 1
+      Get microphone permission first.
+    */
+
+    const permission =
+      await requestMicrophonePermission();
+
+
+    if (!permission) {
+
+      starting = false;
+
+      visual(false);
+
+      return;
+    }
+
+
+    /*
+      STEP 2
+      Create a completely fresh SpeechRecognition.
+    */
 
     try {
+
       if (recognition) {
-        try { recognition.abort(); } catch (_) {}
+
+        try {
+          recognition.abort();
+        } catch (_) {}
+
       }
 
-      recognition = createRecognition();
+
+      recognition =
+        createRecognition();
+
+
       if (!recognition) {
-        cleanup('[iOS Voice] CREATE_FAILED');
+
+        starting = false;
+
+        visual(false);
+
         return;
       }
 
-      /* CRITICAL: start() remains directly in the button click call stack. */
+
+      recognition.lang =
+        language;
+
+
+      /*
+        STEP 3
+
+        Start immediately after permission.
+      */
+
       recognition.start();
+
+
     } catch (error) {
-      console.error('[Innoval iOS Voice] START_EXCEPTION', error);
+
+      console.log(
+        '[Innoval iOS Voice] start() error:',
+        error
+      );
+
+
       recognition = null;
-      cleanup('[iOS Voice] START_EXCEPTION: ' + (error && error.name ? error.name : String(error)));
+
+      starting = false;
+
+      recording = false;
+
+      visual(false);
+
+
+      status(
+        'Voice recognition could not start. Tap the microphone again.'
+      );
     }
   }
 
-  function install() {
-    const oldMic = $(MIC_ID);
-    if (!oldMic || oldMic.dataset.innovalIOSVoiceFix === '3') return;
 
-    const mic = oldMic.cloneNode(true);
-    mic.dataset.innovalIOSVoiceFix = '3';
+  /* =========================================================
+     MIC BUTTON
+     
+     IMPORTANT:
+     We clone the button again so all old onclick/
+     pointerdown/pointerup listeners attached to the
+     previous button are removed.
+     ========================================================= */
 
-    /* Block every older voice layer from reinstalling onto this button. */
+  function installMic() {
+
+    const oldMic =
+      $(MIC_ID);
+
+    if (!oldMic) return;
+
+
+    if (
+      oldMic.dataset.innovalIOSVoiceFix === '2'
+    ) {
+      return;
+    }
+
+
+    const mic =
+      oldMic.cloneNode(true);
+
+
+    /*
+      Mark ALL previous voice layers as handled.
+    */
+
+    mic.dataset.innovalIOSVoiceFix = '2';
+
     mic.dataset.v10VoicePatched = '1';
+
     mic.dataset.v13NativeMic = '1';
+
     mic.dataset.v14Voice = '1';
+
     mic.dataset.v15Voice = '1';
+
     mic.dataset.v18NativeVoice = '1';
+
     mic.dataset.v18UnifiedVoice = '1';
 
-    mic.style.touchAction = 'manipulation';
-    mic.style.userSelect = 'none';
-    mic.style.webkitUserSelect = 'none';
+
+    mic.style.touchAction =
+      'manipulation';
+
+    mic.style.userSelect =
+      'none';
+
+    mic.style.webkitUserSelect =
+      'none';
+
+
+    /*
+      ONLY ONE EVENT HANDLER
+    */
 
     mic.onclick = function (event) {
+
       event.preventDefault();
+
       event.stopPropagation();
-      if (recording || starting) stopVoice();
-      else startVoice();
+
+      if (
+        recording ||
+        starting
+      ) {
+
+        stopVoice();
+
+      } else {
+
+        startVoice();
+      }
+
       return false;
     };
+
 
     oldMic.replaceWith(mic);
-    installed = true;
-    status('[iOS Voice] READY — tap microphone', 'ready');
+
+
+    visual(false);
+
+
+    status(
+      'Voice input ready. Tap the microphone to speak.',
+      'ready'
+    );
   }
 
-  function installLanguage() {
-    const old = $(LANG_ID);
-    if (!old || old.dataset.innovalIOSVoiceLang === '3') return;
 
-    const btn = old.cloneNode(true);
-    btn.dataset.innovalIOSVoiceLang = '3';
-    btn.onclick = function (event) {
-      event.preventDefault();
-      event.stopPropagation();
-      if (recording || starting) stopVoice();
-      language = language === 'ar-EG' ? 'en-US' : 'ar-EG';
-      btn.textContent = language === 'ar-EG' ? 'AR' : 'EN';
-      btn.classList.toggle('en', language === 'en-US');
-      status('[iOS Voice] LANGUAGE: ' + language, 'ready');
-      return false;
-    };
-    old.replaceWith(btn);
+  /* =========================================================
+     LANGUAGE BUTTON
+     ========================================================= */
+
+  function installLanguageButton() {
+
+    const oldLang =
+      $(LANG_ID);
+
+    if (!oldLang) return;
+
+
+    if (
+      oldLang.dataset.innovalIOSVoiceLang === '2'
+    ) {
+      return;
+    }
+
+
+    const langBtn =
+      oldLang.cloneNode(true);
+
+
+    langBtn.dataset.innovalIOSVoiceLang =
+      '2';
+
+
+    langBtn.onclick =
+      function (event) {
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+
+        if (
+          recording ||
+          starting
+        ) {
+          stopVoice();
+        }
+
+
+        if (language === 'ar-EG') {
+
+          language = 'en-US';
+
+          langBtn.textContent = 'EN';
+
+          status(
+            'Voice language: English.',
+            'ready'
+          );
+
+        } else {
+
+          language = 'ar-EG';
+
+          langBtn.textContent = 'AR';
+
+          status(
+            'Voice language: Arabic (Egypt).',
+            'ready'
+          );
+        }
+
+
+        return false;
+      };
+
+
+    oldLang.replaceWith(langBtn);
   }
+
+
+  /* =========================================================
+     BOOT
+     ========================================================= */
 
   function boot() {
+
     if (!isIOS()) return;
-    install();
-    installLanguage();
+
+
+    const mic =
+      $(MIC_ID);
+
+    if (!mic) {
+
+      setTimeout(
+        boot,
+        300
+      );
+
+      return;
+    }
+
+
+    installMic();
+
+    installLanguageButton();
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
+
+  if (
+    document.readyState ===
+    'loading'
+  ) {
+
+    document.addEventListener(
+      'DOMContentLoaded',
+      boot
+    );
+
   } else {
+
     boot();
   }
 
-  const observer = new MutationObserver(function () {
-    if (!isIOS()) return;
-    const mic = $(MIC_ID);
-    if (mic && mic.dataset.innovalIOSVoiceFix !== '3') install();
-    const lang = $(LANG_ID);
-    if (lang && lang.dataset.innovalIOSVoiceLang !== '3') installLanguage();
-  });
 
-  if (document.body) observer.observe(document.body, { childList: true, subtree: true });
-  setTimeout(boot, 500);
-  setTimeout(boot, 1500);
-})();
-<script id="innoval-ios-voice-hard-capture-v1964">
-(function(){
-  'use strict';
-  function isIOS(){return /iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);}
-  if(!isIOS()) return;
+  /* =========================================================
+     DYNAMIC VISIT SCREEN
+     ========================================================= */
 
-  var active=false, starting=false, recognition=null, baseText='';
-  var lastHandled=0;
-  function el(id){return document.getElementById(id);}
-  function status(msg){
-    var e=el('conclusionVoiceStatus');
-    if(e){e.textContent=msg;e.classList.remove('recording');e.classList.add('ready');}
-  }
-  function visual(on){
-    var b=el('conclusionMicBtn'); if(!b)return;
-    b.classList.toggle('recording',!!on);
-    b.textContent=on?'⏹':'🎙️';
-  }
-  function stop(){
-    try{if(recognition)recognition.stop();}catch(e){try{recognition.abort();}catch(_){}}
-    active=false;starting=false;visual(false);status('[iOS Voice 1964] STOPPED');
-  }
-  function start(){
-    if(active||starting)return;
-    var ta=el('conclusion');
-    var R=window.webkitSpeechRecognition||window.SpeechRecognition;
-    if(!ta||!R){status('[iOS Voice 1964] API NOT AVAILABLE');return;}
-    baseText=String(ta.value||'').trim();
-    starting=true;active=true;visual(true);status('[iOS Voice 1964] STARTING');
-    try{
-      if(recognition){try{recognition.abort();}catch(e){}}
-      recognition=new R();
-      recognition.continuous=false;
-      recognition.interimResults=true;
-      recognition.maxAlternatives=1;
-      recognition.lang=(el('conclusionLangBtn')&&el('conclusionLangBtn').textContent.trim()==='EN')?'en-US':'ar-EG';
-      recognition.onstart=function(){starting=false;active=true;visual(true);status('[iOS Voice 1964] LISTENING — SPEAK NOW');};
-      recognition.onaudiostart=function(){status('[iOS Voice 1964] AUDIO OK — SPEAK NOW');};
-      recognition.onspeechstart=function(){status('[iOS Voice 1964] SPEECH DETECTED');};
-      recognition.onresult=function(ev){
-        var finalText='', interim='';
-        for(var i=ev.resultIndex;i<ev.results.length;i++){
-          var t=String(ev.results[i][0]&&ev.results[i][0].transcript||'').trim();
-          if(!t)continue;
-          if(ev.results[i].isFinal)finalText+=(finalText?' ':'')+t; else interim+=(interim?' ':'')+t;
+  const observer =
+    new MutationObserver(
+      function () {
+
+        if (!isIOS()) return;
+
+        const mic =
+          $(MIC_ID);
+
+        if (
+          mic &&
+          mic.dataset.innovalIOSVoiceFix !== '2'
+        ) {
+          installMic();
         }
-        var combined=[baseText,finalText].filter(Boolean).join(' ');
-        ta.value=[combined,interim].filter(Boolean).join(' ');
-        ta.dispatchEvent(new Event('input',{bubbles:true}));
-        if(finalText)baseText=combined;
-        status('[iOS Voice 1964] RESULT: '+(finalText||interim));
-      };
-      recognition.onerror=function(ev){
-        var code=String(ev&&ev.error||'UNKNOWN');
-        active=false;starting=false;visual(false);status('[iOS Voice 1964] ERROR: '+code);recognition=null;
-      };
-      recognition.onend=function(){
-        active=false;starting=false;visual(false);
-        status('[iOS Voice 1964] END');recognition=null;
-      };
-      recognition.start();
-    }catch(e){
-      active=false;starting=false;visual(false);recognition=null;
-      status('[iOS Voice 1964] EXCEPTION: '+(e&&e.name||String(e)));
-    }
+
+
+        const langBtn =
+          $(LANG_ID);
+
+        if (
+          langBtn &&
+          langBtn.dataset.innovalIOSVoiceLang !== '2'
+        ) {
+          installLanguageButton();
+        }
+      }
+    );
+
+
+  if (document.body) {
+
+    observer.observe(
+      document.body,
+      {
+        childList: true,
+        subtree: true
+      }
+    );
   }
-  function isMicTarget(t){
-    return t && (t.id==='conclusionMicBtn' || (t.closest && t.closest('#conclusionMicBtn')));
-  }
-  function intercept(ev){
-    if(!isMicTarget(ev.target))return;
-    ev.preventDefault();ev.stopPropagation();
-    if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
-    var now=Date.now();
-    if(now-lastHandled<250)return;
-    lastHandled=now;
-    if(active||starting)stop();else start();
-  }
-  document.addEventListener('pointerdown',function(ev){
-    if(isMicTarget(ev.target)){ev.preventDefault();ev.stopPropagation();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();}
-  },true);
-  document.addEventListener('touchstart',function(ev){
-    if(isMicTarget(ev.target)){ev.preventDefault();ev.stopPropagation();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();}
-  },true);
-  document.addEventListener('click',intercept,true);
-  setTimeout(function(){status('[iOS Voice 1964] HARD CAPTURE READY');},1200);
+
 })();
 </script>
+
+<!-- =========================================================
+     INNOVAL v1.9.65 — iOS CLEAN VOICE TEST
+     iOS ONLY / diagnostic isolation
+     This layer is intentionally isolated from Android native voice.
+     ========================================================= -->
+<script id="innoval-ios-clean-voice-test-1965">
+(function () {
+  'use strict';
+
+  function isIOS() {
+    return /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  }
+  if (!isIOS()) return;
+
+  function byId(id) { return document.getElementById(id); }
+
+  function stopPageMedia() {
+    try {
+      document.querySelectorAll('audio,video').forEach(function (m) {
+        try { m.pause(); } catch (_) {}
+        try { m.removeAttribute('src'); } catch (_) {}
+        try { m.load(); } catch (_) {}
+      });
+    } catch (_) {}
+  }
+
+  var recognition = null;
+  var running = false;
+
+  function status(msg, cls) {
+    var el = byId('conclusionVoiceStatus');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.remove('recording', 'ready');
+    if (cls) el.classList.add(cls);
+  }
+
+  function visual(on) {
+    var b = byId('conclusionMicBtn');
+    if (!b) return;
+    b.classList.toggle('recording', !!on);
+    b.textContent = on ? '⏹' : '🎙️';
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
+
+  function writeResult(value) {
+    var ta = byId('conclusion');
+    if (!ta || !value) return;
+    ta.value = String(value).trim();
+    ta.dispatchEvent(new Event('input', {bubbles:true}));
+    ta.dispatchEvent(new Event('change', {bubbles:true}));
+  }
+
+  function install() {
+    var old = byId('conclusionMicBtn');
+    if (!old) return;
+    if (old.dataset.iosClean1965 === '1') return;
+
+    var mic = old.cloneNode(true);
+    mic.dataset.iosClean1965 = '1';
+
+    mic.onclick = null;
+    mic.onpointerdown = null;
+    mic.onpointerup = null;
+    mic.ontouchstart = null;
+    mic.ontouchend = null;
+
+    mic.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      ev.stopImmediatePropagation();
+
+      if (running) {
+        try { recognition && recognition.stop(); } catch (_) {}
+        running = false;
+        visual(false);
+        status('Voice input ready.', 'ready');
+        return false;
+      }
+
+      var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) {
+        status('TEST 1965: SpeechRecognition API NOT AVAILABLE');
+        return false;
+      }
+
+      // Important: no getUserMedia(), no await, no promise before start().
+      stopPageMedia();
+
+      try { if (recognition) recognition.abort(); } catch (_) {}
+
+      recognition = new SR();
+      recognition.lang = 'ar-EG';
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+
+      recognition.onstart = function () {
+        running = true;
+        visual(true);
+        status('TEST 1965: STARTED — SPEAK NOW', 'recording');
+      };
+
+      recognition.onaudiostart = function () {
+        status('TEST 1965: AUDIO STARTED', 'recording');
+      };
+
+      recognition.onsoundstart = function () {
+        status('TEST 1965: SOUND DETECTED', 'recording');
+      };
+
+      recognition.onspeechstart = function () {
+        status('TEST 1965: SPEECH DETECTED', 'recording');
+      };
+
+      recognition.onresult = function (e) {
+        var s = '';
+        for (var i = e.resultIndex; i < e.results.length; i++) {
+          s += e.results[i][0].transcript;
+        }
+        if (s.trim()) writeResult(s);
+        status('TEST 1965: RESULT RECEIVED', 'ready');
+      };
+
+      recognition.onerror = function (e) {
+        running = false;
+        visual(false);
+        status('TEST 1965: ERROR = ' + String(e && e.error || 'unknown'));
+      };
+
+      recognition.onend = function () {
+        running = false;
+        visual(false);
+        status('TEST 1965: END');
+      };
+
+      status('TEST 1965: START REQUESTED', 'recording');
+
+      try {
+        recognition.start();
+      } catch (err) {
+        running = false;
+        visual(false);
+        status('TEST 1965: START EXCEPTION = ' + String(err && err.name || err));
+      }
+
+      return false;
+    }, true);
+
+    old.replaceWith(mic);
+    status('TEST 1965: READY — CLEAN iOS ENGINE', 'ready');
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', install, {once:true});
+  } else {
+    install();
+  }
+
+  var mo = new MutationObserver(function () {
+    install();
+  });
+  if (document.body) mo.observe(document.body, {childList:true, subtree:true});
+  setTimeout(install, 500);
+  setTimeout(install, 1500);
+})();
 </script>
+
 </body></html>
