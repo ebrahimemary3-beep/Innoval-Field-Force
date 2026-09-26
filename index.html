@@ -1957,7 +1957,7 @@ function appUserForCloudSession(session){
 }
 
 async function cloudSession(){
-  /* v1.9.66 — resilient Cloud session recovery.
+  /* v1.9.67 — resilient Cloud session recovery.
    * Order: existing session → refresh → current user's saved credential → fail with a useful reason.
    * No UI/Voice/visit business logic is changed here.
    */
@@ -4478,7 +4478,7 @@ async function sendDailyVisitsReport(){
 
 // ===== Innoval App Update Checker =====
 // Web/PWA updater. Native Android uses the Android bridge for the actual APK installation.
-const APP_VERSION = "1.9.66";
+const APP_VERSION = "1.9.67";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 let innovalSwRegistration=null;
 
@@ -5577,7 +5577,7 @@ window.syncAndroidFcmToken = function(){
     return __oldSyncOne(item);
   };
 
-  window.innovalReliabilityV7={version:'8.0.0',stats,drain,fullSync,backup:()=>backupLocalData(),queueKey:QUEUE_KEY,queueVisit:(v,error)=>upsertQueue('visit',v?.id,v,error),queueProfilePhoto};
+  window.innovalReliabilityV7={version:'8.1.0',stats,drain,fullSync,backup:()=>backupLocalData(),diagnostic:cloudSyncDiagnostic,queueKey:QUEUE_KEY,queueVisit:(v,error)=>upsertQueue('visit',v?.id,v,error),queueProfilePhoto};
 
   function backupLocalData(){
     const p=currentUserRecord?.()||{}, uid=String(p.id||'');
@@ -5595,15 +5595,23 @@ window.syncAndroidFcmToken = function(){
   }
   window.innovalCreateLocalBackup=backupLocalData;
 
+  function cloudSyncDiagnostic(){
+    const q=readQueue().filter(x=>String(x.userId)===currentUid());
+    const errors=q.map(x=>({type:x.type,id:x.recordId,error:x.lastError||'No recorded error',attempts:Number(x.attempts||0)})).filter(x=>x.error);
+    const first=errors[0];
+    return {online:navigator.onLine!==false,session:!!(typeof innovalSupabase!=='undefined'&&innovalSupabase&&typeof cloudSession==='function'),queue:q.length,firstError:first?.error||'',firstType:first?.type||'',firstId:first?.id||'',errors};
+  }
+
   function syncCenterHtml(){
-    const s=stats(), last=s.lastSync?new Date(s.lastSync).toLocaleString('en-GB'):'Not completed yet';
+    const s=stats(), d=cloudSyncDiagnostic(), last=s.lastSync?new Date(s.lastSync).toLocaleString('en-GB'):'Not completed yet';
+    const diag=d.firstError?('<div class="v7-sync-diag bad"><b>Last Cloud Error</b><span>'+esc(d.firstError)+'</span><small>'+esc(d.firstType||'')+(d.firstId?' • '+esc(d.firstId):'')+'</small></div>'):'<div class="v7-sync-diag"><b>Cloud Diagnostic</b><span>No recorded Cloud error yet.</span></div>';
     return '<div class="v7-sync-card"><div class="v7-sync-head"><div><b>Cloud Sync Center</b><small>Offline-safe synchronization &amp; retry queue</small></div><span class="v7-sync-dot '+(s.failed?'bad':s.pending?'wait':'ok')+'"></span></div>'+
       '<div class="v7-sync-kpis"><div><strong>'+s.pending+'</strong><span>Pending</span></div><div><strong>'+s.failed+'</strong><span>Failed / Retry</span></div><div><strong>'+s.total+'</strong><span>Queued</span></div></div>'+
       '<div class="v7-sync-last"><b>Last successful full sync</b><span>'+esc(last)+'</span></div>'+
-      '<div class="v7-sync-actions"><button type="button" class="save" onclick="innovalV7SyncNow()">↻ &nbsp; Sync Now</button><button type="button" class="close" onclick="innovalCreateLocalBackup()">⬇ &nbsp; Local Backup</button></div>'+
+      '<div class="v7-sync-actions"><button type="button" class="save" onclick="innovalV7SyncNow()">↻ &nbsp; Sync Now</button><button type="button" class="close" onclick="innovalCreateLocalBackup()">⬇ &nbsp; Local Backup</button></div>'+diag+
       '<div class="v7-sync-note">Your data is saved locally first. If the network or Cloud is unavailable, changes stay queued and retry automatically when connectivity returns.</div></div>';
   }
-  window.innovalV7SyncNow=async function(){toast('Cloud sync started…');const r=await fullSync('manual');if(r.ok)toast('Cloud sync completed ✓');else if(r.pending||r.failed)toast('Sync saved & queued for retry');else toast('Cloud sync unavailable: '+String(r.error||'check connection'));window.__innovalV7RefreshSyncCenter?.();return r};
+  window.innovalV7SyncNow=async function(){toast('Cloud sync started…');const r=await fullSync('manual');const q=readQueue().filter(x=>String(x.userId)===currentUid());const err=q.find(x=>x.lastError)?.lastError||r.error||'';if(r.ok)toast('Cloud sync completed ✓');else if(err)toast('Cloud sync failed: '+String(err));else if(r.pending||r.failed)toast('Sync saved & queued for retry');else toast('Cloud sync unavailable: '+String(r.error||'check connection'));window.__innovalV7RefreshSyncCenter?.();return Object.assign({},r,{diagnostic:cloudSyncDiagnostic()})};
   window.__innovalV7RefreshSyncCenter=function(){const el=document.getElementById('v7SyncCenter');if(el)el.innerHTML=syncCenterHtml()};
 
   const css=document.createElement('style');css.textContent=`
@@ -5611,7 +5619,7 @@ window.syncAndroidFcmToken = function(){
     .v7-sync-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.v7-sync-head b{display:block;color:#123e70;font-size:14px}.v7-sync-head small{display:block;color:#73839a;font-size:10px;margin-top:3px}
     .v7-sync-dot{width:10px;height:10px;border-radius:50%;background:#2ca36b;box-shadow:0 0 0 5px rgba(44,163,107,.10)}.v7-sync-dot.wait{background:#d99322;box-shadow:0 0 0 5px rgba(217,147,34,.12)}.v7-sync-dot.bad{background:#cf4c4c;box-shadow:0 0 0 5px rgba(207,76,76,.12)}
     .v7-sync-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:12px 0}.v7-sync-kpis>div{padding:9px 6px;border-radius:12px;background:#f2f7fc;text-align:center}.v7-sync-kpis strong{display:block;color:#163f70;font-size:18px}.v7-sync-kpis span{display:block;color:#7b8ba0;font-size:9px;margin-top:2px}
-    .v7-sync-last{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-top:1px solid #e7edf5;border-bottom:1px solid #e7edf5;font-size:10px}.v7-sync-last b{color:#52657c}.v7-sync-last span{color:#7b8ba0;text-align:right}.v7-sync-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.v7-sync-actions button{margin:0}.v7-sync-note{margin-top:9px;color:#73839a;font-size:9px;line-height:1.45}
+    .v7-sync-last{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-top:1px solid #e7edf5;border-bottom:1px solid #e7edf5;font-size:10px}.v7-sync-last b{color:#52657c}.v7-sync-last span{color:#7b8ba0;text-align:right}.v7-sync-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.v7-sync-actions button{margin:0}.v7-sync-diag{margin-top:10px;padding:9px 10px;border-radius:10px;background:#f3f7fb;border:1px solid #dce7f4}.v7-sync-diag.bad{background:#fff5f5;border-color:#f0cccc}.v7-sync-diag b{display:block;color:#52657c;font-size:10px}.v7-sync-diag span{display:block;color:#7b3030;font-size:10px;line-height:1.4;margin-top:3px;word-break:break-word}.v7-sync-diag small{display:block;color:#8a98aa;font-size:8px;margin-top:3px}.v7-sync-note{margin-top:9px;color:#73839a;font-size:9px;line-height:1.45}
   `;document.head.appendChild(css);
 
   // Add the Sync Center only to Settings; no existing menu item is removed.
