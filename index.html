@@ -2064,8 +2064,40 @@ function cloudVisitRow(v,appUserId){
 
 async function cloudEnsureVisitCustomer(v){
   if(!innovalSupabase || !v) return {ok:false,error:"Cloud customer check unavailable."};
-  const customerId=String(v.customerId||"").trim();
+
+  // Repair visits created before customer_id was persisted. Older queued visits
+  // can contain only the customer name; resolve that name against the local
+  // customer master before touching the Cloud FK.
+  let customerId=String(v.customerId||"").trim();
+  const customerName=String(v.customer_name||v.customer||"").trim();
+  if(!customerId && customerName){
+    try{
+      const localMatch=customers().find(c=>String(c.name||"").trim().toLowerCase()===customerName.toLowerCase());
+      if(localMatch?.customerId){
+        customerId=String(localMatch.customerId).trim();
+      }else{
+        customerId="C"+Date.now()+Math.floor(Math.random()*1000);
+        const all=customers();
+        saveCustomers(all.concat([{
+          customerId,
+          name:customerName,
+          gov:String(v.governorate||v.gov||""),
+          area:String(v.area||""),
+          areaId:String(v.area_id||v.areaId||""),
+          type:String(v.customer_type||v.type||"Other"),
+          potential:String(v.potential||"Medium"),
+          loyalty:String(v.loyalty||"Neutral"),
+          active:true
+        }]));
+      }
+      v.customerId=customerId;
+      try{ saveVisits(visits()); }catch(e){}
+    }catch(e){
+      return {ok:false,error:"Could not resolve visit customer ID: "+String(e?.message||e)};
+    }
+  }
   if(!customerId) return {ok:false,error:"Visit customer ID is missing."};
+
   try{
     const {data:existing,error:findError}=await innovalSupabase
       .from("customers")
@@ -2077,17 +2109,18 @@ async function cloudEnsureVisitCustomer(v){
 
     // The visit may be queued from an earlier local session where the customer
     // was saved locally but never reached Cloud. Create the missing parent row
-    // before inserting the visit so the FK visits_customer_id_fk can succeed.
+    // before inserting the visit so the FK visits_customer_id_fkey can succeed.
+    const local=customers().find(c=>String(c.customerId||"").trim()===customerId);
     const customer={
       customerId,
-      name:String(v.customer_name||v.customer||customerId),
-      gov:String(v.governorate||v.gov||""),
-      area:String(v.area||""),
-      areaId:String(v.area_id||v.areaId||""),
-      type:String(v.customer_type||v.type||"Other"),
-      potential:String(v.potential||"Medium"),
-      loyalty:String(v.loyalty||"Neutral"),
-      active:true
+      name:String(local?.name||customerName||customerId),
+      gov:String(local?.gov||v.governorate||v.gov||""),
+      area:String(local?.area||v.area||""),
+      areaId:String(local?.areaId||v.area_id||v.areaId||""),
+      type:String(local?.type||v.customer_type||v.type||"Other"),
+      potential:String(local?.potential||v.potential||"Medium"),
+      loyalty:String(local?.loyalty||v.loyalty||"Neutral"),
+      active:local?.active!==false
     };
     const created=await cloudSyncCustomer(customer,true);
     if(!created?.ok) return {ok:false,error:created?.error||"Customer could not be created in Cloud."};
@@ -4517,7 +4550,7 @@ async function sendDailyVisitsReport(){
 
 // ===== Innoval App Update Checker =====
 // Web/PWA updater. Native Android uses the Android bridge for the actual APK installation.
-const APP_VERSION = "1.9.68";
+const APP_VERSION = "1.9.69";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 let innovalSwRegistration=null;
 
