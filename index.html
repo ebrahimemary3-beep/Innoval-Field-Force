@@ -6554,126 +6554,192 @@ window.syncAndroidFcmToken = function(){
    * =========================================================
    */
 
-  async function startBrowserVoice() {
+function startBrowserVoice() {
 
-    if (starting || recording) return;
+  if (starting || recording) return;
 
-    const SpeechRecognition =
-      window.SpeechRecognition ||
-      window.webkitSpeechRecognition;
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
 
-    if (!SpeechRecognition) {
+  if (!SpeechRecognition) {
+    setStatus(
+      'Speech recognition is not available on this device.'
+    );
+    return;
+  }
+
+  const textarea = get('conclusion');
+
+  baseText = textarea
+    ? String(textarea.value || '').trim()
+    : '';
+
+  userStopped = false;
+  starting = true;
+
+  setMicVisual(true);
+
+  setStatus(
+    'Starting microphone...',
+    'recording'
+  );
+
+  try {
+
+    recognition = new SpeechRecognition();
+
+    recognition.lang = getLanguage();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = function () {
+
+      starting = false;
+      recording = true;
+
+      setMicVisual(true);
 
       setStatus(
-        'Speech recognition is not available on this device.'
+        'Recording... speak naturally, then tap the microphone to stop.',
+        'recording'
       );
+    };
 
-      return;
-    }
+    recognition.onresult = function (event) {
 
-    const textarea = get('conclusion');
+      let finalText = '';
+      let interimText = '';
 
-    baseText = textarea
-      ? String(textarea.value || '').trim()
-      : '';
-
-    userStopped = false;
-    starting = true;
-
-    setMicVisual(true);
-
-    setStatus(
-      'Starting microphone...',
-      'recording'
-    );
-
-    /*
-     * Request microphone permission first.
-     * This is especially important for iOS Safari/PWA.
-     */
-
-    try {
-
-      if (
-        navigator.mediaDevices &&
-        navigator.mediaDevices.getUserMedia
+      for (
+        let i = event.resultIndex;
+        i < event.results.length;
+        i++
       ) {
 
-        const stream =
-          await navigator.mediaDevices.getUserMedia({
-            audio: true
-          });
+        const result = event.results[i];
 
-        stream.getTracks().forEach(function (track) {
-          track.stop();
-        });
+        const transcript =
+          result[0] &&
+          result[0].transcript
+            ? result[0].transcript.trim()
+            : '';
+
+        if (!transcript) continue;
+
+        if (result.isFinal) {
+
+          finalText +=
+            (finalText ? ' ' : '') +
+            transcript;
+
+        } else {
+
+          interimText +=
+            (interimText ? ' ' : '') +
+            transcript;
+        }
       }
 
-    } catch (error) {
+      let combined = baseText;
+
+      if (finalText) {
+
+        combined = baseText
+          ? baseText + ' ' + finalText
+          : finalText;
+
+        baseText = combined;
+      }
+
+      if (interimText) {
+
+        combined = baseText
+          ? baseText + ' ' + interimText
+          : interimText;
+      }
+
+      if (combined) {
+        updateText(combined);
+      }
+    };
+
+    recognition.onerror = function (event) {
+
+      const errorCode =
+        event && event.error
+          ? event.error
+          : '';
 
       starting = false;
       recording = false;
 
       setMicVisual(false);
 
-      setStatus(
-        'Microphone permission is required to use voice input.'
-      );
-
-      return;
-    }
-
-    try {
-
-      recognition = new SpeechRecognition();
-
-      recognition.lang = getLanguage();
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.maxAlternatives = 1;
-
-      recognition.onstart = function () {
-
-        starting = false;
-        recording = true;
-
-        setMicVisual(true);
+      if (errorCode === 'not-allowed') {
 
         setStatus(
-          'Recording... speak naturally, then tap the microphone to stop.',
-          'recording'
+          'Microphone permission was denied. Please allow microphone access.'
         );
-      };
 
-      recognition.onresult = function (event) {
+      } else if (errorCode === 'no-speech') {
 
-        let finalText = '';
-        let interimText = '';
+        setStatus(
+          'No speech detected. Tap the microphone and try again.'
+        );
 
-        for (
-          let i = event.resultIndex;
-          i < event.results.length;
-          i++
-        ) {
+      } else if (errorCode === 'network') {
 
-          const result = event.results[i];
+        setStatus(
+          'Voice recognition needs an internet connection.'
+        );
 
-          const transcript =
-            result[0] &&
-            result[0].transcript
-              ? result[0].transcript.trim()
-              : '';
+      } else {
 
-          if (!transcript) continue;
+        setStatus(
+          'Voice recognition stopped. Tap the microphone to try again.'
+        );
+      }
+    };
 
-          if (result.isFinal) {
-            finalText +=
-              (finalText ? ' ' : '') +
-              transcript;
-          } else {
-            interimText +=
-              (interimText ? ' ' : '') +
-              transcript;
+    recognition.onend = function () {
+
+      starting = false;
+      recording = false;
+
+      setMicVisual(false);
+
+      recognition = null;
+
+      setStatus(
+        'Voice input ready. You can edit the text before saving.',
+        'ready'
+      );
+    };
+
+    /*
+     * IMPORTANT:
+     * Start SpeechRecognition directly from the
+     * microphone click without awaiting getUserMedia.
+     * This preserves the iOS user-gesture context.
+     */
+    recognition.start();
+
+  } catch (error) {
+
+    starting = false;
+    recording = false;
+
+    setMicVisual(false);
+
+    recognition = null;
+
+    setStatus(
+      'Unable to start voice recognition. Please try again.'
+    );
+  }
+}
           }
         }
 
