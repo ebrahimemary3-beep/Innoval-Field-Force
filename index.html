@@ -1957,25 +1957,77 @@ function appUserForCloudSession(session){
 }
 
 async function cloudSession(){
+  /* v1.9.66 — resilient Cloud session recovery.
+   * Order: existing session → refresh → current user's saved credential → fail with a useful reason.
+   * No UI/Voice/visit business logic is changed here.
+   */
   try{
     await ensureSupabaseClient();
-    const {data}=await innovalSupabase.auth.getSession();
-    if(data?.session){
-      appUserForCloudSession(data.session);
-      return data.session;
+    if(!innovalSupabase){
+      window.__innovalLastCloudError="Supabase client is not available.";
+      return null;
     }
+
+    // 1) Reuse the persisted session first.
+    try{
+      const current=await innovalSupabase.auth.getSession();
+      if(current?.data?.session){
+        appUserForCloudSession(current.data.session);
+        window.__innovalLastCloudError="";
+        return current.data.session;
+      }
+    }catch(e){
+      window.__innovalLastCloudError=String(e?.message||e);
+    }
+
+    // 2) Explicitly refresh a persisted refresh-token session.
+    try{
+      const refreshed=await innovalSupabase.auth.refreshSession();
+      if(refreshed?.data?.session){
+        appUserForCloudSession(refreshed.data.session);
+        window.__innovalLastCloudError="";
+        return refreshed.data.session;
+      }
+      if(refreshed?.error) window.__innovalLastCloudError=String(refreshed.error.message||refreshed.error);
+    }catch(e){
+      window.__innovalLastCloudError=String(e?.message||e);
+    }
+
+    // 3) Recover the Cloud session for the currently logged-in App user.
     const p=currentUserRecord();
-    if(!p?.email) return null;
+    if(!p?.email){
+      window.__innovalLastCloudError="No current App user/email is available.";
+      return null;
+    }
+    if(typeof navigator!=="undefined" && navigator.onLine===false){
+      window.__innovalLastCloudError="Device is offline.";
+      return null;
+    }
+
     const emp=employeeList().find(x=>String(x.email||'').trim().toLowerCase()===String(p.email||'').trim().toLowerCase());
-    const password=emp?.password||'';
-    if(!password) return null;
-    if(typeof navigator!=="undefined" && navigator.onLine===false) return null;
+    const password=String(emp?.password||'');
+    if(!password){
+      window.__innovalLastCloudError="No saved Cloud credential is available for this user.";
+      return null;
+    }
+
     const auth=await cloudSignIn(p.email,password);
-    if(!auth.ok) return null;
+    if(!auth?.ok){
+      window.__innovalLastCloudError=String(auth?.error||"Cloud authentication failed.");
+      return null;
+    }
+
     const restored=await innovalSupabase.auth.getSession();
-    if(restored?.data?.session) appUserForCloudSession(restored.data.session);
-    return restored?.data?.session || null;
+    if(restored?.data?.session){
+      appUserForCloudSession(restored.data.session);
+      window.__innovalLastCloudError="";
+      return restored.data.session;
+    }
+
+    window.__innovalLastCloudError="Cloud login succeeded but no active session was returned.";
+    return null;
   }catch(e){
+    window.__innovalLastCloudError=String(e?.message||e);
     console.warn('Innoval cloud session restore failed:',e?.message||e);
     return null;
   }
@@ -4426,7 +4478,7 @@ async function sendDailyVisitsReport(){
 
 // ===== Innoval App Update Checker =====
 // Web/PWA updater. Native Android uses the Android bridge for the actual APK installation.
-const APP_VERSION = "1.9.65";
+const APP_VERSION = "1.9.66";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 let innovalSwRegistration=null;
 
@@ -5369,6 +5421,14 @@ window.syncAndroidFcmToken = function(){
     if(!navigator.onLine){fullSyncBusy=false;return {ok:false,error:'Offline — changes are safely queued on this device.'};}
     if(drainBusy){fullSyncBusy=false;return {ok:false,error:'Sync already running.'};}
     try{
+      // Establish/refresh the Cloud session before any pull/push operation.
+      // This prevents a silent "Cloud unavailable" state when the app has a valid
+      // local login but the Supabase session needs restoration after a restart/update.
+      const session=await cloudSession();
+      if(!session){
+        const reason=String(window.__innovalLastCloudError||"No active Supabase session.");
+        return {ok:false,error:reason,pending:stats().pending,failed:stats().failed};
+      }
       // Pull first so Cloud changes are present locally, then independently push
       // every local record. One bad row cannot stop the rest.
       try{await cloudPullMyData()}catch(e){}
@@ -5543,7 +5603,7 @@ window.syncAndroidFcmToken = function(){
       '<div class="v7-sync-actions"><button type="button" class="save" onclick="innovalV7SyncNow()">↻ &nbsp; Sync Now</button><button type="button" class="close" onclick="innovalCreateLocalBackup()">⬇ &nbsp; Local Backup</button></div>'+
       '<div class="v7-sync-note">Your data is saved locally first. If the network or Cloud is unavailable, changes stay queued and retry automatically when connectivity returns.</div></div>';
   }
-  window.innovalV7SyncNow=async function(){toast('Cloud sync started…');const r=await fullSync('manual');if(r.ok)toast('Cloud sync completed ✓');else if(r.pending||r.failed)toast('Sync saved & queued for retry');else toast('Cloud sync unavailable — data is safe locally');window.__innovalV7RefreshSyncCenter?.();return r};
+  window.innovalV7SyncNow=async function(){toast('Cloud sync started…');const r=await fullSync('manual');if(r.ok)toast('Cloud sync completed ✓');else if(r.pending||r.failed)toast('Sync saved & queued for retry');else toast('Cloud sync unavailable: '+String(r.error||'check connection'));window.__innovalV7RefreshSyncCenter?.();return r};
   window.__innovalV7RefreshSyncCenter=function(){const el=document.getElementById('v7SyncCenter');if(el)el.innerHTML=syncCenterHtml()};
 
   const css=document.createElement('style');css.textContent=`
