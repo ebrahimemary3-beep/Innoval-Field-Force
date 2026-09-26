@@ -2356,9 +2356,16 @@ async function cloudPullProfileData(p){
       .eq("user_id",userId).maybeSingle();
     if(error) throw error;
     if(!data) return false;
-    const key="innovalProfile_"+String(p.rep||"");
+    const uidKey="innovalProfile_uid_"+userId;
+    const legacyKey="innovalProfile_"+String(p.rep||"");
     let local={};
-    try{local=JSON.parse(localStorage.getItem(key)||"{}")||{};}catch(e){local={};}
+    try{
+      local=JSON.parse(localStorage.getItem(uidKey)||"{}")||{};
+      if(!Object.keys(local).length){
+        const legacy=JSON.parse(localStorage.getItem(legacyKey)||"{}")||{};
+        if(Object.keys(legacy).length){ local=legacy; localStorage.setItem(uidKey,JSON.stringify(local)); }
+      }
+    }catch(e){local={};}
     const cloudUpdatedAt=String(data.updated_at||"");
     const cloudTime=Date.parse(cloudUpdatedAt)||0;
     const localTime=Date.parse(String(local.updatedAt||""))||0;
@@ -2373,7 +2380,18 @@ async function cloudPullProfileData(p){
       manager:String(data.manager||""),
       updatedAt:cloudUpdatedAt||new Date().toISOString()
     };
-    localStorage.setItem(key,JSON.stringify(merged));
+    localStorage.setItem(uidKey,JSON.stringify(merged));
+    try{localStorage.setItem(legacyKey,JSON.stringify(merged));}catch(e){}
+    try{
+      if($("profileFullName")){
+        $("profileFullName").value=merged.fullName||p.rep||"";
+        $("profileMobile").value=merged.mobile||"";
+        $("profileJob").value=merged.jobTitle||"";
+        $("profileExperience").value=merged.experience||"";
+        $("profileManager").value=merged.manager||"";
+        $("profileEmployeeId").value=merged.employeeId||"";
+      }
+    }catch(e){}
     return true;
   }catch(e){
     console.warn("Innoval profile cloud pull skipped:",e?.message||e);
@@ -4038,7 +4056,17 @@ function openProfilePhotoPicker(){closeProfileModalPhotoActions();pickProfilePho
 function editProfilePhotoFromProfile(){closeProfileModalPhotoActions();editProfilePhoto()}
 function removeProfilePhotoFromProfile(){removeProfilePhotoInline();closeProfileModalPhotoActions()}
 function openSettings(){
-  const p=profile(),stored=JSON.parse(localStorage.getItem("innovalProfile_"+p.rep)||"{}");
+  const p=profile();
+  const stored=(()=>{
+    try{
+      const uidKey="innovalProfile_uid_"+String(p.id||"");
+      const uidData=JSON.parse(localStorage.getItem(uidKey)||"{}")||{};
+      if(Object.keys(uidData).length)return uidData;
+      const legacy=JSON.parse(localStorage.getItem("innovalProfile_"+p.rep)||"{}")||{};
+      if(Object.keys(legacy).length && p.id) localStorage.setItem(uidKey,JSON.stringify(legacy));
+      return legacy;
+    }catch(e){return {}}
+  })();
   $("modalTitle").textContent="My Profile";
   $("modalBody").innerHTML=
     '<div class="profile-hero-card" style="position:relative">'+
@@ -4085,6 +4113,7 @@ function saveProfileData(){
     updatedAt:new Date().toISOString()
   };
   localStorage.setItem("innovalProfile_"+p.rep,JSON.stringify(profileData));
+  if(p.id) localStorage.setItem("innovalProfile_uid_"+String(p.id),JSON.stringify(profileData));
   const full=$("profileFullName")?.value.trim(); if(full){$("drawerName").textContent=full;$("repName").textContent=full;}
   closeModal();toast("Profile saved successfully ✓");
   try{window.innovalReliabilityV7?.queueProfileData?.(profileData)}catch(_e){}
@@ -5614,7 +5643,7 @@ window.syncAndroidFcmToken = function(){
       // Push the current user's local profile only when a profile has been saved.
       // Cloud pull above already merged any newer Cloud profile into localStorage.
       try{
-        const localProfile=JSON.parse(localStorage.getItem('innovalProfile_'+p?.name)||'null');
+        const localProfile=JSON.parse(localStorage.getItem('innovalProfile_uid_'+String(p?.id||''))||localStorage.getItem('innovalProfile_'+p?.name)||'null');
         if(localProfile && typeof localProfile==='object'){
           const r=await directProfileData(localProfile);
           if(r?.ok)markSynced('profile_data',p?.id,p?.id);
