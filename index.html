@@ -4426,7 +4426,7 @@ async function sendDailyVisitsReport(){
 
 // ===== Innoval App Update Checker =====
 // Web/PWA updater. Native Android uses the Android bridge for the actual APK installation.
-const APP_VERSION = "1.9.59";
+const APP_VERSION = "1.9.60";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 let innovalSwRegistration=null;
 
@@ -6417,8 +6417,9 @@ window.syncAndroidFcmToken = function(){
   let recording = false;
   let starting = false;
   let baseText = '';
-  let recognition = null;
-  let userStopped = false;
+  let browserRecognition = null;
+  let browserUserStopped = false;
+  let browserMode = false;
 
   function get(id) {
     return document.getElementById(id);
@@ -6440,511 +6441,234 @@ window.syncAndroidFcmToken = function(){
 
     mic.classList.toggle('recording', active);
     mic.textContent = active ? '⏹' : '🎙️';
-    mic.title = active
-      ? 'Stop recording'
-      : 'Speak to type your conclusion';
+    mic.title = active ? 'Stop recording' : 'Speak to type your conclusion';
+    mic.setAttribute('aria-pressed', active ? 'true' : 'false');
   }
 
   function getLanguage() {
     const btn = get('conclusionLangBtn');
-
-    return btn && btn.textContent.trim() === 'EN'
-      ? 'en-US'
-      : 'ar-EG';
+    return btn && btn.textContent.trim() === 'EN' ? 'en-US' : 'ar-EG';
   }
 
-  function updateText(text) {
+  function isAndroidNative() {
+    return !!(
+      window.Android &&
+      typeof window.Android.startNativeSpeechRecognition === 'function'
+    );
+  }
+
+  function hasBrowserSpeechRecognition() {
+    return !!(
+      window.SpeechRecognition ||
+      window.webkitSpeechRecognition
+    );
+  }
+
+  function writeText(text, replaceBase) {
     const textarea = get('conclusion');
     if (!textarea) return;
 
-    textarea.value = text;
+    const spoken = String(text || '').trim();
+    if (!spoken) return;
 
-    textarea.dispatchEvent(
-      new Event('input', { bubbles: true })
-    );
+    const combined = replaceBase
+      ? spoken
+      : (baseText ? baseText + ' ' + spoken : spoken);
 
-    textarea.dispatchEvent(
-      new Event('change', { bubbles: true })
-    );
+    textarea.value = combined.trim();
+
+    textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    textarea.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
-  /*
-   * =========================================================
-   * ANDROID NATIVE VOICE
-   * =========================================================
-   */
-
   function startAndroidVoice() {
-
     if (starting || recording) return;
 
-    if (
-      !window.Android ||
-      typeof window.Android.startNativeSpeechRecognition !== 'function'
-    ) {
-      return false;
+    const textarea = get('conclusion');
+    baseText = textarea ? String(textarea.value || '').trim() : '';
+    starting = true;
+    browserMode = false;
+
+    setMicVisual(true);
+    setStatus('Starting microphone...', 'recording');
+
+    try {
+      window.Android.startNativeSpeechRecognition(getLanguage());
+    } catch (error) {
+      starting = false;
+      recording = false;
+      setMicVisual(false);
+      setStatus('Unable to start microphone. Please try again.');
+    }
+  }
+
+  async function startBrowserVoice() {
+    if (starting || recording) return;
+
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!Recognition) {
+      setStatus('Voice recognition is not supported in this browser. Please use Safari or the Android app.');
+      return;
     }
 
     const textarea = get('conclusion');
-
-    baseText = textarea
-      ? String(textarea.value || '').trim()
-      : '';
-
+    baseText = textarea ? String(textarea.value || '').trim() : '';
+    browserUserStopped = false;
+    browserMode = true;
     starting = true;
-    userStopped = false;
 
     setMicVisual(true);
-
-    setStatus(
-      'Starting microphone...',
-      'recording'
-    );
+    setStatus('Starting microphone...', 'recording');
 
     try {
-
-      window.Android.startNativeSpeechRecognition(
-        getLanguage()
-      );
-
-      return true;
-
-    } catch (error) {
-
-      starting = false;
-      recording = false;
-
-      setMicVisual(false);
-
-      setStatus(
-        'Unable to start microphone. Please try again.'
-      );
-
-      return true;
-    }
-  }
-
-  function stopAndroidVoice() {
-
-    try {
-
-      if (
-        window.Android &&
-        typeof window.Android.stopNativeSpeechRecognition === 'function'
-      ) {
-        window.Android.stopNativeSpeechRecognition();
-      }
-
-    } catch (error) {}
-
-    starting = false;
-    recording = false;
-
-    setMicVisual(false);
-
-    setStatus(
-      'Voice input ready. You can edit the text before saving.',
-      'ready'
-    );
-  }
-
-  /*
-   * =========================================================
-   * IOS / SAFARI / PWA BROWSER VOICE
-   * =========================================================
-   */
-
-function startBrowserVoice() {
-
-  if (starting || recording) return;
-
-  const SpeechRecognition =
-    window.SpeechRecognition ||
-    window.webkitSpeechRecognition;
-
-  if (!SpeechRecognition) {
-    setStatus(
-      'Speech recognition is not available on this device.'
-    );
-    return;
-  }
-
-  const textarea = get('conclusion');
-
-  baseText = textarea
-    ? String(textarea.value || '').trim()
-    : '';
-
-  userStopped = false;
-  starting = true;
-
-  setMicVisual(true);
-
-  setStatus(
-    'Starting microphone...',
-    'recording'
-  );
-
-  try {
-
-    recognition = new SpeechRecognition();
-
-    recognition.lang = getLanguage();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.maxAlternatives = 1;
-
-    recognition.onstart = function () {
-
-      starting = false;
-      recording = true;
-
-      setMicVisual(true);
-
-      setStatus(
-        'Recording... speak naturally, then tap the microphone to stop.',
-        'recording'
-      );
-    };
-
-    recognition.onresult = function (event) {
-
-      let finalText = '';
-      let interimText = '';
-
-      for (
-        let i = event.resultIndex;
-        i < event.results.length;
-        i++
-      ) {
-
-        const result = event.results[i];
-
-        const transcript =
-          result[0] &&
-          result[0].transcript
-            ? result[0].transcript.trim()
-            : '';
-
-        if (!transcript) continue;
-
-        if (result.isFinal) {
-
-          finalText +=
-            (finalText ? ' ' : '') +
-            transcript;
-
-        } else {
-
-          interimText +=
-            (interimText ? ' ' : '') +
-            transcript;
-        }
-      }
-
-      let combined = baseText;
-
-      if (finalText) {
-
-        combined = baseText
-          ? baseText + ' ' + finalText
-          : finalText;
-
-        baseText = combined;
-      }
-
-      if (interimText) {
-
-        combined = baseText
-          ? baseText + ' ' + interimText
-          : interimText;
-      }
-
-      if (combined) {
-        updateText(combined);
-      }
-    };
-
-    recognition.onerror = function (event) {
-
-      const errorCode =
-        event && event.error
-          ? event.error
-          : '';
-
-      starting = false;
-      recording = false;
-
-      setMicVisual(false);
-
-      if (errorCode === 'not-allowed') {
-
-        setStatus(
-          'Microphone permission was denied. Please allow microphone access.'
-        );
-
-      } else if (errorCode === 'no-speech') {
-
-        setStatus(
-          'No speech detected. Tap the microphone and try again.'
-        );
-
-      } else if (errorCode === 'network') {
-
-        setStatus(
-          'Voice recognition needs an internet connection.'
-        );
-
-      } else {
-
-        setStatus(
-          'Voice recognition stopped. Tap the microphone to try again.'
-        );
-      }
-    };
-
-    recognition.onend = function () {
-
-      starting = false;
-      recording = false;
-
-      setMicVisual(false);
-
-      recognition = null;
-
-      setStatus(
-        'Voice input ready. You can edit the text before saving.',
-        'ready'
-      );
-    };
-
-    /*
-     * IMPORTANT:
-     * Start SpeechRecognition directly from the
-     * microphone click without awaiting getUserMedia.
-     * This preserves the iOS user-gesture context.
-     */
-    recognition.start();
-
-  } catch (error) {
-
-    starting = false;
-    recording = false;
-
-    setMicVisual(false);
-
-    recognition = null;
-
-    setStatus(
-      'Unable to start voice recognition. Please try again.'
-    );
-  }
-}
-          }
-        }
-
-        let combined = baseText;
-
-        if (finalText) {
-
-          combined = baseText
-            ? baseText + ' ' + finalText
-            : finalText;
-
-          baseText = combined;
-        }
-
-        if (interimText) {
-
-          combined = baseText
-            ? baseText + ' ' + interimText
-            : interimText;
-        }
-
-        if (combined) {
-          updateText(combined);
-        }
-      };
-
-      recognition.onerror = function (event) {
-
-        const errorCode =
-          event && event.error
-            ? event.error
-            : '';
-
-        if (
-          errorCode === 'aborted' &&
-          userStopped
-        ) {
+      /*
+       * On iOS/Safari, asking for microphone access from the same user
+       * gesture helps WebKit unlock the audio input before recognition.
+       * The stream is immediately released; SpeechRecognition owns the
+       * actual recognition session.
+       */
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          stream.getTracks().forEach(function (track) { track.stop(); });
+        } catch (permissionError) {
+          starting = false;
+          recording = false;
+          setMicVisual(false);
+          setStatus('Microphone permission is required. Please allow microphone access and try again.');
           return;
         }
+      }
 
+      browserRecognition = new Recognition();
+      browserRecognition.lang = getLanguage();
+      browserRecognition.continuous = true;
+      browserRecognition.interimResults = true;
+      browserRecognition.maxAlternatives = 1;
+
+      browserRecognition.onstart = function () {
         starting = false;
-        recording = false;
+        recording = true;
+        setMicVisual(true);
+        setStatus('Recording... speak naturally, then tap the microphone to stop.', 'recording');
+      };
 
-        setMicVisual(false);
+      browserRecognition.onresult = function (event) {
+        let finalText = '';
+        let interimText = '';
 
-        if (errorCode === 'not-allowed') {
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const result = event.results[i];
+          const transcript = result && result[0]
+            ? String(result[0].transcript || '').trim()
+            : '';
 
-          setStatus(
-            'Microphone permission was denied. Please allow microphone access.'
-          );
+          if (result.isFinal) finalText += (finalText ? ' ' : '') + transcript;
+          else interimText += (interimText ? ' ' : '') + transcript;
+        }
 
-        } else if (errorCode === 'no-speech') {
-
-          setStatus(
-            'No speech detected. Tap the microphone and try again.'
-          );
-
-        } else if (errorCode === 'network') {
-
-          setStatus(
-            'Voice recognition needs an internet connection.'
-          );
-
-        } else {
-
-          setStatus(
-            'Voice recognition stopped. Tap the microphone to try again.'
-          );
+        if (finalText) {
+          baseText = baseText
+            ? baseText + ' ' + finalText
+            : finalText;
+          writeText(baseText, true);
+        } else if (interimText) {
+          writeText(interimText, false);
         }
       };
 
-      recognition.onend = function () {
+      browserRecognition.onerror = function (event) {
+        const code = String(event && event.error || '');
 
         starting = false;
         recording = false;
-
         setMicVisual(false);
 
-        if (!userStopped) {
-
-          setStatus(
-            'Voice input ready. Tap the microphone to speak.',
-            'ready'
-          );
-
+        if (code === 'not-allowed' || code === 'service-not-allowed') {
+          setStatus('Microphone or speech permission was denied. Please allow access and try again.');
+        } else if (code === 'audio-capture') {
+          setStatus('Microphone is not available. Please check microphone access and try again.');
+        } else if (code === 'network') {
+          setStatus('Speech recognition needs an available network connection on this device.');
+        } else if (code === 'no-speech') {
+          setStatus('No speech detected. Tap the microphone and speak again.');
         } else {
-
-          setStatus(
-            'Voice input ready. You can edit the text before saving.',
-            'ready'
-          );
+          setStatus('Voice recognition stopped. Tap the microphone to try again.');
         }
-
-        recognition = null;
       };
 
-      recognition.start();
+      browserRecognition.onend = function () {
+        browserRecognition = null;
+        starting = false;
+        recording = false;
+        setMicVisual(false);
+
+        if (!browserUserStopped) {
+          setStatus('Voice recognition stopped. Tap the microphone to speak again.', 'ready');
+        }
+      };
+
+      browserRecognition.start();
 
     } catch (error) {
-
+      browserRecognition = null;
       starting = false;
       recording = false;
-
       setMicVisual(false);
-
-      recognition = null;
-
-      setStatus(
-        'Unable to start voice recognition. Please try again.'
-      );
+      setStatus('Unable to start voice recognition. Please try again.');
     }
   }
 
   function stopBrowserVoice() {
-
-    userStopped = true;
+    browserUserStopped = true;
 
     try {
-
-      if (recognition) {
-        recognition.stop();
+      if (browserRecognition) {
+        browserRecognition.stop();
       }
+    } catch (error) {}
 
-    } catch (error) {
-
-      try {
-        if (recognition) recognition.abort();
-      } catch (_) {}
-    }
-
+    browserRecognition = null;
     starting = false;
     recording = false;
-
     setMicVisual(false);
-
-    setStatus(
-      'Voice input ready. You can edit the text before saving.',
-      'ready'
-    );
+    setStatus('Voice input ready. You can edit the text before saving.', 'ready');
   }
 
-  /*
-   * =========================================================
-   * UNIFIED START / STOP
-   * =========================================================
-   */
-
   function startVoice() {
-
-    /*
-     * Android native app
-     */
-
-    if (
-      window.Android &&
-      typeof window.Android.startNativeSpeechRecognition === 'function'
-    ) {
+    if (isAndroidNative()) {
       startAndroidVoice();
-      return;
+    } else {
+      startBrowserVoice();
     }
-
-    /*
-     * iOS Safari / iOS PWA / normal browser
-     */
-
-    startBrowserVoice();
   }
 
   function stopVoice() {
+    if (isAndroidNative() && !browserMode) {
+      try {
+        if (window.Android && typeof window.Android.stopNativeSpeechRecognition === 'function') {
+          window.Android.stopNativeSpeechRecognition();
+        }
+      } catch (error) {}
 
-    if (
-      window.Android &&
-      typeof window.Android.stopNativeSpeechRecognition === 'function'
-    ) {
-      stopAndroidVoice();
-      return;
+      starting = false;
+      recording = false;
+      setMicVisual(false);
+      setStatus('Voice input ready. You can edit the text before saving.', 'ready');
+    } else {
+      stopBrowserVoice();
     }
-
-    stopBrowserVoice();
   }
 
-  /*
-   * =========================================================
-   * MICROPHONE BUTTON
-   * =========================================================
-   */
-
   function installVoiceButton() {
-
     const oldMic = get('conclusionMicBtn');
-
     if (!oldMic) return;
-
-    if (oldMic.dataset.v18UnifiedVoice === '1') {
-      return;
-    }
+    if (oldMic.dataset.v18UnifiedVoice === '1') return;
 
     const mic = oldMic.cloneNode(true);
 
-    /*
-     * Mark all previous voice layers as already handled.
-     * This prevents older observers from taking control
-     * of the button again.
-     */
-
+    /* Block older voice layers from taking the button back. */
     mic.dataset.v10VoicePatched = '1';
     mic.dataset.v13NativeMic = '1';
     mic.dataset.v14Voice = '1';
@@ -6953,7 +6677,6 @@ function startBrowserVoice() {
     mic.dataset.v18UnifiedVoice = '1';
 
     mic.onclick = function (event) {
-
       event.preventDefault();
       event.stopPropagation();
 
@@ -6968,34 +6691,18 @@ function startBrowserVoice() {
 
     oldMic.replaceWith(mic);
 
-    /*
-     * =======================================================
-     * AR / EN BUTTON
-     * =======================================================
-     */
-
     const langBtn = get('conclusionLangBtn');
 
-    if (
-      langBtn &&
-      langBtn.dataset.v18UnifiedLanguage !== '1'
-    ) {
-
+    if (langBtn && langBtn.dataset.v18UnifiedLanguage !== '1') {
       langBtn.dataset.v18UnifiedLanguage = '1';
 
       langBtn.onclick = function (event) {
-
         event.preventDefault();
         event.stopPropagation();
 
-        if (recording || starting) {
-          stopVoice();
-        }
+        if (recording || starting) stopVoice();
 
-        langBtn.textContent =
-          langBtn.textContent.trim() === 'AR'
-            ? 'EN'
-            : 'AR';
+        langBtn.textContent = langBtn.textContent.trim() === 'AR' ? 'EN' : 'AR';
 
         setStatus(
           langBtn.textContent.trim() === 'AR'
@@ -7008,133 +6715,72 @@ function startBrowserVoice() {
       };
     }
 
-    setStatus(
-      'Voice input ready. Tap the microphone to speak.',
-      'ready'
-    );
+    setStatus('Voice input ready. Tap the microphone to speak.', 'ready');
   }
 
-  /*
-   * =========================================================
-   * ANDROID CALLBACKS
-   * =========================================================
-   */
-
+  /* Android Native SpeechRecognizer callbacks */
   window.onNativeSpeechStarted = function () {
+    if (browserMode) return;
 
     starting = false;
     recording = true;
-
     setMicVisual(true);
-
-    setStatus(
-      'Recording... speak naturally, then tap the microphone to stop.',
-      'recording'
-    );
+    setStatus('Recording... speak naturally, then tap the microphone to stop.', 'recording');
   };
 
   window.onNativeSpeechResult = function (text, isFinal) {
+    if (browserMode) return;
 
     const spoken = String(text || '').trim();
-
     if (!spoken) return;
 
     const combined = baseText
       ? baseText + ' ' + spoken
       : spoken;
 
-    updateText(combined);
+    writeText(combined, true);
 
-    if (isFinal) {
-      baseText = combined;
-    }
+    if (isFinal) baseText = combined;
   };
 
   window.onNativeSpeechStopped = function () {
+    if (browserMode) return;
 
     starting = false;
     recording = false;
-
     setMicVisual(false);
-
-    setStatus(
-      'Voice input ready. You can edit the text before saving.',
-      'ready'
-    );
+    setStatus('Voice input ready. You can edit the text before saving.', 'ready');
   };
 
   window.onNativeSpeechError = function (error) {
+    if (browserMode) return;
 
     starting = false;
     recording = false;
-
     setMicVisual(false);
 
     const code = String(error || '');
 
     if (code === 'not-allowed') {
-
-      setStatus(
-        'Microphone permission was denied. Please allow microphone access.'
-      );
-
+      setStatus('Microphone permission was denied. Please allow microphone access for Innoval Field Visit.');
     } else if (code === 'unavailable') {
-
-      setStatus(
-        'Speech recognition is not available on this device.'
-      );
-
+      setStatus('Speech recognition is not available on this device.');
     } else {
-
-      setStatus(
-        'Voice recognition stopped. Tap the microphone to try again.'
-      );
+      setStatus('Voice recognition stopped. Tap the microphone to try again.');
     }
   };
-
-  /*
-   * =========================================================
-   * INITIALIZE
-   * =========================================================
-   */
 
   const observer = new MutationObserver(function () {
     installVoiceButton();
   });
 
-  function initialize() {
-
-    installVoiceButton();
-
-    if (document.body) {
-
-      observer.observe(
-        document.body,
-        {
-          childList: true,
-          subtree: true
-        }
-      );
-    }
-  }
-
-  if (document.readyState === 'loading') {
-
-    document.addEventListener(
-      'DOMContentLoaded',
-      initialize,
-      { once: true }
-    );
-
-  } else {
-
-    initialize();
+  if (document.body) {
+    observer.observe(document.body, { childList: true, subtree: true });
   }
 
   setTimeout(installVoiceButton, 500);
   setTimeout(installVoiceButton, 1500);
   setTimeout(installVoiceButton, 3000);
-
 })();
 </script>
 </body></html>
