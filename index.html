@@ -2334,13 +2334,51 @@ async function cloudPullMyData(){
         localStorage.setItem('innovalCustomerOverridesV1947',JSON.stringify(ov));
       }
     }
-    // 5) Pull the current user's profile photo from Supabase Storage.
+    // 5) Pull the current user's editable profile data from Cloud.
+    //    A missing Cloud profile must never erase an existing local profile.
+    try{ await cloudPullProfileData(p); }catch(e){}
+
+    // 6) Pull the current user's profile photo from Supabase Storage.
     //    Storage is best-effort here: a missing photo must never block the
-    //    normal Cloud pull for visits/customers/weekly plans.
+    //    normal Cloud pull for visits/customers/weekly plans/profile data.
     try{ await cloudPullProfilePhoto(p); }catch(e){}
 
     return true;
   }catch(error){ console.warn("Innoval cloud pull failed:",error?.message||error); return false; }
+}
+
+async function cloudPullProfileData(p){
+  const userId=String(p?.id||"").trim();
+  if(!userId || !innovalSupabase) return false;
+  try{
+    const {data,error}=await innovalSupabase.from("user_profiles")
+      .select("user_id,employee_id,full_name,mobile,job_title,experience,manager,updated_at")
+      .eq("user_id",userId).maybeSingle();
+    if(error) throw error;
+    if(!data) return false;
+    const key="innovalProfile_"+String(p.rep||"");
+    let local={};
+    try{local=JSON.parse(localStorage.getItem(key)||"{}")||{};}catch(e){local={};}
+    const cloudUpdatedAt=String(data.updated_at||"");
+    const cloudTime=Date.parse(cloudUpdatedAt)||0;
+    const localTime=Date.parse(String(local.updatedAt||""))||0;
+    // Local edits that are newer remain authoritative; fullSync will push them.
+    if(localTime>cloudTime) return false;
+    const merged={
+      employeeId:String(data.employee_id||""),
+      fullName:String(data.full_name||p.rep||""),
+      mobile:String(data.mobile||""),
+      jobTitle:String(data.job_title||""),
+      experience:String(data.experience||""),
+      manager:String(data.manager||""),
+      updatedAt:cloudUpdatedAt||new Date().toISOString()
+    };
+    localStorage.setItem(key,JSON.stringify(merged));
+    return true;
+  }catch(e){
+    console.warn("Innoval profile cloud pull skipped:",e?.message||e);
+    return false;
+  }
 }
 
 async function cloudPullProfilePhoto(p){
@@ -2980,9 +3018,16 @@ $("loginForm").addEventListener("submit",async e=>{
     return;
   }
 
-  // Cloud authentication is already complete when available. Sync remains
-  // best-effort and never blocks the application UI.
+  // Cloud authentication is complete. Pull the authoritative Cloud state
+  // BEFORE rendering Home so a fresh/private browser session gets Profile
+  // Data + Profile Photo immediately. The existing full sync remains
+  // best-effort in the background after the pull.
   if(cloudAuth?.ok){
+    try{
+      await cloudPullMyData();
+    }catch(syncPullErr){
+      console.warn("Innoval login cloud pull warning:",syncPullErr?.message||syncPullErr);
+    }
     cloudSyncCurrentState().then(sync=>{
       if(!sync?.ok) console.warn("Innoval background cloud sync warning:",sync?.error||"Unknown sync error");
     }).catch(err=>console.warn("Innoval background cloud sync error:",err));
@@ -4030,16 +4075,19 @@ function openSettings(){
 }
 function saveProfileData(){
   const p=profile();
-  localStorage.setItem("innovalProfile_"+p.rep,JSON.stringify({
+  const profileData={
     employeeId:$("profileEmployeeId")?.value.trim()||"",
     fullName:$("profileFullName")?.value.trim()||p.rep,
     mobile:$("profileMobile")?.value.trim()||"",
     jobTitle:$("profileJob")?.value.trim()||"",
     experience:$("profileExperience")?.value.trim()||"",
-    manager:$("profileManager")?.value.trim()||""
-  }));
+    manager:$("profileManager")?.value.trim()||"",
+    updatedAt:new Date().toISOString()
+  };
+  localStorage.setItem("innovalProfile_"+p.rep,JSON.stringify(profileData));
   const full=$("profileFullName")?.value.trim(); if(full){$("drawerName").textContent=full;$("repName").textContent=full;}
   closeModal();toast("Profile saved successfully ✓");
+  try{window.innovalReliabilityV7?.queueProfileData?.(profileData)}catch(_e){}
 }
 async function changePassword(){
   const p=profile(),list=employeeList(),emp=list.find(x=>x.name===p.rep),oldPass=String($("oldPass")?.value||""),newp=String($("newPass")?.value||""),conf=String($("confirmPass")?.value||"");
@@ -5466,11 +5514,34 @@ window.syncAndroidFcmToken = function(){
   async function directVisit(v){return typeof window.__innovalV7OriginalCloudSyncVisit==='function'?window.__innovalV7OriginalCloudSyncVisit(v):{ok:false,error:'Cloud visit sync function unavailable.'}}
   async function directCustomer(c,isNew){return typeof window.__innovalV7OriginalCloudSyncCustomer==='function'?window.__innovalV7OriginalCloudSyncCustomer(c,isNew):{ok:false,error:'Cloud customer sync function unavailable.'}}
   async function directWeekly(rows){return typeof window.__innovalV7OriginalCloudSyncWeeklyRows==='function'?window.__innovalV7OriginalCloudSyncWeeklyRows(rows):false}
+  async function directProfileData(data){
+    const p=currentUserRecord?.()||{};
+    if(!p?.id)return {ok:false,error:'Profile user is missing.'};
+    try{
+      const session=await cloudSession();
+      if(!session||!innovalSupabase)return {ok:false,error:'No active Supabase session.'};
+      const d=data||{};
+      const row={
+        user_id:String(p.id),
+        employee_id:String(d.employeeId||''),
+        full_name:String(d.fullName||p.name||p.rep||''),
+        mobile:String(d.mobile||''),
+        job_title:String(d.jobTitle||''),
+        experience:String(d.experience||''),
+        manager:String(d.manager||''),
+        updated_at:String(d.updatedAt||now())
+      };
+      const {error}=await innovalSupabase.from('user_profiles').upsert(row,{onConflict:'user_id'});
+      if(error)throw error;
+      return {ok:true};
+    }catch(e){return {ok:false,error:e?.message||String(e)}}
+  }
 
   async function syncOne(item){
     let r={ok:false,error:'Unsupported queue item'};
     if(item.type==='visit') r=await directVisit(item.payload);
     else if(item.type==='customer') r=await directCustomer(item.payload,!!item.payload?.isNewCustomer);
+    else if(item.type==='profile_data') r=await directProfileData(item.payload);
     else if(item.type==='customer_details'){
       const session=await cloudSession();
       if(session&&innovalSupabase){
@@ -5540,6 +5611,16 @@ window.syncAndroidFcmToken = function(){
       const localVs=visits().filter(v=>v.rep===p?.name);
       const localWp=weeklyPlanRows();
       let failed=0;
+      // Push the current user's local profile only when a profile has been saved.
+      // Cloud pull above already merged any newer Cloud profile into localStorage.
+      try{
+        const localProfile=JSON.parse(localStorage.getItem('innovalProfile_'+p?.name)||'null');
+        if(localProfile && typeof localProfile==='object'){
+          const r=await directProfileData(localProfile);
+          if(r?.ok)markSynced('profile_data',p?.id,p?.id);
+          else{upsertQueue('profile_data',p?.id,localProfile,r?.error);failed++}
+        }
+      }catch(e){upsertQueue('profile_data',p?.id,{},e?.message||e);failed++}
       // Push locally-created customers owned by this user. Existing shared master
       // customers are pulled above; only extras are pushed here.
       try{
@@ -5670,7 +5751,14 @@ window.syncAndroidFcmToken = function(){
     else markSynced('profile_photo',p.id,p.id);
     if(typeof window.__innovalV7RefreshSyncCenter==='function')window.__innovalV7RefreshSyncCenter();
   }
-  // Profile photo upload is optional: if the Storage bucket is not configured, the local copy remains safe.
+  async function queueProfileData(data){
+    const p=currentUserRecord?.()||{}; if(!p?.id||!data)return;
+    const r=await directProfileData(data);
+    if(!r.ok)upsertQueue('profile_data',p.id,data,r.error);
+    else markSynced('profile_data',p.id,p.id);
+    if(typeof window.__innovalV7RefreshSyncCenter==='function')window.__innovalV7RefreshSyncCenter();
+  }
+  // Profile photo/profile data sync is optional: local copies remain safe if Cloud is unavailable.
   async function directProfilePhoto(item){return uploadProfilePhoto(item?.payload?.data||'')}
 
   // Extend queue dispatcher without changing existing record operations.
