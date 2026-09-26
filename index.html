@@ -7065,5 +7065,93 @@ window.syncAndroidFcmToken = function(){
   setTimeout(boot, 500);
   setTimeout(boot, 1500);
 })();
+<script id="innoval-ios-voice-hard-capture-v1964">
+(function(){
+  'use strict';
+  function isIOS(){return /iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);}
+  if(!isIOS()) return;
+
+  var active=false, starting=false, recognition=null, baseText='';
+  var lastHandled=0;
+  function el(id){return document.getElementById(id);}
+  function status(msg){
+    var e=el('conclusionVoiceStatus');
+    if(e){e.textContent=msg;e.classList.remove('recording');e.classList.add('ready');}
+  }
+  function visual(on){
+    var b=el('conclusionMicBtn'); if(!b)return;
+    b.classList.toggle('recording',!!on);
+    b.textContent=on?'⏹':'🎙️';
+  }
+  function stop(){
+    try{if(recognition)recognition.stop();}catch(e){try{recognition.abort();}catch(_){}}
+    active=false;starting=false;visual(false);status('[iOS Voice 1964] STOPPED');
+  }
+  function start(){
+    if(active||starting)return;
+    var ta=el('conclusion');
+    var R=window.webkitSpeechRecognition||window.SpeechRecognition;
+    if(!ta||!R){status('[iOS Voice 1964] API NOT AVAILABLE');return;}
+    baseText=String(ta.value||'').trim();
+    starting=true;active=true;visual(true);status('[iOS Voice 1964] STARTING');
+    try{
+      if(recognition){try{recognition.abort();}catch(e){}}
+      recognition=new R();
+      recognition.continuous=false;
+      recognition.interimResults=true;
+      recognition.maxAlternatives=1;
+      recognition.lang=(el('conclusionLangBtn')&&el('conclusionLangBtn').textContent.trim()==='EN')?'en-US':'ar-EG';
+      recognition.onstart=function(){starting=false;active=true;visual(true);status('[iOS Voice 1964] LISTENING — SPEAK NOW');};
+      recognition.onaudiostart=function(){status('[iOS Voice 1964] AUDIO OK — SPEAK NOW');};
+      recognition.onspeechstart=function(){status('[iOS Voice 1964] SPEECH DETECTED');};
+      recognition.onresult=function(ev){
+        var finalText='', interim='';
+        for(var i=ev.resultIndex;i<ev.results.length;i++){
+          var t=String(ev.results[i][0]&&ev.results[i][0].transcript||'').trim();
+          if(!t)continue;
+          if(ev.results[i].isFinal)finalText+=(finalText?' ':'')+t; else interim+=(interim?' ':'')+t;
+        }
+        var combined=[baseText,finalText].filter(Boolean).join(' ');
+        ta.value=[combined,interim].filter(Boolean).join(' ');
+        ta.dispatchEvent(new Event('input',{bubbles:true}));
+        if(finalText)baseText=combined;
+        status('[iOS Voice 1964] RESULT: '+(finalText||interim));
+      };
+      recognition.onerror=function(ev){
+        var code=String(ev&&ev.error||'UNKNOWN');
+        active=false;starting=false;visual(false);status('[iOS Voice 1964] ERROR: '+code);recognition=null;
+      };
+      recognition.onend=function(){
+        active=false;starting=false;visual(false);
+        status('[iOS Voice 1964] END');recognition=null;
+      };
+      recognition.start();
+    }catch(e){
+      active=false;starting=false;visual(false);recognition=null;
+      status('[iOS Voice 1964] EXCEPTION: '+(e&&e.name||String(e)));
+    }
+  }
+  function isMicTarget(t){
+    return t && (t.id==='conclusionMicBtn' || (t.closest && t.closest('#conclusionMicBtn')));
+  }
+  function intercept(ev){
+    if(!isMicTarget(ev.target))return;
+    ev.preventDefault();ev.stopPropagation();
+    if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();
+    var now=Date.now();
+    if(now-lastHandled<250)return;
+    lastHandled=now;
+    if(active||starting)stop();else start();
+  }
+  document.addEventListener('pointerdown',function(ev){
+    if(isMicTarget(ev.target)){ev.preventDefault();ev.stopPropagation();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();}
+  },true);
+  document.addEventListener('touchstart',function(ev){
+    if(isMicTarget(ev.target)){ev.preventDefault();ev.stopPropagation();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();}
+  },true);
+  document.addEventListener('click',intercept,true);
+  setTimeout(function(){status('[iOS Voice 1964] HARD CAPTURE READY');},1200);
+})();
+</script>
 </script>
 </body></html>
