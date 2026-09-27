@@ -4641,19 +4641,69 @@ async function sendDailyVisitsReport(){
   const subject='Innoval Daily Visits Report — '+periodLabel;
   const body='Dear Manager,\n\nPlease find attached the Innoval Daily Visits Report '+bodyPeriod+'.\n\nRegards,\n'+profile().rep;
   const reader=new FileReader();
-  reader.onloadend=()=>{
-    const base64=String(reader.result||'').split(',')[1]||'';
-    try{
-      if(window.Android && typeof window.Android.sendDailyVisitsReport==='function'){
-        window.Android.openOutlookDailyReport(recipients.join(';'),subject,body,report.fileName,base64);
-        toast('Daily report sent ✓');
-        closeDailyReport();
-        return;
+
+reader.onloadend=async ()=>{
+  const base64=String(reader.result||'').split(',')[1]||'';
+
+  try{
+
+    // ANDROID — KEEP EXISTING FLOW
+    if(window.Android && typeof window.Android.sendDailyVisitsReport==='function'){
+      window.Android.openOutlookDailyReport(
+        recipients.join(';'),
+        subject,
+        body,
+        report.fileName,
+        base64
+      );
+
+      toast('Daily report sent ✓');
+      closeDailyReport();
+      return;
+    }
+
+    // iOS — SHARE EXCEL FILE
+    const excelFile=new File(
+      [report.blob],
+      report.fileName,
+      {
+        type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       }
-      toast('Microsoft 365 direct sending is not connected yet');
-    }catch(e){console.error(e);toast('Daily report could not be sent');}
-  };
-  reader.readAsDataURL(report.blob);
+    );
+
+    if(
+      navigator.share &&
+      (
+        !navigator.canShare ||
+        navigator.canShare({files:[excelFile]})
+      )
+    ){
+
+      await navigator.share({
+        files:[excelFile],
+        title:subject,
+        text:body
+      });
+
+      toast('Report ready to share ✓');
+      closeDailyReport();
+      return;
+    }
+
+    toast('iPhone sharing is not available on this device');
+
+  }catch(e){
+
+    if(e?.name==='AbortError'){
+      return;
+    }
+
+    console.error('Daily report iOS sharing error:',e);
+    toast('Could not open iPhone sharing options');
+  }
+};
+
+reader.readAsDataURL(report.blob);
 }
 
 // ===== Innoval App Update Checker =====
