@@ -4619,11 +4619,32 @@ async function openDailyReport(){
 }
 function closeDailyReport(){$('dailyReportModal')?.classList.remove('open');unlockModalLayer()}
 function buildDailyReportExcel(fromStr,toStr){
-  const p=profile(); if(!fromStr||!toStr||fromStr>toStr)return null;
-  const list=visits().filter(v=>v.rep===p.rep&&v.date>=fromStr&&v.date<=toStr).sort((a,b)=>String(a.date).localeCompare(String(b.date))||Number(a.visitNo||999)-Number(b.visitNo||999));
+  const p=profile();
+  if(!fromStr||!toStr||fromStr>toStr)return null;
+  const list=visits()
+    .filter(v=>v.rep===p.rep&&v.date>=fromStr&&v.date<=toStr)
+    .sort((a,b)=>String(a.date).localeCompare(String(b.date))||Number(a.visitNo||999)-Number(b.visitNo||999));
   if(!list.length)return null;
-  const blob=buildXlsxBlob([{name:'Visits Report',rows:rowsFromVisits(list)}]);
-  return {blob,fileName:'Innoval_Daily_Visits_Report_'+fromStr+'_to_'+toStr+'.xlsx',list};
+
+  // Use the exact HR-style SpreadsheetML structure already used by Export HR Excel.
+  // This avoids the mobile XLSX repair/blank-sheet issue.
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const byMonth={};
+  list.forEach(v=>{const m=String(v.date).slice(0,7);(byMonth[m]??=[]).push(v)});
+
+  let sheets='';
+  Object.keys(byMonth).sort().forEach(key=>{
+    const idx=Math.max(0,Number(key.slice(5,7))-1);
+    const monthRows=byMonth[key];
+    sheets+='<Worksheet ss:Name="'+months[idx]+'"><Table ss:ExpandedColumnCount="21" ss:ExpandedRowCount="'+(monthRows.length+1)+'">'+hrSheetRows(monthRows)+'</Table></Worksheet>';
+  });
+
+  const wb='<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Styles>'+
+    '<Style ss:ID="Header"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#063B91" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/></Style>'+
+    '<Style ss:ID="Body"><Alignment ss:Vertical="Top" ss:WrapText="1"/></Style></Styles>'+sheets+'</Workbook>';
+
+  const blob=new Blob([wb],{type:'application/vnd.ms-excel;charset=utf-8'});
+  return {blob,fileName:'2026_Field_Visit_Report_'+fromStr+'_to_'+toStr+'.xls',list};
 }
 async function sendDailyVisitsReport(){
   if(dailyReportLoading)return;
@@ -4684,7 +4705,7 @@ async function sendDailyVisitsReport(){
 
 // ===== Innoval App Update Checker =====
 // Web/PWA updater. Native Android uses the Android bridge for the actual APK installation.
-const APP_VERSION = "1.9.70";
+const APP_VERSION = "1.9.71";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 let innovalSwRegistration=null;
 
