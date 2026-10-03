@@ -4662,10 +4662,25 @@ async function sendDailyVisitsReport(){
       );
 
       if(navigator.share && (!navigator.canShare || navigator.canShare({files:[excelFile]}))){
+        // iOS TEST v1.9.71: try to give Outlook as much compose context as
+        // the Web Share API allows, while still passing the real XLSX file.
+        // `url` is an Outlook compose URL containing To/Subject/Body.
+        // The Share Sheet may ignore it, but this is intentionally a TEST.
+        const outlookTo=encodeURIComponent(recipients.join(';'));
+        const outlookSubject=encodeURIComponent(subject);
+        const outlookBody=encodeURIComponent(body);
+        const outlookComposeUrl='ms-outlook://compose?to='+outlookTo+'&subject='+outlookSubject+'&body='+outlookBody;
+
+        // Some share targets (including Outlook variants) treat the first
+        // line of shared text as the mail subject, so place the intended
+        // subject first while retaining the complete body below it.
+        const shareText=subject+'\n\n'+body;
+
         await navigator.share({
           files:[excelFile],
           title:subject,
-          text:body
+          text:shareText,
+          url:outlookComposeUrl
         });
         toast('Excel report ready in iPhone Share Sheet ✓');
         closeDailyReport();
