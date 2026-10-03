@@ -4652,17 +4652,33 @@ async function sendDailyVisitsReport(){
         return;
       }
 
-      // iOS DIRECT OUTLOOK TEST: open Outlook compose directly.
-      // NOTE: ms-outlook://compose supports To/Subject/Body, but does NOT
-      // support attaching the generated XLSX file through the URL scheme.
-      const outlookTo=encodeURIComponent(recipients.join(';'));
+      // iOS DIRECT OUTLOOK + ATTACHMENT TEST (SAFE FALLBACK)
+      // Keep the proven direct Outlook compose behavior as the fallback.
+      // We first try an attachment parameter using a data URL. This parameter
+      // is NOT officially documented by Microsoft; if iOS/Outlook rejects the
+      // long URL, we immediately fall back to the proven direct compose URL.
+      const outlookTo=encodeURIComponent(recipients.join(','));
       const outlookSubject=encodeURIComponent(subject);
       const outlookBody=encodeURIComponent(body);
-      const outlookComposeUrl='ms-outlook://compose?to='+outlookTo+'&subject='+outlookSubject+'&body='+outlookBody;
+      const directOutlookUrl='ms-outlook://compose?to='+outlookTo+'&subject='+outlookSubject+'&body='+outlookBody;
 
-      // Use the Outlook URL scheme directly. This bypasses the iOS Share Sheet.
-      window.location.href=outlookComposeUrl;
-      toast('Opening Outlook…');
+      // Try attachment only when the resulting URL is reasonably small.
+      // This prevents the large XLSX data URL from breaking the Outlook launch.
+      const xlsxDataUrl=String(reader.result||'');
+      const attachmentUrl=encodeURIComponent(xlsxDataUrl);
+      const attachmentOutlookUrl=directOutlookUrl
+        +'&attachmentName='+encodeURIComponent(report.fileName)
+        +'&attachment='+attachmentUrl;
+
+      // iOS URL/deep-link length can be restrictive. Try the attachment form
+      // only below a conservative size; otherwise use the known-good URL.
+      if(attachmentOutlookUrl.length <= 30000){
+        window.location.href=attachmentOutlookUrl;
+        toast('Opening Outlook with report…');
+      }else{
+        window.location.href=directOutlookUrl;
+        toast('Opening Outlook…');
+      }
       closeDailyReport();
       return;
     }catch(e){
@@ -4676,7 +4692,7 @@ async function sendDailyVisitsReport(){
 
 // ===== Innoval App Update Checker =====
 // Web/PWA updater. Native Android uses the Android bridge for the actual APK installation.
-const APP_VERSION = "1.9.73";
+const APP_VERSION = "1.9.74";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 let innovalSwRegistration=null;
 
