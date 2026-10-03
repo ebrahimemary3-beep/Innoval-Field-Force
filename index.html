@@ -4640,59 +4640,62 @@ async function sendDailyVisitsReport(){
   const bodyPeriod=fromStr===toStr?('for '+fromStr):('for the period from '+fromStr+' to '+toStr);
   const subject='Innoval Daily Visits Report — '+periodLabel;
   const body='Dear Manager,\n\nPlease find attached the Innoval Daily Visits Report '+bodyPeriod+'.\n\nRegards,\n'+profile().rep;
-  const reader=new FileReader();
-  reader.onloadend=async()=>{
-    const base64=String(reader.result||'').split(',')[1]||'';
-    try{
-      // ANDROID: keep the existing native Outlook + real XLSX attachment bridge untouched.
-      if(window.Android && typeof window.Android.sendDailyVisitsReport==='function'){
-        window.Android.openOutlookDailyReport(recipients.join(';'),subject,body,report.fileName,base64);
-        toast('Daily report sent ✓');
-        closeDailyReport();
+  try{
+    // Android: keep the existing native Outlook + real attachment flow unchanged.
+    if(window.Android && typeof window.Android.openOutlookDailyReport==='function'){
+      const reader=new FileReader();
+      reader.onloadend=()=>{
+        const base64=String(reader.result||'').split(',')[1]||'';
+        try{
+          window.Android.openOutlookDailyReport(recipients.join(';'),subject,body,report.fileName,base64);
+          toast('Daily report ready in Outlook ✓');
+          closeDailyReport();
+        }catch(e){console.error(e);toast('Daily report could not be sent');}
+      };
+      reader.readAsDataURL(report.blob);
+      return;
+    }
+
+    // iPhone/iPad: first hand the real XLSX file to the iOS Share Sheet.
+    // User selects "Save to Files". After returning from the Share Sheet,
+    // open Outlook with To/Subject/Body ready. The saved XLSX is then attached
+    // from Outlook via paperclip -> Attach File -> Recent/Files.
+    const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||
+      (navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+    if(isIOS && navigator.share){
+      const excelFile=new File(
+        [report.blob],
+        report.fileName,
+        {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
+      );
+      if(navigator.canShare && !navigator.canShare({files:[excelFile]})){
+        toast('This iPhone cannot share the Excel file');
         return;
       }
-
-      // iOS DIRECT OUTLOOK + ATTACHMENT TEST (SAFE FALLBACK)
-      // Keep the proven direct Outlook compose behavior as the fallback.
-      // We first try an attachment parameter using a data URL. This parameter
-      // is NOT officially documented by Microsoft; if iOS/Outlook rejects the
-      // long URL, we immediately fall back to the proven direct compose URL.
-      const outlookTo=encodeURIComponent(recipients.join(','));
-      const outlookSubject=encodeURIComponent(subject);
-      const outlookBody=encodeURIComponent(body);
-      const directOutlookUrl='ms-outlook://compose?to='+outlookTo+'&subject='+outlookSubject+'&body='+outlookBody;
-
-      // Try attachment only when the resulting URL is reasonably small.
-      // This prevents the large XLSX data URL from breaking the Outlook launch.
-      const xlsxDataUrl=String(reader.result||'');
-      const attachmentUrl=encodeURIComponent(xlsxDataUrl);
-      const attachmentOutlookUrl=directOutlookUrl
-        +'&attachmentName='+encodeURIComponent(report.fileName)
-        +'&attachment='+attachmentUrl;
-
-      // iOS URL/deep-link length can be restrictive. Try the attachment form
-      // only below a conservative size; otherwise use the known-good URL.
-      if(attachmentOutlookUrl.length <= 30000){
-        window.location.href=attachmentOutlookUrl;
-        toast('Opening Outlook with report…');
-      }else{
-        window.location.href=directOutlookUrl;
-        toast('Opening Outlook…');
+      toast('Choose "Save to Files" for the Excel report');
+      try{
+        await navigator.share({files:[excelFile]});
+      }catch(e){
+        if(e && e.name==='AbortError') return;
+        console.error(e);
+        toast('Excel sharing was cancelled');
+        return;
       }
+      const outlookUrl='ms-outlook://compose?to='+encodeURIComponent(recipients.join(','))+
+        '&subject='+encodeURIComponent(subject)+
+        '&body='+encodeURIComponent(body);
+      window.location.href=outlookUrl;
       closeDailyReport();
       return;
-    }catch(e){
-      if(e && e.name==='AbortError') return;
-      console.error('Daily report iOS share error:',e);
-      toast('Daily report could not be shared from iPhone');
     }
-  };
-  reader.readAsDataURL(report.blob);
+
+    toast('Microsoft 365 direct sending is not connected yet');
+  }catch(e){console.error(e);toast('Daily report could not be sent');}
 }
 
 // ===== Innoval App Update Checker =====
 // Web/PWA updater. Native Android uses the Android bridge for the actual APK installation.
-const APP_VERSION = "1.9.74";
+const APP_VERSION = "1.9.69";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 let innovalSwRegistration=null;
 
