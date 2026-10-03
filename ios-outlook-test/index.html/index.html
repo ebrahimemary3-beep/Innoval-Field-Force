@@ -4681,7 +4681,9 @@ reader.onloadend=async ()=>{
 
       await navigator.share({
         files:[excelFile],
-       });
+        title:subject,
+        text:body
+      });
 
       toast('Report ready to share ✓');
       closeDailyReport();
