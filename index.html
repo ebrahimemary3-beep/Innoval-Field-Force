@@ -4652,38 +4652,19 @@ async function sendDailyVisitsReport(){
         return;
       }
 
-      // iOS TEST: hand the real XLSX file to the native iOS Share Sheet.
-      // Outlook can then be selected as the receiving app. We intentionally pass
-      // the actual File object so the spreadsheet remains a real .xlsx attachment.
-      const excelFile=new File(
-        [report.blob],
-        report.fileName,
-        {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
-      );
+      // iOS DIRECT OUTLOOK TEST: open Outlook compose directly.
+      // NOTE: ms-outlook://compose supports To/Subject/Body, but does NOT
+      // support attaching the generated XLSX file through the URL scheme.
+      const outlookTo=encodeURIComponent(recipients.join(';'));
+      const outlookSubject=encodeURIComponent(subject);
+      const outlookBody=encodeURIComponent(body);
+      const outlookComposeUrl='ms-outlook://compose?to='+outlookTo+'&subject='+outlookSubject+'&body='+outlookBody;
 
-      if(navigator.share && (!navigator.canShare || navigator.canShare({files:[excelFile]}))){
-        // iOS FIX v1.9.72: keep the proven file-share path. The previous
-        // v1.9.71 experiment added an ms-outlook:// URL to navigator.share().
-        // On this iPhone/iOS combination that caused the share request itself
-        // to fail before the Share Sheet opened. Web Share only guarantees
-        // text/title/url/files as share data; a custom Outlook compose URL is
-        // not a guaranteed share payload. We therefore remove the custom URL
-        // and keep the real XLSX attachment plus the intended subject/body.
-        // Some Outlook share targets use the first line of shared text as the
-        // draft subject, so place the intended subject first.
-        const shareText=subject+'\n\n'+body;
-
-        await navigator.share({
-          files:[excelFile],
-          title:subject,
-          text:shareText
-        });
-        toast('Excel report ready in iPhone Share Sheet ✓');
-        closeDailyReport();
-        return;
-      }
-
-      toast('iPhone file sharing is not available on this device');
+      // Use the Outlook URL scheme directly. This bypasses the iOS Share Sheet.
+      window.location.href=outlookComposeUrl;
+      toast('Opening Outlook…');
+      closeDailyReport();
+      return;
     }catch(e){
       if(e && e.name==='AbortError') return;
       console.error('Daily report iOS share error:',e);
@@ -4695,7 +4676,7 @@ async function sendDailyVisitsReport(){
 
 // ===== Innoval App Update Checker =====
 // Web/PWA updater. Native Android uses the Android bridge for the actual APK installation.
-const APP_VERSION = "1.9.72";
+const APP_VERSION = "1.9.73";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 let innovalSwRegistration=null;
 
