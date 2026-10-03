@@ -4396,7 +4396,7 @@ function buildXlsxSheetXml(rows){
   let xml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
   xml+='<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">';
   xml+='<dimension ref="A1:'+lastRef+'"/>';
-  xml+='<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/><selection activeCell="A1" sqref="A1"/></sheetView></sheetViews>';
+  xml+='<sheetViews><sheetView workbookViewId="0"><selection activeCell="A1" sqref="A1"/><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>';
   xml+='<sheetFormatPr defaultRowHeight="18"/>';
   xml+='<cols>';
   for(let i=0;i<maxCols;i++)xml+='<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+(widths[i]||18)+'" customWidth="1"/>';
@@ -4619,32 +4619,11 @@ async function openDailyReport(){
 }
 function closeDailyReport(){$('dailyReportModal')?.classList.remove('open');unlockModalLayer()}
 function buildDailyReportExcel(fromStr,toStr){
-  const p=profile();
-  if(!fromStr||!toStr||fromStr>toStr)return null;
-  const list=visits()
-    .filter(v=>v.rep===p.rep&&v.date>=fromStr&&v.date<=toStr)
-    .sort((a,b)=>String(a.date).localeCompare(String(b.date))||Number(a.visitNo||999)-Number(b.visitNo||999));
+  const p=profile(); if(!fromStr||!toStr||fromStr>toStr)return null;
+  const list=visits().filter(v=>v.rep===p.rep&&v.date>=fromStr&&v.date<=toStr).sort((a,b)=>String(a.date).localeCompare(String(b.date))||Number(a.visitNo||999)-Number(b.visitNo||999));
   if(!list.length)return null;
-
-  // Use the exact HR-style SpreadsheetML structure already used by Export HR Excel.
-  // This avoids the mobile XLSX repair/blank-sheet issue.
-  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
-  const byMonth={};
-  list.forEach(v=>{const m=String(v.date).slice(0,7);(byMonth[m]??=[]).push(v)});
-
-  let sheets='';
-  Object.keys(byMonth).sort().forEach(key=>{
-    const idx=Math.max(0,Number(key.slice(5,7))-1);
-    const monthRows=byMonth[key];
-    sheets+='<Worksheet ss:Name="'+months[idx]+'"><Table ss:ExpandedColumnCount="21" ss:ExpandedRowCount="'+(monthRows.length+1)+'">'+hrSheetRows(monthRows)+'</Table></Worksheet>';
-  });
-
-  const wb='<?xml version="1.0"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Styles>'+
-    '<Style ss:ID="Header"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#063B91" ss:Pattern="Solid"/><Alignment ss:Horizontal="Center" ss:Vertical="Center" ss:WrapText="1"/></Style>'+
-    '<Style ss:ID="Body"><Alignment ss:Vertical="Top" ss:WrapText="1"/></Style></Styles>'+sheets+'</Workbook>';
-
-  const blob=new Blob([wb],{type:'application/vnd.ms-excel;charset=utf-8'});
-  return {blob,fileName:'2026_Field_Visit_Report_'+fromStr+'_to_'+toStr+'.xls',list};
+  const blob=buildXlsxBlob([{name:'Visits Report',rows:rowsFromVisits(list)}]);
+  return {blob,fileName:'Innoval_Daily_Visits_Report_'+fromStr+'_to_'+toStr+'.xlsx',list};
 }
 async function sendDailyVisitsReport(){
   if(dailyReportLoading)return;
@@ -4653,51 +4632,51 @@ async function sendDailyVisitsReport(){
   const fromStr=$('dailyReportFrom')?.value||today();
   const toStr=$('dailyReportTo')?.value||fromStr;
   if(!fromStr||!toStr||fromStr>toStr){toast('Please select a valid date range');return;}
-
   const report=buildDailyReportExcel(fromStr,toStr);
   if(!report){toast('No visits found in selected range');return;}
-
   const recipients=managers.map(x=>x.email).filter(Boolean);
   if(!recipients.length){toast('Selected managers do not have valid email addresses');return;}
-
   const periodLabel=fromStr===toStr?fromStr:(fromStr+' to '+toStr);
   const bodyPeriod=fromStr===toStr?('for '+fromStr):('for the period from '+fromStr+' to '+toStr);
   const subject='Innoval Daily Visits Report — '+periodLabel;
   const body='Dear Manager,\n\nPlease find attached the Innoval Daily Visits Report '+bodyPeriod+'.\n\nRegards,\n'+profile().rep;
-
   const reader=new FileReader();
-  reader.onloadend=()=>{
+  reader.onloadend=async()=>{
     const base64=String(reader.result||'').split(',')[1]||'';
     try{
-      // ANDROID — KEEP THE EXISTING NATIVE OUTLOOK FLOW 100% UNCHANGED
-      if(window.Android && typeof window.Android.openOutlookDailyReport==='function'){
-        window.Android.openOutlookDailyReport(
-          recipients.join(';'),
-          subject,
-          body,
-          report.fileName,
-          base64
-        );
-        toast('Outlook opened ✓');
+      // ANDROID: keep the existing native Outlook + real XLSX attachment bridge untouched.
+      if(window.Android && typeof window.Android.sendDailyVisitsReport==='function'){
+        window.Android.openOutlookDailyReport(recipients.join(';'),subject,body,report.fileName,base64);
+        toast('Daily report sent ✓');
         closeDailyReport();
         return;
       }
 
-      // iOS / PWA — DIRECTLY OPEN THE OUTLOOK COMPOSE WINDOW.
-      // IMPORTANT: the ms-outlook URL scheme can prefill To/Subject/Body,
-      // but Microsoft documents that it cannot carry a file attachment.
-      // The XLSX itself is still generated here and remains available for
-      // a future native/Graph attachment path without changing report data.
-      const outlookUrl='ms-outlook://compose'
-        +'?to='+encodeURIComponent(recipients.join(','))
-        +'&subject='+encodeURIComponent(subject)
-        +'&body='+encodeURIComponent(body);
+      // iOS TEST: hand the real XLSX file to the native iOS Share Sheet.
+      // Outlook can then be selected as the receiving app. We intentionally pass
+      // the actual File object so the spreadsheet remains a real .xlsx attachment.
+      const excelFile=new File(
+        [report.blob],
+        report.fileName,
+        {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
+      );
 
-      closeDailyReport();
-      window.location.href=outlookUrl;
+      if(navigator.share && (!navigator.canShare || navigator.canShare({files:[excelFile]}))){
+        await navigator.share({
+          files:[excelFile],
+          title:subject,
+          text:body
+        });
+        toast('Excel report ready in iPhone Share Sheet ✓');
+        closeDailyReport();
+        return;
+      }
+
+      toast('iPhone file sharing is not available on this device');
     }catch(e){
-      console.error('Daily report Outlook launch error:',e);
-      toast('Could not open Outlook');
+      if(e && e.name==='AbortError') return;
+      console.error('Daily report iOS share error:',e);
+      toast('Daily report could not be shared from iPhone');
     }
   };
   reader.readAsDataURL(report.blob);
@@ -4705,7 +4684,7 @@ async function sendDailyVisitsReport(){
 
 // ===== Innoval App Update Checker =====
 // Web/PWA updater. Native Android uses the Android bridge for the actual APK installation.
-const APP_VERSION = "1.9.71";
+const APP_VERSION = "1.9.70";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 let innovalSwRegistration=null;
 
