@@ -4662,25 +4662,21 @@ async function sendDailyVisitsReport(){
       );
 
       if(navigator.share && (!navigator.canShare || navigator.canShare({files:[excelFile]}))){
-        // iOS TEST v1.9.71: try to give Outlook as much compose context as
-        // the Web Share API allows, while still passing the real XLSX file.
-        // `url` is an Outlook compose URL containing To/Subject/Body.
-        // The Share Sheet may ignore it, but this is intentionally a TEST.
-        const outlookTo=encodeURIComponent(recipients.join(';'));
-        const outlookSubject=encodeURIComponent(subject);
-        const outlookBody=encodeURIComponent(body);
-        const outlookComposeUrl='ms-outlook://compose?to='+outlookTo+'&subject='+outlookSubject+'&body='+outlookBody;
-
-        // Some share targets (including Outlook variants) treat the first
-        // line of shared text as the mail subject, so place the intended
-        // subject first while retaining the complete body below it.
+        // iOS FIX v1.9.72: keep the proven file-share path. The previous
+        // v1.9.71 experiment added an ms-outlook:// URL to navigator.share().
+        // On this iPhone/iOS combination that caused the share request itself
+        // to fail before the Share Sheet opened. Web Share only guarantees
+        // text/title/url/files as share data; a custom Outlook compose URL is
+        // not a guaranteed share payload. We therefore remove the custom URL
+        // and keep the real XLSX attachment plus the intended subject/body.
+        // Some Outlook share targets use the first line of shared text as the
+        // draft subject, so place the intended subject first.
         const shareText=subject+'\n\n'+body;
 
         await navigator.share({
           files:[excelFile],
           title:subject,
-          text:shareText,
-          url:outlookComposeUrl
+          text:shareText
         });
         toast('Excel report ready in iPhone Share Sheet ✓');
         closeDailyReport();
@@ -4699,7 +4695,7 @@ async function sendDailyVisitsReport(){
 
 // ===== Innoval App Update Checker =====
 // Web/PWA updater. Native Android uses the Android bridge for the actual APK installation.
-const APP_VERSION = "1.9.70";
+const APP_VERSION = "1.9.72";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 let innovalSwRegistration=null;
 
