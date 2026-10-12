@@ -4056,6 +4056,15 @@ function openProfilePhotoPicker(){closeProfileModalPhotoActions();pickProfilePho
 function editProfilePhotoFromProfile(){closeProfileModalPhotoActions();editProfilePhoto()}
 function removeProfilePhotoFromProfile(){removeProfilePhotoInline();closeProfileModalPhotoActions()}
 function openSettings(){
+  // Reset modal close handler: customer/database views may override it for Back navigation.
+  const profileCloseButton=document.querySelector('#modal .modal-head .close');
+  if(profileCloseButton){
+    profileCloseButton.onclick=function(event){
+      event.preventDefault();
+      event.stopPropagation();
+      closeModal();
+    };
+  }
   const p=profile();
   const stored=(()=>{
     try{
