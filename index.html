@@ -1620,6 +1620,8 @@ img,svg,video,canvas{max-width:100%;height:auto}
 
     <div class="field full"><label>Assigned Area</label><div class="input"><span>⌖</span><select id="area" aria-label="Assigned Area"></select></div><small class="assigned-area-note">Field Force area is controlled by the official account. Admin can choose an area; leaving it on Choose Area shows all areas.</small></div>
     <div class="field full"><label>Visit Type *</label><div class="input"><span>◉</span><select id="visitType" required><option value="">Select Visit Type</option><option value="Planned">Planned</option><option value="Not Planned">Not Planned</option></select></div></div>
+    <div class="field full"><label>Visit Attendance</label><div class="input"><select id="visitAttendance" onchange="toggleJointVisit()"><option value="single">Single Visit — زيارة فردية</option><option value="joint">Double / Joint Visit — زيارة مشتركة</option></select></div></div>
+    <div class="field full" id="jointVisitMembers" style="display:none"><label>Select Innoval Colleagues</label><input id="jointVisitSearch" type="search" placeholder="Search colleague name..." oninput="filterJointColleagues()" style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px"><div id="jointVisitOptions" style="max-height:220px;overflow:auto;padding:8px"></div><small>Choose at least one colleague. Your own account is included automatically.</small></div>
     <div class="field full" id="plannedCustomerField" style="display:none"><label>Planned Customer *</label><div class="input"><span>▣</span><select id="plannedVisitCustomer"><option value="">Select customer from selected date's Weekly Plan</option></select></div><small class="assigned-area-note">Only customers planned for the selected visit date are shown.</small></div>
     <div class="field full" id="notPlannedModeField" style="display:none"><label>Not Planned Customer *</label><div class="input"><span>●</span><select id="notPlannedMode"><option value="Existing Customer">Existing Customer</option><option value="New Customer">New Customer</option></select></div></div>
     <div class="field full" id="existingCustomerField" style="display:none"><label>Existing Customer *</label><div class="input"><span>●</span><button id="customerPicker" class="customer-picker" type="button" onclick="openVisitCustomerPicker()">Select customer</button><input id="customer" type="hidden" value=""><datalist id="customerList"></datalist></div><small class="assigned-area-note">Only customers belonging to your assigned area are shown.</small></div>
@@ -1724,6 +1726,7 @@ img,svg,video,canvas{max-width:100%;height:auto}
     <button class="drawer-item" onclick="menuCustomerDatabase()"><span class="drawer-icon">▦</span><span>Area Database</span></button>
     <button class="drawer-item" onclick="menuAddCustomer()"><span class="drawer-icon">⊕</span><span>Add New Customer</span></button>
     <button class="drawer-item" onclick="menuDashboard()"><span class="drawer-icon">⌁</span><span>Dashboard</span></button>
+    <button class="drawer-item" onclick="menuMyDailyActivity()"><span class="drawer-icon">▣</span><span>My Daily Activity</span></button>
     <button class="drawer-item admin-only-item" id="adminDataCenterItem" style="display:none" onclick="menuAdminDataCenter()"><span class="drawer-icon">▦</span><span>Admin Data Center</span></button>
   </div>
 
@@ -3286,6 +3289,8 @@ $("visitForm").addEventListener("submit",async e=>{
   const p=profile();
   const d=visits();
   const visitDate=$("visitDate").value||today();
+  const jointMembers=readJointVisitMembers();
+  if($("visitAttendance")?.value==="joint" && !jointMembers.length){toast("Select at least one colleague for a joint visit");unlockSubmit();return;}
   const visitType=$("visitType")?.value||"";
   if(!visitType){toast("Please select Planned or Not Planned visit");return;}
 
@@ -3362,6 +3367,8 @@ $("visitForm").addEventListener("submit",async e=>{
     area:customer.area||AREA_NAME_BY_ID[customerAreaId]||customerAreaId||p.area,
     areaId:customerAreaId,
     visitType:visitType,
+    jointUserIds:jointMembers,
+    recordedAt:new Date().toISOString(),
     planId:plannedVisit?.id||"",
     potential:(["High","Medium","Low"].includes(String($("potential").value||"").trim()) ? String($("potential").value||"").trim() : "Medium"),
     loyalty:$("loyalty").value,
@@ -3383,8 +3390,10 @@ $("visitForm").addEventListener("submit",async e=>{
   // slow Cloud/FK issues from leaving the Save button active and causing duplicate visits.
   const savedVisit=d[0];
   saveVisits(d);
+  if(jointMembers.length) saveJointParticipants(savedVisit).catch(err=>console.warn("Joint visit membership pending:",err));
 
   e.target.reset();
+  toggleJointVisit();
   $("visitDate").value=today();
   $("todayLabel").textContent=visitDate;
   if($("plannedVisitCustomer"))$("plannedVisitCustomer").value="";
@@ -3419,6 +3428,7 @@ $("visitForm").addEventListener("submit",async e=>{
     }
     const info=$('successVisitInfo');
     if(cloudResult.ok){
+      if(savedVisit.jointUserIds?.length)await saveJointParticipants(savedVisit).catch(err=>console.warn("Joint visit participant sync pending:",err));
       if(info)info.textContent='Visit successfully added and synced to Cloud ✓';
     }else{
       console.warn('Visit saved locally; Cloud sync is pending:',cloudResult.error||'Unknown Cloud error.');
@@ -3851,7 +3861,7 @@ function openMenu(){
   $("drawerArea").textContent=p.area||"";
   const drafts=JSON.parse(localStorage.getItem("innovalDrafts")||"[]");
   $("draftCount").textContent=String(drafts.length);
-  const adminItem=$("adminDataCenterItem");if(adminItem)adminItem.style.display=isAdminUser()?"flex":"none";
+  const adminItem=$("adminDataCenterItem");if(adminItem)adminItem.style.display=isDataCenterAdmin()?"flex":"none";
   $("drawerOverlay").classList.add("open");
   $("appDrawer").classList.add("open");
   document.body.classList.add("drawer-open");
@@ -3925,11 +3935,11 @@ async function loadNotifications(){
 
 function adminDataCenterAreaOptions(){return '<option value="A00">All Areas</option>'+MASTER_DATA.areas.filter(a=>a.active&&a.id!=="A00").map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join("");}
 function openAdminDataCenter(tab){
-  if(!isAdminUser()){toast("Admin access required");return;}
-  tab=tab||"users"; const tabs=["users","areas","customers","products"];
+  if(!isDataCenterAdmin()){toast("Admin access required");return;}
+  tab=tab||"users"; const tabs=["users","areas","customers","products","monitoring"];
   $("modalTitle").textContent="Admin Data Center";
   $("modalBody").innerHTML='<div class="admin-data-summary" id="adminSummary"></div>'+
-    '<div class="admin-data-tabs">'+tabs.map(t=>'<button type="button" class="'+(t===tab?'active':'')+'" onclick="renderAdminDataCenter(\''+t+'\')">'+({users:"Users",areas:"Areas",customers:"Customers",products:"Products"}[t])+'</button>').join("")+'</div>'+
+    '<div class="admin-data-tabs">'+tabs.map(t=>'<button type="button" class="'+(t===tab?'active':'')+'" onclick="renderAdminDataCenter(\''+t+'\')">'+({users:"Users",areas:"Areas",customers:"Customers",products:"Products",monitoring:"Field Monitoring"}[t])+'</button>').join("")+'</div>'+
     '<div class="admin-data-filter"><div class="field"><label>Area</label><select id="adminAreaFilter">'+adminDataCenterAreaOptions()+'</select></div><div class="field"><label>Search</label><input id="adminDataSearch" placeholder="Search name / email / item"></div></div>'+
     '<div id="adminDataContent"></div>';
   $("adminAreaFilter").addEventListener("change",()=>renderAdminDataCenter(tab));
@@ -3937,7 +3947,7 @@ function openAdminDataCenter(tab){
   renderAdminDataCenter(tab); openModalLayer("modal"); setBottomActive("bnSettings");
 }
 function renderAdminDataCenter(tab){
-  if(!isAdminUser())return;
+  if(!isDataCenterAdmin())return;
   const area=$("adminAreaFilter")?.value||"A00", q=String($("adminDataSearch")?.value||"").trim().toLowerCase();
   const areaMatch=o=>area==="A00"||String(o.areaId||"")===area||(Array.isArray(o.areaIds)&&o.areaIds.includes(area));
   const users=MASTER_DATA.users.filter(areaMatch).filter(u=>!q||[u.name,u.email,u.role].some(x=>String(x||"").toLowerCase().includes(q)));
@@ -3950,6 +3960,7 @@ function renderAdminDataCenter(tab){
   if(tab==="areas")rows=areas.map(a=>'<div class="admin-data-row"><div><b>'+esc(a.name)+'</b><small>Area ID: '+esc(a.id)+' • Active: '+(a.active?"Yes":"No")+'</small></div><span class="admin-data-pill">'+esc(a.id)+'</span></div>');
   if(tab==="customers")rows=cs.map(c=>'<div class="admin-data-row"><div><b>'+esc(c.name)+'</b><small>'+esc(c.customerId||"New")+' • '+esc(c.gov||"—")+' • '+esc(c.area||AREA_NAME_BY_ID[c.areaId]||"—")+'</small></div><span class="admin-data-pill">'+esc(c.areaId||"—")+'</span></div>');
   if(tab==="products")rows=ps.map(p=>'<div class="admin-data-row"><div><b>'+esc(p.name)+'</b><small>'+esc(p.id)+' • '+esc(p.type)+' • '+esc(p.unit)+'</small></div><span class="admin-data-pill">'+(p.active?"Active":"Inactive")+'</span></div>');
+  if(tab==="monitoring"){renderFieldMonitor();return;}
   $("adminDataContent").innerHTML='<div class="admin-data-table">'+(rows.length?rows.join(""):'<div style="padding:30px;text-align:center;color:#71809a">No records found.</div>')+'</div>';
 }
 function openAppSettings(){
@@ -3962,7 +3973,7 @@ function openAppSettings(){
     '<div class="setting-action" onclick="closeModal();openSettings()"><span class="drawer-icon">●</span><div><b>Profile</b><small>Personal information and work details</small></div></div>'+
     '<div class="setting-action" onclick="closeModal();openPasswordSettings()"><span class="drawer-icon">🔒</span><div><b>Password</b><small>Change your account password</small></div></div>'+
     '<div class="home-layout-switch"><div><b>Home Layout</b><small>Use larger visual cards, icons and headlines for faster access.</small></div><button class="home-layout-toggle" type="button" onclick="toggleHomeLayout()">'+(localStorage.getItem('innovalHomeLayout')==='compact'?'Use Visual Layout':'Use Compact Layout')+'</button></div>'+
-    (isAdminUser()?'<div class="setting-action" onclick="closeModal();openAdminDataCenter()"><span class="drawer-icon">▦</span><div><b>Admin Data Center</b><small>Manage and review users, areas, customers and products across All Areas</small></div></div>':'')+
+    (isDataCenterAdmin()?'<div class="setting-action" onclick="closeModal();openAdminDataCenter()"><span class="drawer-icon">▦</span><div><b>Admin Data Center</b><small>Manage and review users, areas, customers and products across All Areas</small></div></div>':'')+
     '<div class="setting-action" onclick="closeModal();window.checkForUpdate()"><span class="drawer-icon">↻</span><div><b>Check for Update</b><small>Check the latest Innoval Field Visit version</small></div></div>'+
     '<button class="logout-btn" onclick="logout()">Log Out</button>';
   openModalLayer("modal");
@@ -4795,7 +4806,7 @@ async function sendDailyVisitsReport(){
 
 // ===== Innoval App Update Checker =====
 // Web/PWA updater. Native Android uses the Android bridge for the actual APK installation.
-const APP_VERSION = "1.9.69";
+const APP_VERSION = "1.9.72";
 const UPDATE_MANIFEST = "https://raw.githubusercontent.com/ebrahimemary3-beep/Innoval-Field-Visit-Updates/main/version.json";
 let innovalSwRegistration=null;
 
@@ -5618,7 +5629,7 @@ window.syncAndroidFcmToken = function(){
   // Add Admin Customer List control to Admin Data Center without replacing existing UI.
   const origAdminOpen=window.openAdminDataCenter;
   window.openAdminDataCenter=function(tab){origAdminOpen(tab);setTimeout(()=>{
-    if(!isAdminUser())return;const c=$('adminDataContent');if(!c||$('adminListControlBtn'))return;const b=document.createElement('button');b.id='adminListControlBtn';b.className='save';b.style.marginTop='10px';b.textContent='Manage Colleague Customer Lists';b.onclick=openAdminCustomerListControl;c.parentNode.appendChild(b);
+    if(!isDataCenterAdmin())return;const c=$('adminDataContent');if(!c||$('adminListControlBtn'))return;const b=document.createElement('button');b.id='adminListControlBtn';b.className='save';b.style.marginTop='10px';b.textContent='Manage Colleague Customer Lists';b.onclick=openAdminCustomerListControl;c.parentNode.appendChild(b);
   },50)};
   // Extend notification drawer with messages while preserving existing delete-request handling.
   const baseOpenNotifications=window.openNotifications;
@@ -8331,6 +8342,46 @@ window.syncAndroidFcmToken = function(){
     }
   };
 })();
+
+
+/* v1.9.72 - Daily Activity, Joint Visits and Admin-only Field Monitoring.
+   Requires SUPABASE-MIGRATION-v1.9.72.sql for cross-device reporting. */
+function isDataCenterAdmin(){const p=profile();return String(p.id||'').toUpperCase()==='U000' && String(p.email||'').toLowerCase()==='ibrahim.elemary@ift-online.com';}
+function monitoringUsers(){return MASTER_DATA.users.filter(u=>u.active!==false && String(u.id)!=='U000');}
+function toggleJointVisit(){const box=document.getElementById('jointVisitMembers');if(!box)return;box.style.display=document.getElementById('visitAttendance')?.value==='joint'?'block':'none';if(box.style.display==='block')filterJointColleagues();}
+function filterJointColleagues(){const p=profile();const q=(document.getElementById('jointVisitSearch')?.value||'').toLowerCase();const box=document.getElementById('jointVisitOptions');if(!box)return;const existing=[...box.querySelectorAll('input:checked')].map(x=>x.value);window._jointSelected=Array.from(new Set([...(window._jointSelected||[]),...existing]));box.innerHTML=monitoringUsers().filter(u=>u.id!==p.id&&String(u.name||'').toLowerCase().includes(q)).map(u=>'<label style="display:flex;gap:10px;padding:8px;align-items:center"><input type="checkbox" value="'+esc(u.id)+'" '+((window._jointSelected||[]).includes(u.id)?'checked':'')+' onchange="updateJointSelection(this)"><span>'+esc(u.name)+' <small>('+esc(u.id)+')</small></span></label>').join('')||'<small>No matching colleagues</small>';}
+function updateJointSelection(el){const list=new Set(window._jointSelected||[]);if(el.checked)list.add(el.value);else list.delete(el.value);window._jointSelected=[...list];}
+function readJointVisitMembers(){if(document.getElementById('visitAttendance')?.value!=='joint')return [];return (window._jointSelected||[]).filter(id=>id!==profile().id&&monitoringUsers().some(u=>u.id===id));}
+async function activityCloud(){const session=await cloudSession();if(!session||!innovalSupabase)throw Error('Please log in online to sync your activity.');return innovalSupabase;}
+function menuMyDailyActivity(){closeMenu();openMyDailyActivity();}
+function openMyDailyActivity(){
+ const p=profile();if(!p.id){toast('Please log in');return;}
+ $('modalTitle').textContent='My Daily Activity';
+ $('modalBody').innerHTML='<div style="padding:8px"><p>Record leave, meetings, training or other non-visit activities. For field visits, use Start New Visit.</p><div class="field"><label>Activity Date</label><input id="dayActivityDate" type="date" value="'+today()+'"></div><div class="field"><label>Activity Type</label><select id="dayActivityType" style="width:100%;padding:12px"><option value="leave">Leave — إجازة</option><option value="meeting">Meeting — اجتماع</option><option value="training">Training — تدريب</option><option value="seminar">Seminar / Event — سيمنار</option><option value="office">Office Work — عمل مكتبي</option><option value="travel">Business Travel — مأمورية</option><option value="other">Other — أخرى</option></select></div><div class="field"><label>Notes (optional)</label><textarea id="dayActivityNotes" rows="3" style="width:100%;padding:12px" maxlength="600"></textarea></div><button class="save" onclick="submitMyDailyActivity()">Save My Activity</button><div id="dayActivityMessage" style="margin-top:10px" role="status"></div></div>';
+}
+async function submitMyDailyActivity(){const p=profile(),date=$('dayActivityDate')?.value,type=$('dayActivityType')?.value,notes=$('dayActivityNotes')?.value||'',out=$('dayActivityMessage');if(!date||!type){toast('Select a date and activity');return;}if(date>today()){out.textContent='Future days cannot be submitted.';return;}out.textContent='Saving activity…';try{const c=await activityCloud();const r=await c.from('field_day_activities').upsert({user_id:p.id,activity_date:date,activity_type:type,notes},{onConflict:'user_id,activity_date,activity_type'}).select('id');if(r.error)throw r.error;out.textContent='✓ Activity saved and synced. Admin can see it in Field Monitoring.';}catch(e){out.textContent='Could not save activity: '+(e.message||e)+'. Apply the supplied SQL migration if needed.';}}
+async function saveJointParticipants(v){if(!v?.jointUserIds?.length)return;const c=await activityCloud();const r=await c.from('visit_participants').upsert(v.jointUserIds.map(userId=>({visit_id:v.id,participant_user_id:userId,created_by:profile().id})),{onConflict:'visit_id,participant_user_id'});if(r.error)throw r.error;}
+function monitorDayRange(){const end=$('monitorEnd')?.value||today(),start=$('monitorStart')?.value||today();return {start,end};}
+async function renderFieldMonitor(){
+ if(!isDataCenterAdmin())return;const root=$('adminDataContent');if(!root)return;
+ const now=today(),start=new Date(Date.now()-6*86400000).toISOString().slice(0,10);
+ root.innerHTML='<div style="padding:10px"><h3>Field Activity Monitoring</h3><p style="font-size:12px">Visit dates are based on the actual field date, not when data was entered. Joint visits count once for the company and once per participant.</p><div style="display:flex;gap:7px;flex-wrap:wrap"><label>From <input id="monitorStart" type="date" value="'+start+'"></label><label>To <input id="monitorEnd" type="date" value="'+now+'"></label><button onclick="loadFieldMonitor()">Refresh</button></div><div id="monitorResult" style="margin-top:12px">Loading...</div></div>';
+ await loadFieldMonitor();
+}
+async function loadFieldMonitor(){const out=$('monitorResult');if(!out||!isDataCenterAdmin())return;out.textContent='Loading cloud activity…';try{
+ const c=await activityCloud(),range=monitorDayRange();if(range.start>range.end)throw Error('From date must be before To date');
+ const [vr,ar,pr]=await Promise.all([c.from('visits').select('id,user_id,visit_date,customer_name,updated_at').gte('visit_date',range.start).lte('visit_date',range.end).limit(10000),c.from('field_day_activities').select('user_id,activity_date,activity_type,notes,created_at').gte('activity_date',range.start).lte('activity_date',range.end).limit(10000),c.from('visit_participants').select('visit_id,participant_user_id').limit(10000)]);
+ for(const r of [vr,ar,pr])if(r.error)throw r.error;
+ const participants=new Map();(pr.data||[]).forEach(x=>{if(!participants.has(x.visit_id))participants.set(x.visit_id,[]);participants.get(x.visit_id).push(x.participant_user_id);});
+ const map={};function entry(user,date){return(map[user+'|'+date]??={n:0,shared:0,activities:[],visits:[]});}
+ (vr.data||[]).forEach(v=>{entry(v.user_id,v.visit_date).n++;entry(v.user_id,v.visit_date).visits.push(v);(participants.get(v.id)||[]).filter(id=>id!==v.user_id).forEach(id=>{entry(id,v.visit_date).shared++;});});
+ (ar.data||[]).forEach(a=>entry(a.user_id,a.activity_date).activities.push(a.activity_type));
+ const dates=[];for(let d=new Date(range.start+'T12:00:00Z'),i=0;d<=new Date(range.end+'T12:00:00Z')&&i<62;d.setUTCDate(d.getUTCDate()+1),i++)dates.push(d.toISOString().slice(0,10));
+ const us=monitoringUsers(),adminArea=$('adminAreaFilter')?.value||'A00';const filtered=us.filter(u=>adminArea==='A00'||(u.areaIds||[]).includes(adminArea));const activeDates=dates.filter(d=>{const day=new Date(d+'T12:00:00Z').getUTCDay();return day!==5&&day!==6&&d<=today();});let done=0,missing=0;
+ const headings=dates.map(d=>'<th style="font-size:10px;padding:5px">'+d.slice(5)+'</th>').join('');const rows=filtered.map(u=>'<tr><td style="position:sticky;left:0;background:white;min-width:130px;padding:5px"><b>'+esc(u.name)+'</b><br><small>'+esc(u.id)+'</small></td>'+dates.map(d=>{const x=map[u.id+'|'+d]||{n:0,shared:0,activities:[]};const weekend=[5,6].includes(new Date(d+'T12:00:00Z').getUTCDay()),future=d>today();let symbol='—',color='#64748b';if(x.n||x.shared){symbol='✓'+(x.n+x.shared);color='#087f5b';done++;}else if(x.activities.length){symbol=x.activities.map(y=>y.slice(0,3)).join(',');color='#1364aa';done++;}else if(!weekend&&!future){symbol='✕';color='#b42318';missing++;}return '<td title="'+esc(d+' | '+u.name+' | Own visits: '+x.n+' | Joint: '+x.shared+' | Activity: '+x.activities.join(', '))+'" style="text-align:center;padding:5px;color:'+color+';font-weight:bold;border-bottom:1px solid #e2e8f0">'+symbol+'</td>';}).join('')+'</tr>').join('');
+ out.innerHTML='<p><b>'+filtered.length+'</b> colleagues · <b>'+done+'</b> recorded user-days · <b>'+missing+'</b> missing user-days</p><div style="overflow:auto;max-height:400px"><table style="border-collapse:collapse"><thead><tr><th style="position:sticky;left:0;background:white">Colleague</th>'+headings+'</tr></thead><tbody>'+rows+'</tbody></table></div><small>✓ = visits (including joint); ✕ = no recorded activity; blue = self-reported leave / meeting / training / other. Friday and Saturday are excluded from missing-day counts. Outlook email delivery is NOT verified by this dashboard.</small>';
+ }catch(e){out.textContent='Cannot load cloud tracking: '+(e.message||e)+'. Run SUPABASE-MIGRATION-v1.9.72.sql and verify permissions.';}}
+
 </script>
 
 </body></html>
