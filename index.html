@@ -462,6 +462,20 @@ html,body{min-height:100%;background:var(--bg)}
 .customer-success-summary{display:grid;grid-template-columns:1fr;gap:9px;text-align:left;margin:0 0 17px}.customer-success-summary>div{background:#f6f9fc;border:1px solid #e5ebf2;border-radius:14px;padding:10px 11px}.customer-success-summary span{display:block;font-size:9px;color:#7a8798;margin-bottom:4px}.customer-success-summary b{display:block;font-size:11px;color:#18365f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .customer-success-primary{width:100%;border:0;border-radius:14px;padding:12px 9px;font-weight:700;font-size:11px;background:linear-gradient(110deg,#063b91,#0876df);color:#fff}
 @media(max-width:520px){.customer-success-card{padding:25px 17px 18px}}
+
+/* v1.9.78 consolidated navigation and dashboard refinements */
+.innoval-action-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.innoval-action-grid button:nth-child(3){grid-column:1/-1;min-height:92px!important}
+#bnReport i{font-style:normal;font-size:22px}
+#bnReport span{font-size:10px}
+.monitor-page-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:5px 9px 10px}
+.monitor-page-toolbar button{background:#eaf2fd;color:#0c4f9d;border:1px solid #d3e3f9;border-radius:11px;padding:10px 14px;font-weight:800}
+.monitor-page-toolbar button:last-child{font-size:17px}
+.modal:has(.monitor-dashboard) .modal-head{position:relative;z-index:3;padding-top:12px}
+.monitor-heading{padding-top:8px}
+.dashboard-role-intro{font-size:12px;color:#60728c;padding:7px 0 10px}
+#dayActivityDuration:disabled{background:#ecf3fa!important;color:#274d76!important;opacity:1}
+
 </style>
 <style id="v140-professional-overrides">
 /* ===== v1.4.0 Enterprise Home ===== */
@@ -1552,7 +1566,6 @@ function openDailyActivityChooser(){
       <button type="button" onclick="openDailyActivityChooser()"><span class="quick-icon qi-blue">▣</span><b>Daily Activity</b><small>New Visit or Mission</small></button>
       <button type="button" onclick="openWeeklyPlan()"><span class="quick-icon qi-purple">▦</span><b>Weekly Plan</b><small>Plan by date</small></button>
       <button type="button" onclick="openVisits()"><span class="quick-icon qi-orange">◷</span><b>Visit History</b><small>Recorded visits</small></button>
-      <button type="button" onclick="openCustomerCards()"><span class="quick-icon qi-green">♙</span><b>Customers</b><small>Customer list</small></button>
     </div></section>
   <section class="home-command-card customers-card">
     <div class="command-head">
@@ -1575,11 +1588,6 @@ function openDailyActivityChooser(){
   <button type="button" class="home-command-wide export-command" onclick="openExport()">
     <div class="wide-command-icon">⇩</div>
     <div><h3>Export Visit History</h3><p>Export selected visit records to the official HR-style Excel report.</p></div>
-    <span class="wide-command-arrow">›</span>
-  </button>
-  <button type="button" class="home-command-wide daily-report-command" onclick="openDailyReport()">
-    <div class="wide-command-icon">📧</div>
-    <div><h3>Send Visits Report</h3><p>Select one or more managers and prepare a visit report for the selected period.</p></div>
     <span class="wide-command-arrow">›</span>
   </button>
 
@@ -1692,7 +1700,7 @@ function openDailyActivityChooser(){
 </form></section></main></div>
 <nav class="bottom" id="bottomNav" style="grid-template-columns:repeat(4,1fr)">
 <button id="bnMenu" onclick="openMenu()"><i>☰</i><span>Menu</span></button> <button id="bnHome" onclick="menuHome()"><i>⌂</i><span>Home</span></button>
-<button id="bnSettings" onclick="openAppSettings()"><i>⚙</i><span>Settings</span></button>
+<button id="bnReport" onclick="openDailyReport()"><i>✉</i><span>Send Report</span></button>
 <button id="bnProfile" onclick="openSettings()"><i class="bottom-profile-avatar" id="bottomProfileAvatar"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20c.7-4 3.2-6 7-6s6.3 2 7 6"></path></svg></i><span>Profile</span></button>
 </nav>
 <div class="toast" id="toast"></div>
@@ -1736,6 +1744,7 @@ function openDailyActivityChooser(){
 
   <div class="drawer-section">
     <div class="drawer-section-label">WORKSPACE</div>
+    <button class="drawer-item" onclick="closeMenu();openAppSettings()"><span class="drawer-icon">⚙</span><span>Settings</span></button>
     <button class="drawer-item" onclick="menuDrafts()"><span class="drawer-icon">▤</span><span>Drafts</span><em id="draftCount">0</em></button>
     <button class="drawer-item" id="teamMessagesItem" onclick="menuTeamMessages()"><span class="drawer-icon">✉</span><span id="teamMessagesLabel">Messages</span><em id="teamMessagesCount" class="hidden">0</em></button>
   </div>
@@ -3422,7 +3431,7 @@ $("visitForm").addEventListener("submit",async e=>{
 function update(){const p=profile(),d=visits().filter(x=>x.rep===p.rep),t=today(),m=t.slice(0,7),todayCount=d.filter(x=>x.date===t).length,monthCount=d.filter(x=>x.date.startsWith(m)).length,followup=d.filter(x=>x.nextDate&&x.nextDate>=t&&x.nextDate<=addDaysISO(t,7)).length;$("today").textContent=todayCount;$("month").textContent=monthCount;$("high").textContent=d.filter(x=>x.potential==="High").length;$("ach").textContent=d.length?Math.min(100,Math.round(monthCount/30*100))+"%":"0%";$("heroToday")&&( $("heroToday").textContent=todayCount);$("heroMonth")&&($("heroMonth").textContent=monthCount);$("heroFollowup")&&($("heroFollowup").textContent=followup)}
 function addDaysISO(iso,n){const d=new Date(iso+"T00:00:00");d.setDate(d.getDate()+n);return isoDate(d)}
 
-function setBottomActive(id){["bnHome","bnMenu","bnSettings","bnProfile"].forEach(x=>$(x)?.classList.remove("active"));$(id)?.classList.add("active")}
+function setBottomActive(id){["bnHome","bnMenu","bnSettings","bnReport","bnProfile"].forEach(x=>$(x)?.classList.remove("active"));$(id)?.classList.add("active")}
 function applyHomeLayout(){const el=$("homeScreen");if(!el)return;const focus=localStorage.getItem("innovalHomeLayout")!=="compact";el.classList.toggle("home-layout-focus",focus);return focus}
 function toggleHomeLayout(){const compact=localStorage.getItem("innovalHomeLayout")==="compact";localStorage.setItem("innovalHomeLayout",compact?"focus":"compact");applyHomeLayout();openAppSettings();toast((compact?"Visual Focus":"Compact")+" home layout selected ✓")}
 function showHome(){
@@ -3444,9 +3453,11 @@ function showVisitPage(){
 }
 function openDashboard(){
   const p=profile(),d=visits().filter(x=>x.rep===p.rep),cs=customerListData();
-  $("modalTitle").textContent="Dashboard";
+  const rawRole=String(p.role||p.title||'').toLowerCase();
+  const roleTitle=String(p.id||'').toUpperCase()==='U000'?'Admin Dashboard':/territory/.test(rawRole)?'Territory Dashboard':/technical manager/.test(rawRole)?'Technical Dashboard':/national|executive/.test(rawRole)?'Management Dashboard':'My Performance Dashboard';
+  $("modalTitle").textContent=roleTitle;
   $("modalBody").innerHTML=
-    '<div class="dashboard-filter"><div class="field"><label>Dashboard Date</label><div class="input"><span>▣</span><input id="dashboardDate" type="date"></div></div></div>'+
+    '<div class="dashboard-role-intro">Activity overview · your permitted visit records</div><div class="dashboard-filter"><div class="field"><label>Dashboard Date</label><div class="input"><span>▣</span><input id="dashboardDate" type="date"></div></div></div>'+
     '<div id="dashboardContent"></div>';
   $("dashboardDate").value=today();
   $("dashboardDate").addEventListener("change",renderDashboardDate);
@@ -3864,7 +3875,7 @@ function menuAdminDataCenter(){closeMenu();openAdminDataCenter("users")}
 function menuFieldMonitoring(){
  closeMenu();if(!isDataCenterAdmin()){toast('Admin access required');return;}
  $('modalTitle').textContent='Field Monitoring';
- $('modalBody').innerHTML='<div id="adminDataContent"></div>';
+ $('modalBody').innerHTML='<div class="monitor-page-toolbar"><button type="button" onclick="closeModal();showHome()" aria-label="Back to Home">← Back</button><button type="button" onclick="closeModal();showHome()" aria-label="Close Field Monitoring">✕</button></div><div id="adminDataContent"></div>';
  openModalLayer('modal');setBottomActive('bnMenu');
  renderFieldMonitor();
 }
@@ -8346,11 +8357,13 @@ function menuMyDailyActivity(){closeMenu();openMyDailyActivity();}
 function openMyDailyActivity(){
  const p=profile();if(!p.id){toast('Please log in');return;}
  $('modalTitle').textContent='Mission';
- $('modalBody').innerHTML='<div style="padding:8px"><p>Record leave, meetings, training or other non-visit activities. Full-day missions prevent new visits on the same date.</p><div class="field"><label>Activity Date</label><input id="dayActivityDate" type="date" value="'+today()+'"></div><div class="field"><label>Activity Type</label><select id="dayActivityType" style="width:100%;padding:12px"><option value="leave">Leave — إجازة</option><option value="meeting">Meeting — اجتماع</option><option value="training">Training — تدريب</option><option value="seminar">Seminar / Event — سيمنار</option><option value="office">Office Work — عمل مكتبي</option><option value="travel">Business Travel — مأمورية</option><option value="other">Other — أخرى</option></select></div><div class="field"><label>Mission Duration</label><select id="dayActivityDuration"><option value="full">Full Day — يوم كامل</option><option value="half">Half Day — نصف يوم</option></select><small>Full Day blocks visits on this date. Half Day allows field visits.</small></div><div class="field"><label>Notes (optional)</label><textarea id="dayActivityNotes" rows="3" style="width:100%;padding:12px" maxlength="600"></textarea></div><button class="save" onclick="submitMyDailyActivity()">Save My Activity</button><div id="dayActivityMessage" style="margin-top:10px" role="status"></div><button type="button" class="daily-activity-back" onclick="closeModal()">← Back to previous screen</button></div>';
+ $('modalBody').innerHTML='<div style="padding:8px"><p>Record leave, meetings, training or other non-visit activities. Full-day missions prevent new visits on the same date.</p><div class="field"><label>Activity Date</label><input id="dayActivityDate" type="date" value="'+today()+'"></div><div class="field"><label>Activity Type</label><select id="dayActivityType" onchange="syncMissionDuration()" style="width:100%;padding:12px"><option value="leave">Leave — إجازة</option><option value="meeting">Meeting — اجتماع</option><option value="training">Training — تدريب</option><option value="seminar">Seminar / Event — سيمنار</option><option value="office">Office Work — عمل مكتبي</option><option value="travel">Business Travel — مأمورية</option></select></div><div class="field"><label>Mission Duration</label><select id="dayActivityDuration"><option value="full">Full Day — يوم كامل</option><option value="half">Half Day — نصف يوم</option></select><small>Full Day blocks visits on this date. Half Day allows field visits.</small></div><div class="field"><label>Notes (optional)</label><textarea id="dayActivityNotes" rows="3" style="width:100%;padding:12px" maxlength="600"></textarea></div><button class="save" onclick="submitMyDailyActivity()">Save My Activity</button><div id="dayActivityMessage" style="margin-top:10px" role="status"></div><button type="button" class="daily-activity-back" onclick="closeModal()">← Back to previous screen</button></div>';
  openModalLayer('modal');
+ syncMissionDuration();
  setBottomActive('bnMenu');
 }
-async function submitMyDailyActivity(){const p=profile(),date=$('dayActivityDate')?.value,type=$('dayActivityType')?.value,notes=$('dayActivityNotes')?.value||'',out=$('dayActivityMessage');if(!date||!type){toast('Select a date and activity');return;}if(date>today()){out.textContent='Future days cannot be submitted.';return;}out.textContent='Saving activity…';try{const c=await activityCloud();const r=await c.from('field_day_activities').upsert({user_id:p.id,activity_date:date,activity_type:type,notes,duration:$('dayActivityDuration')?.value||'full'},{onConflict:'user_id,activity_date,activity_type'}).select('id');if(r.error)throw r.error;out.textContent='✓ Activity saved and synced. Admin can see it in Field Monitoring.';}catch(e){out.textContent='Could not save activity: '+(e.message||e)+'. Apply the supplied SQL migration if needed.';}}
+function syncMissionDuration(){const type=$('dayActivityType')?.value, duration=$('dayActivityDuration');if(!duration)return;if(type==='leave'){duration.value='full';duration.disabled=true;}else{duration.disabled=false;}}
+async function submitMyDailyActivity(){const p=profile(),date=$('dayActivityDate')?.value,type=$('dayActivityType')?.value,notes=$('dayActivityNotes')?.value||'',out=$('dayActivityMessage');if(!date||!type){toast('Select a date and activity');return;}if(date>today()){out.textContent='Future days cannot be submitted.';return;}if(type==='leave'&&$('dayActivityDuration'))$('dayActivityDuration').value='full';out.textContent='Saving activity…';try{const c=await activityCloud();const r=await c.from('field_day_activities').upsert({user_id:p.id,activity_date:date,activity_type:type,notes,duration:$('dayActivityDuration')?.value||'full'},{onConflict:'user_id,activity_date,activity_type'}).select('id');if(r.error)throw r.error;out.textContent='✓ Activity saved and synced. Admin can see it in Field Monitoring.';}catch(e){out.textContent='Could not save activity: '+(e.message||e)+'. Apply the supplied SQL migration if needed.';}}
 async function saveJointParticipants(v){if(!v?.jointUserIds?.length)return;const c=await activityCloud();const r=await c.from('visit_participants').upsert(v.jointUserIds.map(userId=>({visit_id:v.id,participant_user_id:userId,created_by:profile().id})),{onConflict:'visit_id,participant_user_id'});if(r.error)throw r.error;}
 function monitorDayRange(){const end=$('monitorEnd')?.value||today(),start=$('monitorStart')?.value||today();return {start,end};}
 async function renderFieldMonitor(){
