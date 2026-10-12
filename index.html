@@ -6101,7 +6101,7 @@ window.syncAndroidFcmToken = function(){
 
 <script id="v10-first-login-and-voice-fix">
 (function(){
-  const INITIAL_PASSWORD="1234";
+  const INITIAL_PASSWORD="12345678";
   let forcedFirstLogin=false;
   let firstLoginBusy=false;
 
@@ -8114,6 +8114,80 @@ window.syncAndroidFcmToken = function(){
   if (document.body) mo.observe(document.body, {childList:true, subtree:true});
   setTimeout(install, 500);
   setTimeout(install, 1500);
+})();
+</script>
+
+
+<script id="innoval-admin-password-reset-ui">
+/* Temporary Admin control. No privileged secrets are included in this page.
+   Server must validate the Supabase access token and Admin role. */
+(function(){
+  const FUNCTION_URL=INNOVAL_SUPABASE_URL+'/functions/v1/innoval-password-reset-admin';
+  let lastPreview=false;
+  const oldOpenSettings=window.openSettings;
+  if(typeof oldOpenSettings!=='function')return;
+  window.openSettings=function(){
+    oldOpenSettings.apply(this,arguments);
+    if(!isAdminUser())return;
+    const root=document.getElementById('modalBody');
+    if(!root||document.getElementById('adminPasswordResetEntry'))return;
+    const button=document.createElement('button');
+    button.id='adminPasswordResetEntry';
+    button.type='button';
+    button.className='setting-action';
+    button.style.cssText='width:100%;margin-top:14px;text-align:left;border-color:#f2d3d3;background:#fff9f9';
+    button.textContent='🔐 Initial Password Reset — Admin Only';
+    button.onclick=()=>window.openInnovalPasswordResetPanel();
+    root.appendChild(button);
+  };
+  function renderPanel(message){
+    const root=document.getElementById('modalBody');
+    if(!root)return;
+    document.getElementById('modalTitle').textContent='Admin — Initial Password Reset';
+    root.innerHTML='<div style="padding:13px;border:1px solid #e0e8f2;border-radius:14px;background:#f7faff">'+
+      '<b>Temporary account recovery</b><p style="font-size:12px;line-height:1.5">Preview first, test U003 (Hossam), then reset 23 linked active accounts only after testing login and personal password change. The unlinked account is excluded.</p>'+
+      '<p style="font-size:11px;color:#b83c30">Shared temporary passwords create an account takeover risk until each colleague changes theirs. Close this function after completion.</p></div>'+
+      '<div style="display:grid;gap:8px;margin-top:14px">'+
+      '<button class="save" type="button" onclick="innovalResetAction(&quot;preview&quot;)">1 — Preview accounts (no changes)</button>'+
+      '<button class="secondary-btn" type="button" onclick="innovalResetAction(&quot;test&quot;)">2 — Test Hossam (U003) only</button>'+
+      '<button class="secondary-btn" type="button" style="color:#b42318;border-color:#f1b8b8" onclick="innovalResetAction(&quot;all&quot;)">3 — Reset all 23 accounts</button></div>'+
+      '<pre id="innovalResetOutput" style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;background:#f4f7fc;padding:12px;border-radius:12px;margin-top:12px">'+(message||'Select Preview.')+'</pre>';
+  }
+  window.openInnovalPasswordResetPanel=function(){
+    if(!isAdminUser())return;
+    lastPreview=false;renderPanel();
+  };
+  window.innovalResetAction=async function(mode){
+    if(!isAdminUser())return;
+    if(mode==='test'&&!lastPreview){alert('Run Preview first.');return;}
+    if(mode==='all'){
+      if(!lastPreview){alert('Run Preview first.');return;}
+      const answer=prompt('High risk: reset every linked account, including Admin. Type RESET ALL 23 to proceed:');
+      if(answer!=='RESET ALL 23')return;
+      if(!confirm('Have you tested Hossam login AND personal password change? Confirm production reset.'))return;
+    }
+    const output=document.getElementById('innovalResetOutput');
+    if(output)output.textContent='Contacting Supabase…';
+    try{
+      const client=await ensureSupabaseClient();
+      const {data:sessionData,error:sessionError}=await client.auth.getSession();
+      if(sessionError||!sessionData?.session?.access_token)throw new Error('Sign in to Innoval as Admin again.');
+      const {data:userData,error:userError}=await client.auth.getUser();
+      if(userError||!userData?.user)throw new Error('Invalid Supabase session. Please sign in again.');
+      const response=await fetch(FUNCTION_URL,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','apikey':INNOVAL_SUPABASE_PUBLISHABLE_KEY,
+          'Authorization':'Bearer '+sessionData.session.access_token},
+        body:JSON.stringify(mode==='all'?{mode,confirm:'RESET ALL 23'}:{mode})
+      });
+      const result=await response.json();
+      if(!response.ok)throw new Error(result.error||result.message||'HTTP '+response.status);
+      if(mode==='preview')lastPreview=result.count===23;
+      if(output)output.textContent=JSON.stringify(result,null,2);
+    }catch(error){
+      if(output)output.textContent='Error: '+(error?.message||error);
+    }
+  };
 })();
 </script>
 
