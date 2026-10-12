@@ -6150,10 +6150,16 @@ window.syncAndroidFcmToken = function(){
         localStorage.setItem("innovalEmployeesFinal",JSON.stringify(list));
         localStorage.setItem("innovalPasswordUpdatedAt_"+String(emp.id||emp.userId||email),new Date().toISOString());
       }
-      // Best-effort clear of the server-side onboarding flag. The app does not
-      // depend on this write: a non-temporary password is itself enough to
-      // prevent the first-login gate on later devices.
-      try{await innovalSupabase.from("app_users").update({must_change_password:false}).eq("auth_user_id",session.user.id);}catch(e){console.warn("Could not clear must_change_password flag:",e?.message||e)}
+      // The server-side onboarding flag must be cleared after the password changes.
+      const {data:cleared,error:clearError}=await innovalSupabase.from("app_users")
+        .update({must_change_password:false})
+        .eq("auth_user_id",session.user.id)
+        .select("user_id,must_change_password");
+      if(clearError || !Array.isArray(cleared) || cleared.length!==1 || cleared[0].must_change_password!==false){
+        console.warn("Password updated but onboarding flag could not be cleared:",clearError?.message||"No updated row");
+        showErr("Password updated in Supabase, but account setup could not be completed. Contact Admin before retrying.");
+        return;
+      }
       forcedFirstLogin=false;
       closeModal();
       showPasswordUpdateSuccess();
@@ -6208,6 +6214,41 @@ window.syncAndroidFcmToken = function(){
       }
     }catch(e){}
   },1900);
+
+  // Honor the authoritative cloud flag, including for accounts previously changed.
+  let cloudGateBusy=false;
+  async function checkMandatoryPasswordChange(){
+    if(cloudGateBusy||forcedFirstLogin||innovalRecoveryMode||!isLoggedIn())return;
+    cloudGateBusy=true;
+    try{
+      await ensureSupabaseClient();
+      if(!innovalSupabase)return;
+      const {data:auth}=await innovalSupabase.auth.getSession();
+      const userId=auth?.session?.user?.id;
+      if(!userId)return;
+      const {data:record,error}=await innovalSupabase.from("app_users")
+        .select("must_change_password").eq("auth_user_id",userId).maybeSingle();
+      if(error){console.warn("Password onboarding check:",error.message);return;}
+      if(record?.must_change_password===true && !forcedFirstLogin)showFirstLoginPasswordModal();
+    }catch(e){console.warn("Password onboarding check failed:",e?.message||e);}
+    finally{cloudGateBusy=false;}
+  }
+  document.getElementById("loginForm")?.addEventListener("submit",()=>{
+    setTimeout(checkMandatoryPasswordChange,1800);
+    setTimeout(checkMandatoryPasswordChange,4000);
+  });
+  setTimeout(checkMandatoryPasswordChange,2200);
+  document.addEventListener("visibilitychange",()=>{
+    if(!document.hidden)setTimeout(checkMandatoryPasswordChange,300);
+  });
+  // Do not allow the first-login modal to be dismissed before onboarding ends.
+  const priorCloseModal=window.closeModal;
+  if(typeof priorCloseModal==="function"){
+    window.closeModal=function(){
+      if(forcedFirstLogin)return;
+      return priorCloseModal.apply(this,arguments);
+    };
+  }
 
   // Microphone reliability: request the browser/WebView audio permission first,
   // recreate SpeechRecognition when a previous instance is stuck, and avoid
