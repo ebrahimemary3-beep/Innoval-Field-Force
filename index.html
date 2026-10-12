@@ -1432,13 +1432,15 @@ img,svg,video,canvas{max-width:100%;height:auto}
 })();
 </script>
 <style>
+/* v1.9.75: Daily Activity modal routing and improved brand proportions */
+.daily-activity-back{display:block;width:100%;margin-top:12px;padding:13px;background:#edf4ff;border:1px solid #cfddf5;border-radius:12px;color:#074b9f;font-weight:700;text-align:center}
 /* v1.9.74: legible, balanced corporate header */
 .hamb{display:none!important}
 .top-left{display:flex;align-items:center;min-width:0;flex:1}
-.brand-pair{display:flex;align-items:center;gap:19px;min-width:0;max-width:100%}
-.brand-innoval{display:block!important;width:143px!important;height:52px!important;max-width:48vw!important;object-fit:contain!important;flex:none!important}
+.brand-pair{display:flex;align-items:center;gap:14px;min-width:0;max-width:100%}
+.brand-innoval{display:block!important;width:155px!important;height:56px!important;max-width:49vw!important;object-fit:contain!important;flex:none!important}
 .brand-ift{display:block!important;width:46px!important;height:46px!important;object-fit:contain!important;flex:none!important;border-radius:50%}
-@media(max-width:420px){.brand-pair{gap:12px!important}.brand-innoval{width:127px!important;height:48px!important}.brand-ift{width:42px!important;height:42px!important}}
+@media(max-width:420px){.brand-pair{gap:10px!important}.brand-innoval{width:138px!important;height:52px!important}.brand-ift{width:44px!important;height:44px!important}}
 
 .admin-data-tabs{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px}
 .admin-data-tabs button{min-width:0;white-space:normal;overflow-wrap:anywhere;font-size:12px;transition:background .16s,color .16s}
@@ -8379,7 +8381,9 @@ function menuMyDailyActivity(){closeMenu();openMyDailyActivity();}
 function openMyDailyActivity(){
  const p=profile();if(!p.id){toast('Please log in');return;}
  $('modalTitle').textContent='My Daily Activity';
- $('modalBody').innerHTML='<div style="padding:8px"><p>Record leave, meetings, training or other non-visit activities. For field visits, use Start New Visit.</p><div class="field"><label>Activity Date</label><input id="dayActivityDate" type="date" value="'+today()+'"></div><div class="field"><label>Activity Type</label><select id="dayActivityType" style="width:100%;padding:12px"><option value="leave">Leave — إجازة</option><option value="meeting">Meeting — اجتماع</option><option value="training">Training — تدريب</option><option value="seminar">Seminar / Event — سيمنار</option><option value="office">Office Work — عمل مكتبي</option><option value="travel">Business Travel — مأمورية</option><option value="other">Other — أخرى</option></select></div><div class="field"><label>Notes (optional)</label><textarea id="dayActivityNotes" rows="3" style="width:100%;padding:12px" maxlength="600"></textarea></div><button class="save" onclick="submitMyDailyActivity()">Save My Activity</button><div id="dayActivityMessage" style="margin-top:10px" role="status"></div></div>';
+ $('modalBody').innerHTML='<div style="padding:8px"><p>Record leave, meetings, training or other non-visit activities. For field visits, use Start New Visit.</p><div class="field"><label>Activity Date</label><input id="dayActivityDate" type="date" value="'+today()+'"></div><div class="field"><label>Activity Type</label><select id="dayActivityType" style="width:100%;padding:12px"><option value="leave">Leave — إجازة</option><option value="meeting">Meeting — اجتماع</option><option value="training">Training — تدريب</option><option value="seminar">Seminar / Event — سيمنار</option><option value="office">Office Work — عمل مكتبي</option><option value="travel">Business Travel — مأمورية</option><option value="other">Other — أخرى</option></select></div><div class="field"><label>Notes (optional)</label><textarea id="dayActivityNotes" rows="3" style="width:100%;padding:12px" maxlength="600"></textarea></div><button class="save" onclick="submitMyDailyActivity()">Save My Activity</button><div id="dayActivityMessage" style="margin-top:10px" role="status"></div><button type="button" class="daily-activity-back" onclick="closeModal()">← Back to previous screen</button></div>';
+ openModalLayer('modal');
+ setBottomActive('bnMenu');
 }
 async function submitMyDailyActivity(){const p=profile(),date=$('dayActivityDate')?.value,type=$('dayActivityType')?.value,notes=$('dayActivityNotes')?.value||'',out=$('dayActivityMessage');if(!date||!type){toast('Select a date and activity');return;}if(date>today()){out.textContent='Future days cannot be submitted.';return;}out.textContent='Saving activity…';try{const c=await activityCloud();const r=await c.from('field_day_activities').upsert({user_id:p.id,activity_date:date,activity_type:type,notes},{onConflict:'user_id,activity_date,activity_type'}).select('id');if(r.error)throw r.error;out.textContent='✓ Activity saved and synced. Admin can see it in Field Monitoring.';}catch(e){out.textContent='Could not save activity: '+(e.message||e)+'. Apply the supplied SQL migration if needed.';}}
 async function saveJointParticipants(v){if(!v?.jointUserIds?.length)return;const c=await activityCloud();const r=await c.from('visit_participants').upsert(v.jointUserIds.map(userId=>({visit_id:v.id,participant_user_id:userId,created_by:profile().id})),{onConflict:'visit_id,participant_user_id'});if(r.error)throw r.error;}
