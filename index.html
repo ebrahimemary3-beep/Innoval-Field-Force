@@ -1840,7 +1840,7 @@ function openDailyActivityChooser(){
     <div class="recovery-field"><label>Confirm New Password</label><input id="recoveryPasswordConfirm" type="password" autocomplete="new-password" placeholder="Confirm new password"></div>
     <button class="recovery-btn" id="recoverySubmitBtn" type="button" onclick="submitPasswordRecovery()">Update Password</button>
     <div class="recovery-error" id="recoveryError"></div>
-    <div class="recovery-note">Use at least 6 characters. A stronger password is recommended.</div>
+    <div class="recovery-note">Use at least 8 characters, including letters and numbers. Only reset your password using a link sent to your official email.</div>
   </div>
 </div>
 <div class="modal" id="modal" onclick="if(event.target===this)closeModal()"><div class="modal-box"><div class="modal-head"><h3 id="modalTitle">My Visits</h3><button class="close" onclick="closeModal()">✕</button></div><div id="modalBody"></div></div></div><div class="modal" id="exportModal" onclick="if(event.target===this)closeExport()"><div class="modal-box"><div class="modal-head"><h3>Export Visit History</h3><button class="close" onclick="closeExport()">✕</button></div><p class="settings-note">Export visits in the selected date range using the HR-style monthly report structure.</p><div class="export-grid"><div class="field"><label>From</label><input id="exportFrom" class="date-input" type="date" onchange="updateExportCount()"></div><div class="field"><label>To</label><input id="exportTo" class="date-input" type="date" onchange="updateExportCount()"></div></div><div class="quick-title">Quick Range</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:7px"><button class="close" onclick="setExportRange('week')">This Week</button><button class="close" onclick="setExportRange('lastweek')">Last Week</button><button class="close" onclick="setExportRange('month')">This Month</button></div><div class="export-count" id="exportCount">Select a date range</div><div class="export-actions"><button class="save" type="button" onclick="exportHRExcel()">📊 &nbsp; Export &amp; Download Excel</button></div><p class="settings-note" style="margin-top:10px">The Excel file will download automatically to your device after export.</p></div></div>
@@ -1916,48 +1916,48 @@ function installAuthRecoveryHandler(){
   });
 }
 function recoveryRedirectUrl(){
-  // Always use a Supabase-approved web origin. When the HTML is opened locally
-  // (file://), window.location.origin is "null" and cannot be used safely as a
-  // recovery redirect. The deployed GitHub Pages URL is the canonical app URL.
-  const deployed="https://ebrahimemary3-beep.github.io/Innoval-Field-Force/";
-  try{
-    const origin=String(window.location.origin||"");
-    if(origin && origin!=="null" && /^https?:$/i.test(window.location.protocol)){
-      return origin + window.location.pathname;
-    }
-  }catch(e){}
-  return deployed;
+  // An allowlisted HTTPS URL. The screen parameter is navigation only:
+  // the recovery form opens exclusively after a Supabase PASSWORD_RECOVERY event.
+  return "https://ebrahimemary3-beep.github.io/Innoval-Field-Force/?screen=reset-password";
 }
 async function submitPasswordRecovery(){
   const p1=String(document.getElementById("recoveryPassword")?.value||"");
   const p2=String(document.getElementById("recoveryPasswordConfirm")?.value||"");
   const err=document.getElementById("recoveryError"), btn=document.getElementById("recoverySubmitBtn");
   const showErr=msg=>{if(err){err.textContent=msg;err.style.display="block";}};
-  if(p1.length<6){showErr("New password must be at least 6 characters.");return;}
+  if(p1.length<8){showErr("New password must be at least 8 characters.");return;}
   if(p1!==p2){showErr("New passwords do not match.");return;}
   if(!innovalSupabase){showErr("Cloud authentication is not ready. Please try again.");return;}
   if(btn){btn.disabled=true;btn.textContent="Updating…";}
   try{
     const {data,error}=await innovalSupabase.auth.updateUser({password:p1});
     if(error)throw error;
-    const email=String(data?.user?.email||"").trim().toLowerCase();
-    if(email){
-      try{
-        const list=employeeList();
-        const emp=list.find(x=>String(x.email||"").trim().toLowerCase()===email);
-        if(emp){
-          emp.password=p1;
-          localStorage.setItem("innovalEmployeesFinal",JSON.stringify(list));
-          localStorage.setItem("innovalPasswordUpdatedAt_"+String(emp.id||emp.userId||email),new Date().toISOString());
+    // Never save a plaintext password in localStorage or the employee directory.
+    // The cloud password is authoritative. Refresh first-login state, but a
+    // blocked RLS update must never be incorrectly shown as a failed password change.
+    let onboardingWarning="";
+    try{
+      const authId=data?.user?.id;
+      if(authId){
+        const result=await innovalSupabase.from("app_users")
+          .update({must_change_password:false})
+          .eq("auth_user_id",authId)
+          .select("user_id,must_change_password");
+        if(result.error || !result.data?.length){
+          onboardingWarning=" If the app requests another password setup, contact your admin to complete account onboarding.";
+          console.warn("Account onboarding status could not be cleared:", result.error?.message||"No updated row");
         }
-      }catch(e){}
+      }
+    }catch(e){
+      onboardingWarning=" If the app requests another password setup, contact your admin to complete account onboarding.";
+      console.warn("Onboarding status update unavailable:",e?.message||e);
     }
     closePasswordRecoveryModal();
     innovalRecoveryMode=false;
     try{await innovalSupabase.auth.signOut();}catch(e){}
     showAppLoginScreen();
     const loginErr=document.getElementById("loginError");
-    if(loginErr){loginErr.textContent="Password updated successfully. Please sign in with your new password.";loginErr.style.display="block";loginErr.style.background="#eaf9f3";loginErr.style.color="#15966e";loginErr.style.borderColor="#cdeee1";}
+    if(loginErr){loginErr.textContent="Password updated successfully. Please sign in with your new password."+onboardingWarning;loginErr.style.display="block";loginErr.style.background="#eaf9f3";loginErr.style.color="#15966e";loginErr.style.borderColor="#cdeee1";}
   }catch(e){
     console.warn("Password recovery update failed:",e?.message||e);
     showErr(e?.message||"Password could not be updated. Please request a new reset link.");
@@ -2812,54 +2812,30 @@ function findEmployeeByEmail(email){
 }
 async function forgotPassword(){
   const email=String($("loginEmail")?.value||"").trim().toLowerCase();
-  const u=findEmployeeByEmail(email);
   const errEl=$("loginError");
-  if(!u){
-    if(errEl){errEl.textContent="Please enter your official Outlook email first. If your email is not registered in Innoval, contact the admin.";errEl.style.display="block";}
+  if(!/^[^\s@]+@ift-online\.com$/i.test(email)){
+    if(errEl){errEl.textContent="Enter your official @ift-online.com email first.";errEl.style.display="block";}
     return;
   }
-  if(errEl)errEl.style.display="none";
+  const btn=document.querySelector(".forgot-link");
+  if(btn)btn.disabled=true;
   try{
-    await ensureSupabaseClient();
-    const redirectTo=recoveryRedirectUrl();
-    // Use the Auth REST endpoint directly for the recovery email. This avoids
-    // an SDK request hanging indefinitely on some WebView/network stacks and
-    // gives us an explicit abort timeout plus the real HTTP error if Supabase
-    // responds with one.
-    const controller=new AbortController();
-    const timer=setTimeout(()=>controller.abort(),30000);
-    let response;
-    try{
-      response=await fetch(INNOVAL_SUPABASE_URL+"/auth/v1/recover",{
-        method:"POST",
-        headers:{"Content-Type":"application/json","apikey":INNOVAL_SUPABASE_PUBLISHABLE_KEY},
-        body:JSON.stringify({email,redirect_to:redirectTo}),
-        signal:controller.signal
-      });
-    }catch(fetchErr){
-      if(fetchErr?.name==="AbortError") throw new Error("Password reset request timed out after 30 seconds. Please check your internet connection and try again.");
-      throw fetchErr;
-    }finally{ clearTimeout(timer); }
-    const raw=await response.text();
-    let data={};
-    try{data=raw?JSON.parse(raw):{};}catch(e){}
-    if(!response.ok){
-      const detail=data?.msg||data?.message||data?.error_description||data?.error||("Password reset request failed (HTTP "+response.status+").");
-      throw new Error(String(detail));
-    }
+    const client=await ensureSupabaseClient();
+    const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:recoveryRedirectUrl()});
+    if(error)throw error;
     if(errEl){
-      errEl.textContent="Password reset link sent to your official Outlook email. Open the link to set a new password.";
+      errEl.textContent="If this official email is registered, a password recovery link will be sent. Check your Outlook inbox and junk folder.";
       errEl.style.display="block";
       errEl.style.background="#eaf9f3";errEl.style.color="#15966e";errEl.style.borderColor="#cdeee1";
     }
   }catch(e){
-    console.warn("Password reset request failed:",e?.message||e);
+    console.warn("Password recovery email request failed:",e?.message||e);
     if(errEl){
-      errEl.textContent=e?.message||"Could not send the password reset email. Please try again.";
+      errEl.textContent="Could not request a reset link. Please try again shortly or contact your admin.";
       errEl.style.display="block";
       errEl.style.background="#fff1f0";errEl.style.color="var(--red)";errEl.style.borderColor="#ffd4d0";
     }
-  }
+  }finally{if(btn)btn.disabled=false;}
 }
 function hideStartupSplash(){
   const s=$("startupSplash");
