@@ -1432,13 +1432,14 @@ img,svg,video,canvas{max-width:100%;height:auto}
 })();
 </script>
 <style>
-/* v1.9.73: clean navigation and corporate header */
+/* v1.9.74: legible, balanced corporate header */
 .hamb{display:none!important}
 .top-left{display:flex;align-items:center;min-width:0;flex:1}
-.brand-pair{display:flex;align-items:center;gap:10px;min-width:0;max-width:100%}
-.brand-innoval{height:43px;width:auto;max-width:155px;object-fit:contain;flex-shrink:1}
-.brand-ift{height:39px;width:39px;object-fit:contain;flex-shrink:0;border-radius:50%}
-@media(max-width:420px){.brand-innoval{height:37px;max-width:140px}.brand-ift{height:35px;width:35px}.brand-pair{gap:7px}}
+.brand-pair{display:flex;align-items:center;gap:19px;min-width:0;max-width:100%}
+.brand-innoval{display:block!important;width:143px!important;height:52px!important;max-width:48vw!important;object-fit:contain!important;flex:none!important}
+.brand-ift{display:block!important;width:46px!important;height:46px!important;object-fit:contain!important;flex:none!important;border-radius:50%}
+@media(max-width:420px){.brand-pair{gap:12px!important}.brand-innoval{width:127px!important;height:48px!important}.brand-ift{width:42px!important;height:42px!important}}
+
 .admin-data-tabs{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px}
 .admin-data-tabs button{min-width:0;white-space:normal;overflow-wrap:anywhere;font-size:12px;transition:background .16s,color .16s}
 .admin-data-tabs button.active{background:#0956b7!important;color:#fff!important;border-color:#0956b7!important;box-shadow:0 2px 6px rgba(7,93,204,.18)}
@@ -1530,7 +1531,7 @@ img,svg,video,canvas{max-width:100%;height:auto}
   </div>
 </div>
 <div id="appShell">
-<header class="top"><div class="top-left"><div class="brand-pair" aria-label="Innoval and IFT"><img class="brand-innoval" src="innoval-logo-white.png" alt="Innoval"><img class="brand-ift" src="ift-logo.png" alt="IFT Corporation"></div>></div><button class="top-notification" id="notificationBtn" type="button" onclick="openNotifications()" aria-label="Notifications"><span class="notification-bell">🔔</span><span class="notification-badge hidden" id="notificationBadge">0</span></button></header>
+<header class="top"><div class="top-left"><div class="brand-pair" aria-label="Innoval and IFT"><img class="brand-innoval" src="innoval-logo-white.png" alt="Innoval"><img class="brand-ift" src="ift-logo.png" alt="IFT Corporation"></div></div><button class="top-notification" id="notificationBtn" type="button" onclick="openNotifications()" aria-label="Notifications"><span class="notification-bell">🔔</span><span class="notification-badge hidden" id="notificationBadge">0</span></button></header>
 <section class="home-screen" id="homeScreen">
   <div class="home-hero">
     <div class="hero-life-art" aria-hidden="true"><svg viewBox="0 0 360 170"><g opacity=".17" fill="none" stroke="#fff" stroke-width="2"><circle cx="260" cy="80" r="55"/><circle cx="260" cy="80" r="42"/><path d="M260 25v25M260 110v25M205 80h25M290 80h25M221 41l18 18M281 101l18 18M299 41l-18 18M239 101l-18 18"/><circle cx="260" cy="80" r="8"/></g><g opacity=".18" fill="#fff"><circle cx="90" cy="112" r="24"/><circle cx="125" cy="122" r="18"/><circle cx="150" cy="107" r="12"/></g><g opacity=".2" stroke="#fff" fill="none"><path d="M38 142c16-31 38-40 63-40 24 0 47 9 62 40"/><path d="M74 98c-9-18 2-30 15-23 7-18 25-9 23 7 14-4 21 12 10 21-14 9-32 7-48-5z"/></g></svg></div><div class="home-brand-mark" aria-hidden="true">
@@ -8386,7 +8387,7 @@ function monitorDayRange(){const end=$('monitorEnd')?.value||today(),start=$('mo
 async function renderFieldMonitor(){
  if(!isDataCenterAdmin())return;const root=$('adminDataContent');if(!root)return;
  const now=today(),start=new Date(Date.now()-6*86400000).toISOString().slice(0,10);
- root.innerHTML='<div style="padding:10px"><h3>Field Activity Monitoring</h3><p style="font-size:12px">Visit dates are based on the actual field date, not when data was entered. Joint visits count once for the company and once per participant.</p><div style="display:flex;gap:7px;flex-wrap:wrap"><label>From <input id="monitorStart" type="date" value="'+start+'"></label><label>To <input id="monitorEnd" type="date" value="'+now+'"></label><button onclick="loadFieldMonitor()">Refresh</button></div><div id="monitorResult" style="margin-top:12px">Loading...</div></div>';
+ root.innerHTML='<div style="padding:10px"><h3>Field Activity Monitoring</h3><p style="font-size:12px">Visit dates are based on the actual field date, not when data was entered. Joint visits count once for the company and once per participant.</p><div style="display:flex;gap:7px;flex-wrap:wrap"><label>From <input id="monitorStart" type="date" value="'+start+'"></label><label>To <input id="monitorEnd" type="date" value="'+now+'"></label><label>Area <select id="monitorArea" onchange="loadFieldMonitor()" style="display:block;padding:10px 9px;border:1px solid #cfdbee;border-radius:10px;background:#fff;min-width:160px"><option value="all">All Areas</option>'+MASTER_DATA.areas.filter(a=>a.id!=='A00').map(a=>'<option value="'+esc(a.id)+'">'+esc(a.id+' — '+a.name)+'</option>').join('')+'<option value="A00">A00 — National Management</option></select></label><button onclick="loadFieldMonitor()">Refresh</button></div><div id="monitorResult" style="margin-top:12px">Loading...</div></div>';
  await loadFieldMonitor();
 }
 async function loadFieldMonitor(){const out=$('monitorResult');if(!out||!isDataCenterAdmin())return;out.textContent='Loading cloud activity…';try{
@@ -8398,7 +8399,7 @@ async function loadFieldMonitor(){const out=$('monitorResult');if(!out||!isDataC
  (vr.data||[]).forEach(v=>{entry(v.user_id,v.visit_date).n++;entry(v.user_id,v.visit_date).visits.push(v);(participants.get(v.id)||[]).filter(id=>id!==v.user_id).forEach(id=>{entry(id,v.visit_date).shared++;});});
  (ar.data||[]).forEach(a=>entry(a.user_id,a.activity_date).activities.push(a.activity_type));
  const dates=[];for(let d=new Date(range.start+'T12:00:00Z'),i=0;d<=new Date(range.end+'T12:00:00Z')&&i<62;d.setUTCDate(d.getUTCDate()+1),i++)dates.push(d.toISOString().slice(0,10));
- const us=monitoringUsers(),adminArea=$('adminAreaFilter')?.value||'A00';const filtered=us.filter(u=>adminArea==='A00'||(u.areaIds||[]).includes(adminArea));const activeDates=dates.filter(d=>{const day=new Date(d+'T12:00:00Z').getUTCDay();return day!==5&&day!==6&&d<=today();});let done=0,missing=0;
+ const us=monitoringUsers(),selectedArea=$('monitorArea')?.value||'all';const filtered=us.filter(u=>selectedArea==='all'||(u.areaIds||[]).includes(selectedArea));const activeDates=dates.filter(d=>{const day=new Date(d+'T12:00:00Z').getUTCDay();return day!==5&&day!==6&&d<=today();});let done=0,missing=0;
  const headings=dates.map(d=>'<th style="font-size:10px;padding:5px">'+d.slice(5)+'</th>').join('');const rows=filtered.map(u=>'<tr><td style="position:sticky;left:0;background:white;min-width:130px;padding:5px"><b>'+esc(u.name)+'</b><br><small>'+esc(u.id)+'</small></td>'+dates.map(d=>{const x=map[u.id+'|'+d]||{n:0,shared:0,activities:[]};const weekend=[5,6].includes(new Date(d+'T12:00:00Z').getUTCDay()),future=d>today();let symbol='—',color='#64748b';if(x.n||x.shared){symbol='✓'+(x.n+x.shared);color='#087f5b';done++;}else if(x.activities.length){symbol=x.activities.map(y=>y.slice(0,3)).join(',');color='#1364aa';done++;}else if(!weekend&&!future){symbol='✕';color='#b42318';missing++;}return '<td title="'+esc(d+' | '+u.name+' | Own visits: '+x.n+' | Joint: '+x.shared+' | Activity: '+x.activities.join(', '))+'" style="text-align:center;padding:5px;color:'+color+';font-weight:bold;border-bottom:1px solid #e2e8f0">'+symbol+'</td>';}).join('')+'</tr>').join('');
  out.innerHTML='<p><b>'+filtered.length+'</b> colleagues · <b>'+done+'</b> recorded user-days · <b>'+missing+'</b> missing user-days</p><div style="overflow:auto;max-height:400px"><table style="border-collapse:collapse"><thead><tr><th style="position:sticky;left:0;background:white">Colleague</th>'+headings+'</tr></thead><tbody>'+rows+'</tbody></table></div><small>✓ = visits (including joint); ✕ = no recorded activity; blue = self-reported leave / meeting / training / other. Friday and Saturday are excluded from missing-day counts. Outlook email delivery is NOT verified by this dashboard.</small>';
  }catch(e){out.textContent='Cannot load cloud tracking: '+(e.message||e)+'. Run SUPABASE-MIGRATION-v1.9.72.sql and verify permissions.';}}
