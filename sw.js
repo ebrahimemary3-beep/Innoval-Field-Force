@@ -1,4 +1,5 @@
-const CACHE = 'innoval-field-visit-v1.9.31';
+
+const CACHE = 'innoval-field-visit-shell-v1.9.69';
 
 const SHELL = [
   './',
@@ -8,6 +9,16 @@ const SHELL = [
   './icon-192.png',
   './icon-512.png'
 ];
+
+const APP_ORIGIN = self.location.origin;
+const APP_SCOPE = new URL('./', self.location.href).pathname;
+
+function isAppShell(url) {
+  if (url.origin !== APP_ORIGIN) return false;
+  return SHELL.some(path =>
+    new URL(path, self.registration.scope).href === url.href
+  );
+}
 
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -19,33 +30,53 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys()
-      .then(keys =>
-        Promise.all(
-          keys
-            .filter(key => key !== CACHE)
-            .map(key => caches.delete(key))
-        )
+    caches.keys().then(keys =>
+      Promise.all(
+        keys
+          .filter(key =>
+            key.startsWith('innoval-field-visit-') &&
+            key !== CACHE
+          )
+          .map(key => caches.delete(key))
       )
-      .then(() => self.clients.claim())
+    ).then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
+  const request = event.request;
+  const url = new URL(request.url);
 
+  if (request.method !== 'GET') return;
+
+  // Never intercept external APIs or Supabase requests.
+  if (url.origin !== APP_ORIGIN) return;
+
+  // Do not cache requests outside this application.
+  if (!url.pathname.startsWith(APP_SCOPE)) return;
+
+  // Only manage the application's static shell.
+  if (!isAppShell(url)) return;
+
+  // Network-first with offline fallback.
   event.respondWith(
-    fetch(event.request)
+    fetch(request)
       .then(response => {
-        const copy = response.clone();
-
-        caches.open(CACHE).then(cache => {
-          cache.put(event.request, copy);
-        });
-
+        if (response.ok && response.type === 'basic') {
+          const copy = response.clone();
+          event.waitUntil(
+            caches.open(CACHE).then(cache =>
+              cache.put(request, copy)
+            )
+          );
+        }
         return response;
       })
-      .catch(() => caches.match(event.request))
+      .catch(async () => {
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        throw new Error('Offline resource unavailable');
+      })
   );
 });
 
@@ -58,7 +89,9 @@ self.addEventListener('push', event => {
   } catch (e) {
     data = {
       title: 'Innoval Field Visit',
-      body: event.data ? event.data.text() : 'New update available.'
+      body: event.data
+        ? event.data.text()
+        : 'New update available.'
     };
   }
 
@@ -95,7 +128,6 @@ self.addEventListener('notificationclick', event => {
       type: 'window',
       includeUncontrolled: true
     }).then(windowClients => {
-
       for (const client of windowClients) {
         if ('focus' in client) {
           client.navigate(targetUrl);
