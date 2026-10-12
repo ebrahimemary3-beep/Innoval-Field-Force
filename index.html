@@ -1387,6 +1387,50 @@ img,svg,video,canvas{max-width:100%;height:auto}
 .daily-report-note{margin-top:10px;color:#73839a;font-size:10px;line-height:1.55}
 @media(max-width:600px){.daily-report-actions{grid-template-columns:1fr}.manager-list{max-height:42vh}}
 </style>
+<style id="innoval-unified-ui-2026-10-12">
+.weekly-choice-stack{display:grid;gap:10px}.weekly-choice{width:100%;min-height:72px;padding:13px 14px;border-radius:14px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:5px;text-align:left;cursor:pointer;border:1px solid transparent}.weekly-choice b{font-size:14px}.weekly-choice small{font-size:10px;opacity:.86}.weekly-choice-blue{background:#0b62c5;color:#fff;border-color:#0552a9}.weekly-choice-green{background:#e9f9f3;color:#087653;border-color:#a3dec9}.weekly-choice:hover{filter:brightness(.98)}#plannedCustomerBlock[hidden],#productCheckList[hidden]{display:none!important}.product-check-toggle{width:100%;min-height:50px;border:1px solid #d9e3f0;background:#fff;border-radius:12px;padding:12px;color:#15345e;font-weight:800;display:flex;justify-content:space-between;align-items:center}.product-check-list{max-height:260px;overflow:auto;border:1px solid #d9e3f0;border-radius:13px;background:#fff;margin-top:8px;padding:5px}.product-check-item{display:flex!important;align-items:center;gap:12px;padding:10px;border-radius:9px;font-size:12px;cursor:pointer;margin:0}.product-check-item:hover{background:#f0f7ff}.product-check-item input{width:19px!important;height:19px!important;min-height:19px!important;accent-color:#0b66d1;margin:0;flex:0 0 19px}.product-check-item span{flex:1}
+</style>
+<style id="product-picker-layout-fix">
+/* Product picker — reset generic .input span absolute positioning (caused overlaps) */
+.product-picker-wrap{display:block;position:relative}
+.product-picker-wrap .product-check-toggle{padding:12px 15px!important;text-align:left;font-size:14px;line-height:1.5}
+.product-picker-wrap .product-check-toggle>span{position:static!important;left:auto!important;top:auto!important;transform:none!important;display:inline-block!important;font-size:17px!important;color:#0b66d1!important;flex:0 0 auto}
+.product-check-list{max-height:none!important;padding:0!important;overflow:hidden!important;box-shadow:0 9px 22px rgba(16,42,91,.07)}
+.product-search-wrap{padding:10px;border-bottom:1px solid #e8edf4}
+.product-search-wrap input{width:100%;min-height:41px!important;box-sizing:border-box;padding:9px 12px!important;border:1px solid #dbe4f1;border-radius:10px;font-size:13px}
+.product-check-items{max-height:265px;overflow:auto;overscroll-behavior:contain;padding:5px 8px}
+.product-check-item{position:relative;display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;padding:11px 9px!important;margin:0!important;min-height:45px;border-radius:10px;border-bottom:1px solid #f1f4f8;line-height:1.4;font-weight:600;color:#243b60}
+.product-check-item:last-child{border-bottom:0}
+.product-check-item input[type=checkbox]{position:static!important;appearance:auto!important;-webkit-appearance:checkbox!important;opacity:1!important;flex:0 0 20px!important;width:20px!important;height:20px!important;min-height:20px!important;margin:0!important;padding:0!important;accent-color:#0b66d1}
+.product-check-item span{position:static!important;display:block!important;left:auto!important;top:auto!important;transform:none!important;width:auto!important;color:#243b60!important;font-size:12px!important;line-height:1.5!important;flex:1!important;overflow-wrap:anywhere}
+.product-check-item:has(input:checked){background:#eef6ff}
+.product-picker-bottom{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:#f5f9fe;border-top:1px solid #e5edf6;font-size:11px;color:#62758e}
+.product-picker-bottom span{position:static!important;transform:none!important;color:#62758e!important;font-size:11px!important}
+.product-picker-bottom button{border:0;border-radius:8px;background:#0b66d1;color:white;padding:8px 16px;font-size:11px;font-weight:800}
+.product-check-item[hidden]{display:none!important}
+</style>
+<!-- OneSignal Web Push v16 — independent worker scope; preserves existing sw.js -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script id="innoval-onesignal-web-v16">
+(function(){
+  if(location.protocol!=="https:" || location.hostname!=="ebrahimemary3-beep.github.io") return;
+  window.OneSignalDeferred=window.OneSignalDeferred||[];
+  window.OneSignalDeferred.push(async function(OneSignal){
+    try{
+      await OneSignal.init({
+        appId:"7408c94e-c274-4238-b82b-16df0b84c8c3",
+        serviceWorkerPath:"/Innoval-Field-Force/OneSignalSDKWorker.js",
+        serviceWorkerParam:{scope:"/Innoval-Field-Force/onesignal/"},
+        notifyButton:{enable:true}
+      });
+      window.innovalOneSignal=OneSignal;
+      console.info("Innoval OneSignal Web Push initialized");
+    }catch(error){
+      console.warn("Innoval OneSignal initialization:",error?.message||error);
+    }
+  });
+})();
+</script>
 </head>
 <body>
 <div class="startup-splash" id="startupSplash">
@@ -1586,7 +1630,7 @@ img,svg,video,canvas{max-width:100%;height:auto}
 <div class="visit-section vs-teal">
   <div class="visit-section-head"><div class="section-art art-person">♙</div><div><span>STEP 02</span><h3>Customer Profile</h3><p>Define who you met and the customer profile.</p></div></div>
   <div class="section-grid">
-    <div class="field"><label>Customer Type *</label><div class="input"><span>♟</span><select id="type" required><option value="">Select Type</option><option>Veterinarian</option><option>Pharmacist</option><option>Farm Owner</option><option>Farm Manager</option><option>Accountant / محاسب</option><option>Engineering Office</option><option>Distributor</option><option>Other</option></select></div></div>
+    <div class="field"><label>Customer Type *</label><div class="input"><span>♟</span><select id="type" required><option value="">Select Type</option><option>صاحب مزرعة</option><option>طبيب بيطري</option><option>مشرف</option><option>مدير مزرعة</option><option>مهندس زراعي</option><option>فني مزرعة</option><option>مربي دواجن</option><option>موزع</option><option>محاسب</option><option disabled>──────── Previous Categories ────────</option><option>Veterinarian</option><option>Pharmacist</option><option>Farm Owner</option><option>Farm Manager</option><option>Accountant / محاسب</option><option>Engineering Office</option><option>Distributor</option><option>Other</option></select></div></div>
     <div class="field"><label>Potentiality</label><div class="input"><span>↗</span><select id="potential"><option value="">Select Potentiality</option></select></div></div>
     <div class="field"><label>Loyalty</label><div class="input"><span>♥</span><select id="loyalty"><option value="">Select Loyalty</option></select></div></div>
     <div class="field"><label>Met Person</label><div class="input"><span>●</span><input id="meted" placeholder="Name"></div></div>
@@ -1606,9 +1650,14 @@ img,svg,video,canvas{max-width:100%;height:auto}
   <div class="section-grid">
     <div class="field full" id="productPickerField" style="display:none">
       <label>Products Promoted *</label>
-      <div class="input">
-        <span>□</span>
-        <select id="products" class="product-multi" multiple size="5" aria-label="Select promoted products"></select>
+      <div class="input product-picker-wrap">
+        <select id="products" class="product-multi" multiple size="5" aria-label="Select promoted products" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none"></select>
+        <button type="button" class="product-check-toggle" onclick="toggleProductCheckList()" aria-controls="productCheckList" aria-expanded="false">Select Products <span>⌄</span></button>
+        <div id="productCheckList" class="product-check-list" hidden>
+          <div class="product-search-wrap"><input id="productQuickSearch" type="search" placeholder="Search products..." aria-label="Search products" oninput="filterProductCheckList()"></div>
+          <div id="productCheckItems" class="product-check-items"></div>
+          <div class="product-picker-bottom"><span id="productSelectedCount">0 selected</span><button type="button" onclick="toggleProductCheckList()">Done ✓</button></div>
+        </div>
       </div>
       <small class="product-hint">Select one or more products. Maximum 3 products are exported to the HR template.</small>
     </div>
@@ -2688,9 +2737,9 @@ function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&l
 function opts(id,arr,first){$(id).innerHTML='<option value="">'+(first||"Select...")+'</option>'+arr.map(x=>'<option>'+esc(x)+'</option>').join('')}
 
 function productNames(){
-  return MASTER_DATA.products
-    .filter(p=>p.active)
-    .map(p=>p.name);
+  return [...new Set(MASTER_DATA.products.filter(p=>p.active).map(p=>
+    /innovax\s+nd[-+ ]?ibd/i.test(p.name)?'Innovax ND-IBD':
+    /innovax.*ilt/i.test(p.name)?'Innovax - ILT':p.name))];
 }
 function isProductPromotionObjective(value){
   return /promotion/i.test(String(value||""));
@@ -2715,6 +2764,27 @@ function syncProductPicker(){
     }
   }
 }
+function toggleProductCheckList(){
+  const el=$("productCheckList"),btn=document.querySelector('.product-check-toggle');if(!el)return;
+  el.hidden=!el.hidden;if(btn)btn.setAttribute('aria-expanded',String(!el.hidden));
+}
+function drawProductCheckList(){
+ const el=$("productCheckList"),sel=$("products");if(!el||!sel)return;
+ const items=$("productCheckItems");
+ if(!items)return;
+ const existingSearch=String($("productQuickSearch")?.value||"").trim().toLocaleLowerCase();
+ items.innerHTML=Array.from(sel.options).map((o,i)=>'<label class="product-check-item" '+(existingSearch && !o.textContent.toLocaleLowerCase().includes(existingSearch)?'hidden':'')+'><input type="checkbox" data-product-index="'+i+'" '+(o.selected?'checked':'')+' onchange="checkPromotionProduct(this)"><span>'+esc(o.textContent)+'</span></label>').join('');
+ const btn=document.querySelector('.product-check-toggle');const count=selectedProducts().length;
+ if(btn)btn.innerHTML=(count?count+' product'+(count>1?'s':'')+' selected':'Select Products')+' <span>⌄</span>';
+ const counter=$("productSelectedCount");if(counter)counter.textContent=count+' selected';
+}
+function filterProductCheckList(){
+ const q=String($("productQuickSearch")?.value||"").trim().toLocaleLowerCase();
+ document.querySelectorAll('#productCheckItems .product-check-item').forEach(row=>{
+  row.hidden=!!q&&!String(row.textContent||'').toLocaleLowerCase().includes(q);
+ });
+}
+function checkPromotionProduct(box){const sel=$("products");if(!sel)return;const o=sel.options[Number(box.dataset.productIndex)];if(o)o.selected=box.checked;drawProductCheckList()}
 function fillProductPicker(){
   const el=$("products");
   if(!el) return;
@@ -2727,6 +2797,7 @@ function fillProductPicker(){
     if(opt) opt.selected=true;
   });
   syncProductPicker();
+  drawProductCheckList();
 }
 function findEmployeeByEmail(email){
   const key=String(email||"").trim().toLowerCase();
@@ -3639,7 +3710,7 @@ function openAddCustomer(){
     '<div class="field"><label>Customer Name *</label><input id="newCustomerName" style="padding-left:12px" required placeholder="Enter customer name"></div>'+
     '<div class="field"><label>Area *</label><select id="newCustomerArea" required style="padding-left:12px"></select><small class="add-customer-area-note">Area is assigned from the logged-in official Outlook account.</small></div>'+
     '<div class="field"><label>Governorate / Center *</label><select id="newCustomerGov" required style="padding-left:12px"><option value="">Select Governorate / Center</option></select></div>'+
-    '<div class="field"><label>Customer Type *</label><select id="newCustomerType" required style="padding-left:12px"><option value="">Select Type</option><option>Veterinarian</option><option>Pharmacist</option><option>Farm Owner</option><option>Farm Manager</option><option>Accountant / محاسب</option><option>Engineering Office</option><option>Distributor</option><option>Other</option></select></div>'+
+    '<div class="field"><label>Customer Type *</label><select id="newCustomerType" required style="padding-left:12px"><option value="">Select Type</option><option>صاحب مزرعة</option><option>طبيب بيطري</option><option>مشرف</option><option>مدير مزرعة</option><option>مهندس زراعي</option><option>فني مزرعة</option><option>مربي دواجن</option><option>موزع</option><option>محاسب</option><option disabled>──────── Previous Categories ────────</option><option>Veterinarian</option><option>Pharmacist</option><option>Farm Owner</option><option>Farm Manager</option><option>Accountant / محاسب</option><option>Engineering Office</option><option>Distributor</option><option>Other</option></select></div>'+
     '<div class="field"><label>Potentiality</label><select id="newCustomerPotential" style="padding-left:12px">'+DATA.potential.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select></div>'+
     '<div class="field"><label>Loyalty</label><select id="newCustomerLoyalty" style="padding-left:12px">'+DATA.loyalty.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select></div>'+
     '<button class="save" type="submit">＋ &nbsp; Add Customer</button>'+
@@ -4240,10 +4311,23 @@ function openAddPlannedVisit(date){
   $("modalBody").innerHTML='<div class="weekly-form-card">'+
     '<div class="field"><label>Date</label><input id="plannedDate" type="date" value="'+esc(date)+'" min="'+range.start+'" max="'+range.end+'" onchange="syncPlannedDay()"></div>'+
     '<div class="field"><label>Day</label><input id="plannedDay" class="weekly-day-readonly" readonly value="'+esc(weeklyDayName(date))+'"></div>'+
-    '<div class="field"><label>Customer Name *</label><select id="plannedCustomer" class="weekly-customer-select" onchange="syncPlannedAreaFromCustomer()"><option value="">Select Customer</option>'+weeklyCustomerOptions(defaultArea==='A00'?"":defaultArea)+'</select><div style="margin-top:7px"><button type="button" class="weekly-secondary" style="width:100%;padding:9px" onclick="togglePlannedNewCustomer()">＋ Add New Customer</button></div><div class="weekly-new-customer" id="plannedNewCustomer"><input id="plannedNewCustomerName" style="padding-left:12px" placeholder="Enter customer name"></div></div>'+
+    '<div class="field"><label>Choose Customer Option *</label><div class="weekly-choice-stack"><button class="weekly-choice weekly-choice-blue" type="button" onclick="showPlannedCustomerList()"><b>☷ &nbsp; Select Customer from List</b><small>Choose an existing customer from your database</small></button><button class="weekly-choice weekly-choice-green" type="button" onclick="startNewCustomerFromWeekly()"><b>＋ &nbsp; Add New Customer</b><small>Create a customer with complete profile details</small></button></div><div id="plannedCustomerBlock" hidden><label style="margin-top:12px">Select Existing Customer</label><select id="plannedCustomer" class="weekly-customer-select" onchange="syncPlannedAreaFromCustomer()"><option value="">Select Customer</option>'+weeklyCustomerOptions(defaultArea==='A00'?"":defaultArea)+'</select></div></div>'+
     '<div class="field"><label>Area</label><select id="plannedArea" '+((!admin&&ids.length<=1)?'disabled':'')+' onchange="syncPlannedCustomers()">'+weeklyAllowedAreaOptions(defaultArea)+'</select></div>'+
     '<div class="weekly-actions"><button type="button" class="weekly-secondary" onclick="renderWeeklyPlan(weeklyCurrentRange())">← Back</button><button type="button" class="weekly-primary" onclick="savePlannedVisit()">Save Planned Visit</button></div>'+
     '</div>';
+}
+let innovalWeeklyCustomerPending=null;
+function showPlannedCustomerList(){const block=$("plannedCustomerBlock");if(block)block.hidden=false;$("plannedCustomer")?.focus()}
+function startNewCustomerFromWeekly(){
+ innovalWeeklyCustomerPending={date:$("plannedDate")?.value||"",areaId:$("plannedArea")?.value||""};
+ openAddCustomer();
+ const destination=$("newCustomerDestination");if(destination){destination.value="both";destination.dispatchEvent(new Event('change'))}
+}
+function restoreWeeklyAfterCustomer(name){
+ if(!innovalWeeklyCustomerPending)return;
+ const ctx=innovalWeeklyCustomerPending;innovalWeeklyCustomerPending=null;
+ // Once the success overlay is dismissed, return to the user's planned date.
+ window.__innovalWeeklyReturn={date:ctx.date,name};
 }
 function syncPlannedDay(){const d=$("plannedDate")?.value||today();if($("plannedDay"))$("plannedDay").value=weeklyDayName(d)}
 function syncPlannedCustomers(){
@@ -4871,7 +4955,7 @@ function customerFormFields1947(prefix){
   return '<div class="field"><label>Customer Name *</label><input id="'+prefix+'Name" style="padding-left:12px" required></div>'+ 
     '<div class="field"><label>Area *</label><select id="'+prefix+'Area" required style="padding-left:12px"></select><small class="add-customer-area-note">Area is automatically tied to the logged-in official Outlook account.</small></div>'+ 
     '<div class="field"><label>Governorate / Center *</label><select id="'+prefix+'Gov" required style="padding-left:12px"></select></div>'+ 
-    '<div class="field"><label>Customer Type *</label><select id="'+prefix+'Type" required style="padding-left:12px"><option value="">Select Type</option><option>Veterinarian</option><option>Pharmacist</option><option>Farm Owner</option><option>Farm Manager</option><option>Accountant / محاسب</option><option>Engineering Office</option><option>Distributor</option><option>Other</option></select></div>'+ 
+    '<div class="field"><label>Customer Type *</label><select id="'+prefix+'Type" required style="padding-left:12px"><option value="">Select Type</option><option>صاحب مزرعة</option><option>طبيب بيطري</option><option>مشرف</option><option>مدير مزرعة</option><option>مهندس زراعي</option><option>فني مزرعة</option><option>مربي دواجن</option><option>موزع</option><option>محاسب</option><option disabled>──────── Previous Categories ────────</option><option>Veterinarian</option><option>Pharmacist</option><option>Farm Owner</option><option>Farm Manager</option><option>Accountant / محاسب</option><option>Engineering Office</option><option>Distributor</option><option>Other</option></select></div>'+ 
     '<div class="field"><label>Responsible</label><input id="'+prefix+'Responsible" style="padding-left:12px" placeholder="Enter Responsible"></div>'+ 
     '<div class="field"><label>Phone</label><input id="'+prefix+'Phone" type="tel" style="padding-left:12px" placeholder="Enter Phone"></div>'+ 
     '<div class="field"><label>Potentiality</label><select id="'+prefix+'Potential" style="padding-left:12px">'+DATA.potential.map(x=>'<option>'+esc(x)+'</option>').join('')+'</select></div>'+ 
@@ -4894,7 +4978,7 @@ function buildCustomer1947(prefix,original){
   return {customerId:dbKey(original)||('C'+Date.now()),name:$(prefix+'Name')?.value.trim()||'',gov:option?.dataset?.governorate||original?.gov||'',area:locEl?.value||'',areaId:$(prefix+'Area')?.value||'',type:$(prefix+'Type')?.value||'Other',potential:$(prefix+'Potential')?.value||'Medium',loyalty:$(prefix+'Loyalty')?.value||'Neutral',responsible:$(prefix+'Responsible')?.value.trim()||'',phone:$(prefix+'Phone')?.value.trim()||'',supervisor:'',tasmim:numDb1947($(prefix+'Tasmim')?.value),bayad:numDb1947($(prefix+'Bayad')?.value),omhat:numDb1947($(prefix+'Omhat')?.value),active:true,createdBy:original?.createdBy||p.rep,createdAt:original?.createdAt||today(),updatedAt:new Date().toISOString()};
 }
 function showCustomerSuccess(name,cloudOk){const m=$('customerSuccessModal');if(!m)return;$('customerSuccessName').textContent=name||'—';$('customerSuccessInfo').textContent=cloudOk?'Customer successfully added to your Customer List.':'Customer successfully added to your Customer List. Cloud sync is in progress.';m.classList.add('open');m.style.display='flex';m.style.zIndex='10000';m.setAttribute('aria-hidden','false');document.documentElement.classList.add('modal-locked');document.body.classList.add('modal-locked')}
-function closeCustomerSuccess(){const m=$('customerSuccessModal');if(m){m.classList.remove('open');m.style.display='';m.style.zIndex='';m.setAttribute('aria-hidden','true');const h=m.querySelector('h2');if(h)h.textContent='Customer Successfully Added'}unlockModalLayer()}
+function closeCustomerSuccess(){const m=$('customerSuccessModal');if(m){m.classList.remove('open');m.style.display='';m.style.zIndex='';m.setAttribute('aria-hidden','true');const h=m.querySelector('h2');if(h)h.textContent='Customer Successfully Added'}unlockModalLayer();if(window.__innovalWeeklyReturn){const c=window.__innovalWeeklyReturn;window.__innovalWeeklyReturn=null;openAddPlannedVisit(c.date);showPlannedCustomerList();syncPlannedCustomers();const sel=$("plannedCustomer");if(sel){const opt=Array.from(sel.options).find(o=>o.value===c.name);if(opt){sel.value=c.name;syncPlannedAreaFromCustomer()}else{const option=new Option(c.name,c.name);sel.add(option);sel.value=c.name}}}}
 function showCustomerUpdateSuccess1947(name,cloudOk){const m=$('customerSuccessModal');if(!m)return;const h=m.querySelector('h2');if(h)h.textContent='Data Updated Successfully';$('customerSuccessName').textContent=name||'—';$('customerSuccessInfo').textContent=cloudOk?'Customer data has been updated successfully and synced to Cloud.':'Customer data has been updated successfully. Cloud sync is in progress.';m.classList.add('open');m.style.display='flex';m.style.zIndex='10000';m.setAttribute('aria-hidden','false');document.documentElement.classList.add('modal-locked');document.body.classList.add('modal-locked')}
 async function saveCustomerRecord1947Base(e,mode,original){
   if(e?.preventDefault)e.preventDefault();
@@ -4962,7 +5046,7 @@ async function deleteDb1947(c){if(!confirm('Delete this customer from the active
 function openAreaDatabase(){
   $('modalTitle').textContent='Area Database';const modalClose=$('modal')?.querySelector('.modal-head .close');if(modalClose)modalClose.onclick=()=>closeModal();
   $('modalBody').innerHTML='<div class="customer-db-shell"><div class="customer-db-banner"><span class="customer-db-banner-icon">▦</span><div><b>Area Database</b><small>Master customer data • Update quarterly when required</small></div></div><div class="customer-toolbar"><input id="customerDbSearch" style="padding-left:12px" placeholder="Search customer"></div><div class="customer-db-head"><b>Area Database</b><span id="customerDbCount">0 customers</span></div><div id="customerDbResults"></div></div>';
-  const render=()=>{const q=String($('customerDbSearch')?.value||'').trim().toLowerCase(),cs=dbCustomers1947().filter(c=>!q||[c.name,c.area,c.gov,c.type,c.responsible,c.phone,c.potential,c.loyalty].some(v=>String(v||'').toLowerCase().includes(q)));if($('customerDbCount'))$('customerDbCount').textContent=cs.length+' customer'+(cs.length===1?'':'s');window.__customerDbResults=cs;if($('customerDbResults'))$('customerDbResults').innerHTML=cs.length?cs.map((c,i)=>'<div class="customer-db-row" onclick="openCustomerDatabaseRecord1947(window.__customerDbResults['+i+'])"><div class="customer-db-main"><b>'+esc(c.name||'Unnamed Customer')+'</b><small>'+esc(c.area||'—')+' • '+esc(c.gov||'—')+'</small><small>'+esc(c.responsible||'—')+' · تسمين: '+esc(numDb1947(c.tasmim))+' · بياض: '+esc(numDb1947(c.bayad))+' · أمهات: '+esc(numDb1947(c.omhat))+'</small></div><div class="customer-db-row-actions"><button type="button" class="customer-db-action" title="Update" onclick="event.stopPropagation();updateDb1947(window.__customerDbResults['+i+'])">✎</button><button type="button" class="customer-db-action delete" title="Delete" onclick="event.stopPropagation();deleteDb1947(window.__customerDbResults['+i+'])">×</button><span class="customer-db-arrow">›</span></div></div>').join(''):'<div class="customer-db-empty">No customers found.</div>'};
+  const render=()=>{const q=String($('customerDbSearch')?.value||'').trim().toLowerCase(),cs=dbCustomers1947().filter(c=>!q||[c.name,c.area,c.gov,c.type,c.responsible,c.phone,c.potential,c.loyalty].some(v=>String(v||'').toLowerCase().includes(q)));if($('customerDbCount'))$('customerDbCount').textContent=cs.length+' customer'+(cs.length===1?'':'s');window.__customerDbResults=cs;if($('customerDbResults'))$('customerDbResults').innerHTML=cs.length?cs.map((c,i)=>'<div class="customer-db-row" onclick="openCustomerDatabaseRecord1947(window.__customerDbResults['+i+'])"><div class="customer-db-main"><b>'+esc(c.name||'Unnamed Customer')+'</b><small>'+esc(c.area||'—')+' • '+esc(c.gov||'—')+'</small><small>'+esc(c.responsible||'—')+' • تسمين: '+esc(numDb1947(c.tasmim))+' • بياض: '+esc(numDb1947(c.bayad))+' • أمهات: '+esc(numDb1947(c.omhat))+'</small></div><div class="customer-db-row-actions"><button type="button" class="customer-db-action" title="Update" onclick="event.stopPropagation();updateDb1947(window.__customerDbResults['+i+'])">✎</button><button type="button" class="customer-db-action delete" title="Delete" onclick="event.stopPropagation();deleteDb1947(window.__customerDbResults['+i+'])">×</button><span class="customer-db-arrow">›</span></div></div>').join(''):'<div class="customer-db-empty">No customers found.</div>'};
   $('customerDbSearch').addEventListener('input',render);render();openModalLayer('modal');pullDb1947().then(()=>{if($('customerDbResults'))render()});
 }
 async function pullDb1947(){
@@ -4977,9 +5061,9 @@ async function pullDb1947(){
 }
 function openCustomerDatabaseRecord1947(c){
   if(!c)return;const x=customerDetails1947(c),vd=visits().filter(v=>v.customer===x.name).sort((a,b)=>String(b.date).localeCompare(String(a.date))),last=vd[0]||null;const modalClose=$('modal')?.querySelector('.modal-head .close');if(modalClose)modalClose.onclick=()=>openAreaDatabase();$('modalTitle').textContent='Area Database';
-  $('modalBody').innerHTML='<div class="customer-db-detail-wrap"><div class="customer-db-detail-head"><h3>'+esc(x.name||'Unnamed Customer')+'</h3><p>'+esc(x.area||'—')+' • '+esc(x.gov||'—')+'</p></div><div class="customer-db-section">CUSTOMER INFORMATION</div><div class="customer-db-grid"><div class="customer-db-item"><span>Customer Type</span><b>'+esc(x.type||'—')+'</b></div><div class="customer-db-item"><span>Area</span><b>'+esc(x.area||'—')+'</b></div><div class="customer-db-item"><span>Governorate / Center</span><b>'+esc(x.gov||'—')+'</b></div><div class="customer-db-item"><span>Responsible</span><b>'+esc(x.responsible||'—')+'</b></div><div class="customer-db-item"><span>Phone</span><b>'+esc(x.phone||'—')+'</b></div><div class="customer-db-item"><span>Potentiality</span><b>'+esc(x.potential||'—')+'</b></div><div class="customer-db-item"><span>Loyalty</span><b>'+esc(x.loyalty||'—')+'</b></div></div><div class="customer-db-section">FARM / BUSINESS DATA</div><div class="customer-db-grid"><div class="customer-db-item"><span>تسمين</span><b>'+esc(numDb1947(x.tasmim))+'</b></div><div class="customer-db-item"><span>بياض</span><b>'+esc(numDb1947(x.bayad))+'</b></div><div class="customer-db-item"><span>أمهات</span><b>'+esc(numDb1947(x.omhat))+'</b></div></div><div class="customer-db-section">ACTIVITY</div><div class="customer-db-grid"><div class="customer-db-item"><span>Total Visits</span><b>'+vd.length+'</b></div><div class="customer-db-item"><span>Last Visit</span><b>'+esc(last?formatDate(last.date):'—')+'</b></div><div class="customer-db-item full"><span>Last Objective</span><b>'+esc(last?last.objective:'—')+'</b></div></div></div>';
+  $('modalBody').innerHTML='<div class="customer-db-detail-wrap"><div class="customer-db-detail-head"><h3>'+esc(x.name||'Unnamed Customer')+'</h3><p>'+esc(x.area||'—')+' • '+esc(x.gov||'—')+'</p></div><div class="customer-db-section">CUSTOMER INFORMATION</div><div class="customer-db-grid"><div class="customer-db-item"><span>Customer Type</span><b>'+esc(x.type||'—')+'</b></div><div class="customer-db-item"><span>Area</span><b>'+esc(x.area||'—')+'</b></div><div class="customer-db-item"><span>Governorate / Center</span><b>'+esc(x.area||'—')+'</b></div><div class="customer-db-item"><span>Responsible</span><b>'+esc(x.responsible||'—')+'</b></div><div class="customer-db-item"><span>Phone</span><b>'+esc(x.phone||'—')+'</b></div><div class="customer-db-item"><span>Potentiality</span><b>'+esc(x.potential||'—')+'</b></div><div class="customer-db-item"><span>Loyalty</span><b>'+esc(x.loyalty||'—')+'</b></div></div><div class="customer-db-section">FARM / BUSINESS DATA</div><div class="customer-db-grid"><div class="customer-db-item"><span>تسمين</span><b>'+esc(numDb1947(x.tasmim))+'</b></div><div class="customer-db-item"><span>بياض</span><b>'+esc(numDb1947(x.bayad))+'</b></div><div class="customer-db-item"><span>أمهات</span><b>'+esc(numDb1947(x.omhat))+'</b></div></div><div class="customer-db-section">ACTIVITY</div><div class="customer-db-grid"><div class="customer-db-item"><span>Total Visits</span><b>'+vd.length+'</b></div><div class="customer-db-item"><span>Last Visit</span><b>'+esc(last?formatDate(last.date):'—')+'</b></div><div class="customer-db-item full"><span>Last Objective</span><b>'+esc(last?last.objective:'—')+'</b></div></div></div>';
 }
-function openCustomerCard(index){const cs=window.__customerCardResults||customerListData(),c=cs[index];if(!c)return;const x=customerDetails1947(c),vd=visits().filter(v=>v.customer===x.name).sort((a,b)=>String(b.date).localeCompare(String(a.date))),last=vd[0]||null;const modalClose=$('modal')?.querySelector('.modal-head .close');if(modalClose)modalClose.onclick=()=>openCustomerCards();$('modalTitle').textContent='Customer Profile';$('modalBody').innerHTML='<div class="customer-db-detail-wrap"><div class="customer-db-detail-head"><h3>'+esc(x.name||'Unnamed Customer')+'</h3><p>'+esc(x.area||'—')+' • '+esc(x.gov||'—')+'</p></div><div class="customer-db-grid"><div class="customer-db-item"><span>Customer Type</span><b>'+esc(x.type||'—')+'</b></div><div class="customer-db-item"><span>Area</span><b>'+esc(x.area||'—')+'</b></div><div class="customer-db-item"><span>Governorate / Center</span><b>'+esc(x.gov||'—')+'</b></div><div class="customer-db-item"><span>Responsible</span><b>'+esc(x.responsible||'—')+'</b></div><div class="customer-db-item"><span>Phone</span><b>'+esc(x.phone||'—')+'</b></div><div class="customer-db-item"><span>Potentiality</span><b>'+esc(x.potential||'—')+'</b></div><div class="customer-db-item"><span>Loyalty</span><b>'+esc(x.loyalty||'—')+'</b></div><div class="customer-db-item"><span>تسمين</span><b>'+esc(numDb1947(x.tasmim))+'</b></div><div class="customer-db-item"><span>بياض</span><b>'+esc(numDb1947(x.bayad))+'</b></div><div class="customer-db-item"><span>أمهات</span><b>'+esc(numDb1947(x.omhat))+'</b></div><div class="customer-db-item"><span>Total Visits</span><b>'+vd.length+'</b></div><div class="customer-db-item"><span>Last Visit</span><b>'+esc(last?formatDate(last.date):'—')+'</b></div></div></div>';window.__dbCurrentCustomer=x}
+function openCustomerCard(index){const cs=window.__customerCardResults||customerListData(),c=cs[index];if(!c)return;const x=customerDetails1947(c),vd=visits().filter(v=>v.customer===x.name).sort((a,b)=>String(b.date).localeCompare(String(a.date))),last=vd[0]||null;const modalClose=$('modal')?.querySelector('.modal-head .close');if(modalClose)modalClose.onclick=()=>openCustomerCards();$('modalTitle').textContent='Customer Profile';$('modalBody').innerHTML='<div class="customer-db-detail-wrap"><div class="customer-db-detail-head"><h3>'+esc(x.name||'Unnamed Customer')+'</h3><p>'+esc(x.area||'—')+' • '+esc(x.gov||'—')+'</p></div><div class="customer-db-grid"><div class="customer-db-item"><span>Customer Type</span><b>'+esc(x.type||'—')+'</b></div><div class="customer-db-item"><span>Area</span><b>'+esc(x.area||'—')+'</b></div><div class="customer-db-item"><span>Governorate / Center</span><b>'+esc(x.area||'—')+'</b></div><div class="customer-db-item"><span>Responsible</span><b>'+esc(x.responsible||'—')+'</b></div><div class="customer-db-item"><span>Phone</span><b>'+esc(x.phone||'—')+'</b></div><div class="customer-db-item"><span>Potentiality</span><b>'+esc(x.potential||'—')+'</b></div><div class="customer-db-item"><span>Loyalty</span><b>'+esc(x.loyalty||'—')+'</b></div><div class="customer-db-item"><span>تسمين</span><b>'+esc(numDb1947(x.tasmim))+'</b></div><div class="customer-db-item"><span>بياض</span><b>'+esc(numDb1947(x.bayad))+'</b></div><div class="customer-db-item"><span>أمهات</span><b>'+esc(numDb1947(x.omhat))+'</b></div><div class="customer-db-item"><span>Total Visits</span><b>'+vd.length+'</b></div><div class="customer-db-item"><span>Last Visit</span><b>'+esc(last?formatDate(last.date):'—')+'</b></div></div></div>';window.__dbCurrentCustomer=x}
 
 
 /* ===== CUSTOMER DESTINATION + DUPLICATE-AWARE APPROVAL FIX ===== */
@@ -5076,6 +5160,7 @@ async function saveCustomerRecord1947(e,mode,original){
   closeModal();
   const parts=[];if(addedList)parts.push('Customer List');if(addedDb)parts.push('Area Database');
   const msg=parts.length?'Customer successfully added to '+parts.join(' and ')+'.':'Customer already exists in the selected destination.';
+  restoreWeeklyAfterCustomer(customer.name);
   showCustomerSuccess(customer.name,false);const info=$('customerSuccessInfo');if(info)info.textContent=msg;
   if(addedDb||destination==='both'){
     const dbRecord=findByName1947(dbCustomers1947(),name)||customer;
