@@ -476,6 +476,11 @@ html,body{min-height:100%;background:var(--bg)}
 .dashboard-role-intro{font-size:12px;color:#60728c;padding:7px 0 10px}
 #dayActivityDuration:disabled{background:#ecf3fa!important;color:#274d76!important;opacity:1}
 
+
+/* v1.9.82 – Only Unified Send Reports: dates side-by-side on mobile */
+.unified-report-date-row { display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:10px!important;width:100%; }
+.unified-report-date-row .field { min-width:0!important;width:100%; }
+.unified-report-date-row input[type="date"] { display:block;box-sizing:border-box;width:100%!important;min-width:0!important;max-width:100%;padding-left:8px!important;padding-right:6px!important;font-size:clamp(12px,3.1vw,15px); }
 </style>
 <style id="v140-professional-overrides">
 /* ===== v1.4.0 Enterprise Home ===== */
@@ -1655,6 +1660,9 @@ function openDailyActivityChooser(){
   </div>
 </div>
 
+<div class="visit-section vs-blue attendance-final"><div class="visit-section-head"><div><span>STEP 03</span><h3>Visit Attendance</h3><p>Choose Single or Double and select participating colleagues.</p></div></div><div class="section-grid">    <div class="field full"><label>Visit Attendance</label><div class="input"><select id="visitAttendance" onchange="toggleJointVisit()"><option value="single">Single Visit — زيارة فردية</option><option value="joint">Double / Joint Visit — زيارة مشتركة</option></select></div></div>
+    <div class="field full" id="jointVisitMembers" style="display:none"><label>Select Innoval Colleagues</label><input id="jointVisitSearch" type="search" placeholder="Search colleague name..." oninput="filterJointColleagues()" style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px"><div id="jointVisitOptions" style="max-height:220px;overflow:auto;padding:8px"></div><small>Choose at least one colleague. Your own account is included automatically.</small></div></div></div>
+
 <div class="visit-section vs-purple">
   <div class="visit-section-head"><div class="section-art art-target">◎</div><div><span>STEP 03</span><h3>Visit Objective</h3><p>Capture the purpose and direction of the visit.</p></div></div>
   <div class="section-grid">
@@ -1699,8 +1707,6 @@ function openDailyActivityChooser(){
 </div>
 </div>
 
-<div class="visit-section vs-blue attendance-final"><div class="visit-section-head"><div><span>FINAL STEP</span><h3>Visit Attendance</h3><p>Select Single or Double before saving.</p></div></div><div class="section-grid">    <div class="field full"><label>Visit Attendance</label><div class="input"><select id="visitAttendance" onchange="toggleJointVisit()"><option value="single">Single Visit — زيارة فردية</option><option value="joint">Double / Joint Visit — زيارة مشتركة</option></select></div></div>
-    <div class="field full" id="jointVisitMembers" style="display:none"><label>Select Innoval Colleagues</label><input id="jointVisitSearch" type="search" placeholder="Search colleague name..." oninput="filterJointColleagues()" style="width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px"><div id="jointVisitOptions" style="max-height:220px;overflow:auto;padding:8px"></div><small>Choose at least one colleague. Your own account is included automatically.</small></div></div></div>
 <button class="save visit-save" type="submit"><span class="save-icon">✓</span><span><b>Save Visit</b><small>Submit this field visit</small></span><span class="save-arrow">→</span></button>
 </form></section></main></div>
 <nav class="bottom" id="bottomNav" style="grid-template-columns:repeat(4,1fr)">
@@ -1861,7 +1867,7 @@ function openDailyActivityChooser(){
 
 <div class="modal daily-report-modal" id="dailyReportModal" onclick="if(event.target===this)closeDailyReport()"><div class="modal-box unified-reports-box"><div class="modal-head"><h3>📊 Send Reports</h3><button class="close" type="button" onclick="closeDailyReport()" aria-label="Close">✕</button></div>
 <p class="settings-note">Select a date range, one or more reports and your official Outlook recipients.</p>
-<div class="export-grid"><div class="field"><label>From</label><input id="dailyReportFrom" class="date-input" type="date" onchange="updateDailyReportCount()"></div><div class="field"><label>To</label><input id="dailyReportTo" class="date-input" type="date" onchange="updateDailyReportCount()"></div></div>
+<div class="export-grid unified-report-date-row"><div class="field"><label>From</label><input id="dailyReportFrom" class="date-input" type="date" onchange="updateDailyReportCount()"></div><div class="field"><label>To</label><input id="dailyReportTo" class="date-input" type="date" onchange="updateDailyReportCount()"></div></div>
 <div class="quick-title">Quick Range</div><div class="unified-range"><button type="button" onclick="setDailyReportRange('week')">This Week</button><button type="button" onclick="setDailyReportRange('lastweek')">Last Week</button><button type="button" onclick="setDailyReportRange('month')">This Month</button></div>
 <div class="sendto-label">Select Reports</div><details class="manager-dropdown unified-report-dropdown" id="unifiedReportsDropdown"><summary><span id="unifiedReportSummary">3 reports selected</span></summary><div class="manager-dropdown-panel unified-report-options">
 <label><input class="unified-report-check" type="checkbox" value="visits" checked onchange="updateUnifiedReportSummary()"><span><b>Visits Report</b><small>Recorded field visits during this period</small></span></label>
@@ -2456,7 +2462,7 @@ async function cloudPullProfileData(p){
     if(localTime>cloudTime) return false;
     const merged={
       employeeId:String(data.employee_id||""),
-      fullName:String(data.full_name||p.rep||""),
+      fullName:String(p.rep||""),
       mobile:String(data.mobile||""),
       jobTitle:String(data.job_title||""),
       experience:String(data.experience||""),
@@ -3550,15 +3556,28 @@ function openDashboard(){
 function openCustomerCards(title){
   $("modalTitle").textContent=title||"Customer List";
   $("modalBody").innerHTML=
-    '<div class="customer-toolbar"><input id="customerSearch" style="padding-left:12px" placeholder="Search customer, area or governorate"></div>'+
+    '<div class="customer-toolbar"><div class="field" style="margin-bottom:9px"><label>Assigned Area</label><select id="customerAreaFilter" style="width:100%;padding:12px;border:1px solid #d6e2f4;border-radius:12px;background:white"></select></div><input id="customerSearch" style="padding-left:12px" placeholder="Search customer, account or governorate"></div>'+
     '<div class="customer-list-head"><b>Customer List</b><span id="customerListCount">0 customers</span></div>'+
     '<div id="customerResults"></div>';
+  const allowedNames={A01:['behira','beheira'],A02:['dakahlia','dakahliya'],A03:['gharbia'],A04:['menofia','menoufia'],A05:['sharkia','sharqiya'],A06:['ue','upper egypt'],A07:['fayoum'],A08:['cairo']};
+  const me=profile();
+  const isAdmin=String(me.id)==='U000';
+  const allowedIds=isAdmin?Object.keys(allowedNames):(me.areaIds||[]).filter(id=>allowedNames[id]);
+  const areaSelect=$("customerAreaFilter");
+  areaSelect.innerHTML='<option value="all">All Assigned Areas</option>'+allowedIds.map(id=>'<option value="'+id+'">'+({A01:'Beheira',A02:'Dakahliya',A03:'Gharbia',A04:'Menoufia',A05:'Sharqiya',A06:'Upper Egypt',A07:'Fayoum',A08:'Cairo'}[id])+'</option>').join('');
+  if(allowedIds.length===1){areaSelect.value=allowedIds[0];areaSelect.disabled=true;}
   const render=()=>{
     const q=String($("customerSearch").value||"").trim().toLowerCase();
-    const cs=customerListData().filter(c=>!q ||
+    const selected=areaSelect.value;
+    const cs=customerListData().filter(c=>{
+      const cArea=String(c.area||'').trim().toLowerCase();
+      const cAreaId=String(c.area_id||c.areaId||'').toUpperCase();
+      const matches=id=>id===cAreaId||(allowedNames[id]||[]).includes(cArea);
+      return (selected==='all'?allowedIds.some(matches):matches(selected)) && (!q ||
       String(c.name||"").toLowerCase().includes(q) ||
       String(c.area||"").toLowerCase().includes(q) ||
-      String(c.gov||"").toLowerCase().includes(q));
+      String(c.gov||"").toLowerCase().includes(q) || String(c.customer_id||c.id||'').toLowerCase().includes(q));
+    });
     $("customerListCount").textContent=cs.length+" customer"+(cs.length===1?"":"s");
     $("customerResults").innerHTML=cs.length?cs.map((c,i)=>{
       const vd=visits().filter(v=>v.customer===c.name);
@@ -3580,6 +3599,7 @@ function openCustomerCards(title){
     window.__customerCardResults=cs;
   };
   $("customerSearch").addEventListener("input",render);
+  areaSelect.addEventListener("change",render);
   render();
   openModalLayer("modal");
 }
@@ -4219,12 +4239,12 @@ function openSettings(){
           '<button type="button" class="cancel" onclick="closeProfileModalPhotoActions()"><span>✕</span><b>Cancel</b></button>'+
         '</div>'+
       '</div>'+
-      '<div><b>'+esc(stored.fullName||p.rep||"User")+'</b><small>My Profile • '+esc(p.role||"Field Team")+'</small><div class="profile-photo-caption">Tap + to manage your profile photo</div></div>'+
+      '<div><b>'+esc(p.rep||"User")+'</b><small>My Profile • '+esc(p.role||"Field Team")+'</small><div class="profile-photo-caption">Tap + to manage your profile photo</div></div>'+
     '</div>'+
     '<div class="profile-section-title">Personal Information</div>'+
     '<p class="profile-note">Keep your personal profile information up to date.</p>'+
     '<div class="profile-form-grid">'+
-      '<div class="field"><label>Full Name</label><input id="profileFullName" style="padding-left:12px" value="'+esc(stored.fullName||p.rep||"")+'" placeholder="Full name"></div>'+
+      '<div class="field"><label>Full Name</label><input id="profileFullName" style="padding-left:12px" value="'+esc(p.rep||"")+'" readonly placeholder="Official full name"></div>'+
       '<div class="field"><label>Mobile Number</label><input id="profileMobile" type="tel" inputmode="tel" style="padding-left:12px" value="'+esc(stored.mobile||"")+'" placeholder="Mobile number"></div>'+
       '<div class="field"><label>Job Title</label><input id="profileJob" style="padding-left:12px" value="'+esc(stored.jobTitle||"")+'" placeholder="e.g. Medical Rep / Territory Manager"></div>'+
       '<div class="field"><label>Experience</label><input id="profileExperience" style="padding-left:12px" value="'+esc(stored.experience||"")+'" placeholder="e.g. 5 years"></div>'+
@@ -4244,7 +4264,7 @@ function saveProfileData(){
   const p=profile();
   const profileData={
     employeeId:$("profileEmployeeId")?.value.trim()||"",
-    fullName:$("profileFullName")?.value.trim()||p.rep,
+    fullName:p.rep,
     mobile:$("profileMobile")?.value.trim()||"",
     jobTitle:$("profileJob")?.value.trim()||"",
     experience:$("profileExperience")?.value.trim()||"",
